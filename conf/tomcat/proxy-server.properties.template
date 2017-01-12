@@ -1,0 +1,52 @@
+# Proxy Server properties
+#########################
+metadata.server.url={{metadata_rest_url}}/rest/metadata
+# These session time-to-live values are in minutes
+sessions.cache.active.ttl={{proxy_active_sessions_ttl_min}}
+sessions.cache.failed.ttl={{proxy_failed_sessions_ttl_min}}
+# -----------------------------------------------
+# NOTE! These values MUST match to what Proxy and SP are using
+# since these two shared values define the phase ID HMAC calculation!
+phase.id.shared.secret={{phase_id_shared_secret}}
+phase.id.time.interval={{phase_id_time_interval}}
+phase.id.time.built.interval={{phase_id_time_built_interval}}
+phase.id.algorithm=HmacSHA256
+phase.id.step.one={{phase_id_step_one}}
+phase.id.step.two={{phase_id_step_two}}
+phase.id.step.three={{phase_id_step_three}}
+phase.id.step.four={{phase_id_step_four}}
+phase.id.step.five={{phase_id_step_five}}
+# -----------------------------------------------
+# This defines the identifier received from SP build session
+identifier.key=REMOTE_USER
+# This key is the one that is used to indicate the real identity provider
+# to Idp session attributes, this is only used between Proxy and IdP
+saml.auth.provider.key=samlAuthenticationProvider
+# to Idp session attributes, these are only used between Proxy and IdP
+saml.vtj.required.key=samlVtjRequired
+saml.vtj.verified.key=samlVtjVerified
+saml.vtj.invalid.key=samlVtjInvalid
+# National id key
+saml.national.id.key=samlNationalIdentificationNumber
+# Legacy session data has fixed version key and value
+legacy.version.key=legacyVersion
+legacy.version.value=katso-1.1
+# -----------------------------------------------
+# Configs related to X-Road connection
+xroad.username={{xroad_username}}
+xroad.password={{xroad_password}}
+xroad.soso.name={{xroad_soso_name}}
+xroad.secure.server.url={{xroad_secure_server_url}}
+xroad.service.uri={{xroad_service_uri}}
+xroad.user.id={{xroad_user_id}}
+xroad.consumer.id={{xroad_consumer_id}}
+xroad.producer.id={{xroad_producer_id}}
+#-------------------------------------------------
+#Configs related to vtj client
+vtj.client.url={{vtj_client_url}}/vtj/person
+
+#dummy data for non vtj users
+vtj.client.dummydata={{vtj_client_dummydata}}
+
+#Delimiter string used to transfer SATU and issuer DN from HST-IdP to proxy
+satu.issuer.delimiter={{ satu_issuer_delimiter }}

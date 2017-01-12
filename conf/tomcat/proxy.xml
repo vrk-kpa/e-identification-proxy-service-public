@@ -1,0 +1,6 @@
+<!-- TOMCAT_HOME/conf/Catalina/localhost/proxy.xml -->
+<Context docBase="/opt/proxy-server/kapa-proxy-server.war"
+         privileged="true"
+         antiResourceLocking="false"
+         unpackWAR="true"
+         swallowOutput="true" />

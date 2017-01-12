@@ -1,0 +1,94 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+
+    The MIT License
+    Copyright (c) 2015 Population Register Centre
+
+    Permission is hereby granted, free of charge, to any person obtaining a copy
+    of this software and associated documentation files (the "Software"), to deal
+    in the Software without restriction, including without limitation the rights
+    to use, copy, modify, merge, publish, distribute, sublicense, and/or sell
+    copies of the Software, and to permit persons to whom the Software is
+    furnished to do so, subject to the following conditions:
+
+    The above copyright notice and this permission notice shall be included in
+    all copies or substantial portions of the Software.
+
+    THE SOFTWARE IS PROVIDED "AS IS", WITHOUT WARRANTY OF ANY KIND, EXPRESS OR
+    IMPLIED, INCLUDING BUT NOT LIMITED TO THE WARRANTIES OF MERCHANTABILITY,
+    FITNESS FOR A PARTICULAR PURPOSE AND NONINFRINGEMENT. IN NO EVENT SHALL THE
+    AUTHORS OR COPYRIGHT HOLDERS BE LIABLE FOR ANY CLAIM, DAMAGES OR OTHER
+    LIABILITY, WHETHER IN AN ACTION OF CONTRACT, TORT OR OTHERWISE, ARISING FROM,
+    OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
+    THE SOFTWARE.
+
+-->
+<beans xmlns="http://www.springframework.org/schema/beans"
+        xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:context="http://www.springframework.org/schema/context"
+        xmlns:util="http://www.springframework.org/schema/util"
+        xsi:schemaLocation="
+        http://www.springframework.org/schema/beans http://www.springframework.org/schema/beans/spring-beans.xsd
+        http://www.springframework.org/schema/context
+        http://www.springframework.org/schema/context/spring-context.xsd
+        http://www.springframework.org/schema/util http://www.springframework.org/schema/util/spring-util.xsd
+    ">
+
+    <context:component-scan base-package="fi.vm.kapa.identification.proxy.background" />
+    <context:component-scan base-package="fi.vm.kapa.identification.proxy.service" />
+    <context:component-scan base-package="fi.vm.kapa.identification.proxy.session" />
+    <context:component-scan base-package="fi.vm.kapa.identification.proxy.metadata" />
+    <context:component-scan base-package="fi.vm.kapa.identification.proxy.config" />
+    <context:component-scan base-package="fi.vm.kapa.identification.proxy.rest" />
+    <context:component-scan base-package="fi.vm.kapa.identification.proxy.utils" />
+    <context:component-scan base-package="fi.vm.kapa.identification.proxy.vtj" />
+    <context:component-scan base-package="fi.vm.kapa.identification.proxy.person" />
+    <context:annotation-config />
+    <context:property-placeholder properties-ref="defaultProps"/>
+
+    <bean id="defaultProps" class="org.springframework.beans.factory.config.PropertiesFactoryBean">
+        <property name="properties">
+            <util:properties local-override="true">
+                <prop key="metadata.server.url">none</prop>
+                <prop key="identifier.key">REMOTE_USER</prop>
+                <prop key="saml.auth.provider.key">provider</prop>
+                <prop key="saml.vtj.required.key">vtjRequired</prop>
+                <prop key="saml.vtj.verified.key">vtjVerified</prop>
+                <prop key="saml.vtj.invalid.key">vtjInvalid</prop>
+                <prop key="saml.national.id.key">samlNationalIdentificationNumber</prop>
+                <prop key="legacy.version.key">version</prop>
+                <prop key="legacy.version.value">legacyvalue</prop>
+                <prop key="phase.id.shared.secret">sharedsecret</prop>
+                <prop key="phase.id.time.interval">20</prop>
+                <prop key="phase.id.time.built.interval">5</prop>
+                <prop key="phase.id.algorithm">HmacSHA256</prop>
+                <prop key="phase.id.step.one">1</prop>
+                <prop key="phase.id.step.two">2</prop>
+                <prop key="phase.id.step.three">3</prop>
+                <prop key="phase.id.step.four">4</prop>
+                <prop key="phase.id.step.five">5</prop>
+                <prop key="sessions.cache.active.ttl">40</prop>
+                <prop key="sessions.cache.failed.ttl">10</prop>
+                <prop key="xroad.username">none</prop>
+                <prop key="xroad.password">none</prop>
+                <prop key="xroad.soso.name">none</prop>
+                <prop key="xroad.secure.server.url">none</prop>
+                <prop key="xroad.service.uri">none</prop>
+                <prop key="xroad.user.id">none</prop>
+                <prop key="xroad.consumer.id">none</prop>
+                <prop key="xroad.producer.id">none</prop>
+                <prop key="vtj.client.url">none</prop>
+                <prop key="vtj.client.dummydata">true</prop>
+                <prop key="vtj.client.dummy.cn">none</prop>
+                <prop key="vtj.client.dummy.gn">none</prop>
+                <prop key="vtj.client.dummy.sn">none</prop>
+                <prop key="vtj.client.dummy.displayname">none</prop>
+                <prop key="vtj.client.dummy.mail">none</prop>
+                <prop key="vtj.client.dummy.nationalIdentificationNumber">none</prop>
+                <prop key="vtj.client.dummy.electronicIdentificatioNumber">none</prop>
+                <prop key="vtj.client.dummy.authenticationProvider">none</prop>
+                <prop key="satu.issuer.delimiter">E_ID_VRK</prop>
+            </util:properties>
+        </property>
+    </bean>
+
+</beans>

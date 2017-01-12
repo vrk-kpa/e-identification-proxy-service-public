@@ -1,0 +1,1 @@
+mvn clean org.jacoco:jacoco-maven-plugin:prepare-agent install -Dmaven.test.failure.ignore=true sonar:sonar -DskipTests=false -Dsonar.language=java -Dsonar.exclusions='file:**/XRoadMockVtjData.java,**/DummyData.java' -Dsonar.host.url=http://localhost:11000
