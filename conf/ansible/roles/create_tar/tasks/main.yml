@@ -1,0 +1,23 @@
+- name: Copy Proxy Server properties
+  template: src={{ tempdir }}/proxy-server.properties.template dest={{ tempdir }}/filled/proxy-server.properties
+  delegate_to: localhost
+
+- name: Copy tomcat server.xml
+  template: src={{ tempdir }}/server.xml.template dest={{ tempdir }}/filled/server.xml
+  delegate_to: localhost
+
+- name: Copy proxy-setenv.sh
+  template: src={{ tempdir }}/proxy-setenv.sh.template dest={{ tempdir }}/filled/proxy-setenv.sh
+  delegate_to: localhost
+
+- name: Copy log4j.properties
+  template: src={{ tempdir }}/log4j.properties.template dest={{ tempdir }}/filled/log4j.properties
+  delegate_to: localhost
+
+- name: Copy Proxy server specific keystore
+  local_action: copy src={{ conf_root }}/certs/{{ host }}/tomcat_keystore dest={{ tempdir }}/filled/tomcat_keystore
+
+
+- name: Create filled template tar
+  local_action: shell tar -C {{ tempdir }}/filled/ -zvcf {{ tempdir }}/filled_templates.tgz .
+  delegate_to: localhost
