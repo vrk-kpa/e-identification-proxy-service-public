@@ -105,6 +105,7 @@ public class SessionHandlingServiceAttibutesTest {
     private final AuthenticationProvider tupasAuthenticationProvider = new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", AuthMethod.TUPAS, "AUTH_PROVIDER_CONTEXT_URL", "DB_ENTITY_AUTH_CONTEXT_URL");
     private final AuthenticationProvider katsoAuthenticationProvider = new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", AuthMethod.KATSOPWD, "AUTH_PROVIDER_CONTEXT_URL", "DB_ENTITY_AUTH_CONTEXT_URL");
     private final AuthenticationProvider mobiiliAuthenticationProvider = new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", AuthMethod.MOBIILI, "AUTH_PROVIDER_CONTEXT_URL", "DB_ENTITY_AUTH_CONTEXT_URL");
+    private final AuthenticationProvider eidasTestiAuthenticationProvider = new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", AuthMethod.EIDAS1, "AUTH_PROVIDER_CONTEXT_URL", "DB_ENTITY_AUTH_CONTEXT_URL");
 
     @Before
     public void setUp() throws Exception {
@@ -257,6 +258,7 @@ public class SessionHandlingServiceAttibutesTest {
         expected.put("samlForeignLocalityAndState", "VTJ_FOREIGN_LOCALITY_AND_STATE_S");
         expected.put("samlForeignLocalityAndStateClearText", "VTJ_FOREIGN_LOCALITY_AND_STATE_CLEARTEXT");
         expected.put("samlMail", "VTJ_EMAIL");
+        expected.put("samlProtectionOrder", "0");
         assertThat(attributeMap.entrySet(), equalTo(expected.entrySet()));
     }
 
@@ -312,6 +314,7 @@ public class SessionHandlingServiceAttibutesTest {
         expected.put("samlForeignLocalityAndState", "VTJ_FOREIGN_LOCALITY_AND_STATE_S");
         expected.put("samlForeignLocalityAndStateClearText", "VTJ_FOREIGN_LOCALITY_AND_STATE_CLEARTEXT");
         expected.put("samlMail", "VTJ_EMAIL");
+        expected.put("samlProtectionOrder", "0");
         assertThat(attributeMap.entrySet(), equalTo(expected.entrySet()));
     }
 
@@ -448,6 +451,7 @@ public class SessionHandlingServiceAttibutesTest {
         expected.put("samlForeignLocalityAndStateClearText", "VTJ_FOREIGN_LOCALITY_AND_STATE_CLEARTEXT");
         expected.put("samlMail", "VTJ_EMAIL");
         expected.put("samlMobile", "SP_MOBILE");
+        expected.put("samlProtectionOrder", "0");
         assertThat(attributeMap.entrySet(), equalTo(expected.entrySet()));
     }
 
@@ -494,6 +498,60 @@ public class SessionHandlingServiceAttibutesTest {
         assertThat(attributeMap.entrySet(), equalTo(expected.entrySet()));
     }
 
+
+    @Test
+    public void createFullSessionEidasTesti() throws Exception {
+        String relyingPartyId = "relyingParty";
+
+        // set metadata
+        AuthMethod authMethod = AuthMethod.EIDAS1;
+        when(metadataService.getAuthenticationProvider("AUTH_PROVIDER_CONTEXT_URL")).thenReturn(eidasTestiAuthenticationProvider);
+        ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "LOA", authMethod.name(), SessionProfile.VETUMA_SAML2, false);
+        when(metadataService.getRelyingParty(anyString())).thenReturn(serviceProvider);
+
+        // SP session data
+        Map<String,String> sessionData = getEidasTestiSessionData(Identifier.Types.EIDAS_ID, "FR/ES/1234567", "AUTH_PROVIDER_CONTEXT_URL");
+
+        // actual test
+        String requestedAuthMethods = authMethod.name();
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag");
+        ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(initResponse.getTokenId(), "1", sessionData, "logtag");
+        ProxyMessageDTO result = sessionHandlingService.getSessionById(buildResponse.getTokenId(), "2", "logtag");
+        assertEquals(convKey, result.getConversationKey());
+        assertEquals(authMethod.name(), result.getUsedAuthenticationMethod());
+        assertNotNull(result.getUid());
+        assertEquals(ErrorType.NO_ERROR, result.getErrorType());
+
+        // get attributes
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId");
+        assertNotNull(attributes);
+
+        Map<String,String> attributeMap = attributes.getAttributeMap();
+        Map<String,String> expected = new HashMap<>();
+        expected.put("vtjInvalid", "false");
+        expected.put("vtjVerified", "false");
+        expected.put("vtjRequired", "false");
+        expected.put("provider", "DB_ENTITY_AUTH_CONTEXT_URL");
+        expected.put("samlFirstName", "GIVEN_NAME");
+        expected.put("samlFamilyName", "FAMILY_NAME");
+        expected.put("samlDateOfBirth", "1999-12-31");
+        expected.put("samlUid", "FR/ES/1234567");
+        assertThat(attributeMap.entrySet(), equalTo(expected.entrySet()));
+    }
+
+    private Map<String,String> getEidasTestiSessionData(Identifier.Types identifierType, String identifier, String auth_provider_context_url) {
+        Map<String,String> sessionData = new HashMap<>();
+        sessionData.put("identifierType", identifierType.name());
+        sessionData.put("AJP_eidasPersonIdentifier", identifier);
+        sessionData.put("AJP_Shib-AuthnContext-Decl", auth_provider_context_url);
+
+        sessionData.put("AJP_eidasGivenName", "GIVEN_NAME");
+        sessionData.put("AJP_eidasFamilyName", "FAMILY_NAME");
+        sessionData.put("AJP_eidasDateOfBirth", "1999-12-31");
+        // these are typical HTTP headers sent in session data
+        return sessionData;
+
+    }
 
     private Person getTestPersonWithProtectionOrder(String hetu) {
         Person person = getTestPerson(hetu);

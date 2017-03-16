@@ -40,8 +40,9 @@ public class VtjPersonAttributesTest {
     public void getPersonAttributesSetsHetu() throws Exception {
         Person validPerson = getMinimalValidPerson("TESTHETU");
         Map<String, String> person = new VtjPerson(hetuIdentity, validPerson).getAttributes();
-        assertEquals(1, person.size());
+        assertEquals(2, person.size());
         assertEquals("TESTHETU", person.get("samlNationalIdentificationNumber"));
+        assertEquals("0", person.get("samlProtectionOrder"));
     }
 
     @Test

@@ -45,7 +45,6 @@ public class KatsoPerson implements IdentifiedPerson {
         return identity;
     }
 
-    @Override
     public String getCommonName() {
         return commonName;
     }
@@ -81,6 +80,18 @@ public class KatsoPerson implements IdentifiedPerson {
         }
         attributes.put("samlCn", getCommonName());
         return attributes;
+    }
+
+    @Override
+    public Map<String,String> getLegacyAttributes() throws AttributeGenerationException {
+        Map<String,String> legacyAttributes = new HashMap<>();
+        if (getIdentity().getIdentifierType() == Identifier.Types.KID) {
+            legacyAttributes.put("legacyKid", getIdentity().getIdentifier());
+        } else {
+            legacyAttributes.put("legacyPin", getIdentity().getIdentifier());
+        }
+        legacyAttributes.put("legacyPersonName", getCommonName());
+        return legacyAttributes;
     }
 
 }

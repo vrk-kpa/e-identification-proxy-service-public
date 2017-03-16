@@ -22,6 +22,7 @@
  */
 package fi.vm.kapa.identification.proxy.session;
 
+import fi.vm.kapa.identification.proxy.exception.AttributeGenerationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -33,8 +34,12 @@ import java.util.StringJoiner;
 public class SessionStatusPrinter {
     private static final Logger logger = LoggerFactory.getLogger(SessionStatusPrinter.class);
 
-    @Autowired
     private SessionAttributeCollector sessionAttributeCollector;
+
+    @Autowired
+    public SessionStatusPrinter(SessionAttributeCollector sessionAttributeCollector) {
+        this.sessionAttributeCollector = sessionAttributeCollector;
+    }
 
     public String printSessionStatus(Session session) {
         StringJoiner joiner = new StringJoiner("\n");
@@ -46,8 +51,10 @@ public class SessionStatusPrinter {
         try {
             sessionAttributeCollector.getAttributes(session).forEach(
                     (attrKey, attrValue) -> joiner.add("------------SESSIONATTR: " + attrKey + " VALUE: " + attrValue));
-        } catch (Exception e) {
+        } catch (AttributeGenerationException e) {
             logger.warn("failed to print session attributes, reason ", e);
+        } catch (Exception e) {
+            logger.warn("failed print session attributes, error in code. reason ", e);
         }
         joiner.add("------SESSIONPROFILE: " + session.getSessionProfile().toString());
         joiner.add("------TIMESTAMP: " + session.getTimestamp());

@@ -36,11 +36,14 @@ public class IdentifiedPersonBuilder {
 
     private final KatsoPersonFactory katsoPersonFactory;
     private final GenericPersonFactory genericPersonFactory;
+    private final EidasPersonFactory eidasPersonFactory;
 
     public IdentifiedPersonBuilder(KatsoPersonFactory katsoPersonFactory,
-                                   GenericPersonFactory genericPersonFactory) {
+                                   GenericPersonFactory genericPersonFactory,
+                                   EidasPersonFactory eidasPersonFactory) {
         this.katsoPersonFactory = katsoPersonFactory;
         this.genericPersonFactory = genericPersonFactory;
+        this.eidasPersonFactory = eidasPersonFactory;
     }
 
     public IdentifiedPerson build(Map<String,String> spData, AuthMethod authenticationMethod) throws PersonParsingException {
@@ -48,7 +51,10 @@ public class IdentifiedPersonBuilder {
             if (authenticationMethod == AuthMethod.KATSOPWD ||
                     authenticationMethod == AuthMethod.KATSOOTP) {
                 return katsoPersonFactory.createFromSpData(spData);
-            } else {
+            } else if (authenticationMethod == AuthMethod.EIDAS1) {
+                return eidasPersonFactory.createFromSpData(spData);
+            }
+            else {
                 return genericPersonFactory.createFromSpData(spData);
             }
         } catch (IdentityParsingException e) {

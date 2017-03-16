@@ -45,6 +45,7 @@ public class IdentityParser {
             .put(Identifier.Types.KID, "AJP_tfiKid")
             .put(Identifier.Types.EPPN, "AJP_eppn")
             .put(Identifier.Types.UID, "AJP_uid")
+            .put(Identifier.Types.EIDAS_ID, "AJP_eidasPersonIdentifier")
             .build();
 
 
@@ -77,6 +78,7 @@ public class IdentityParser {
             case KID:
             case EPPN:
             case UID:
+            case EIDAS_ID:
                 return new Identity(null, identifierType, identifier);
             case SATU:
                 String[] identifierParts = getIdentifierParts(identifier);

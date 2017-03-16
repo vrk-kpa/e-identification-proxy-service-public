@@ -237,112 +237,118 @@ public class SessionHandlingService {
         logger.debug("SP build session data:");
         spSessionData.keySet().forEach(key -> logger.debug("--" + key + " <--> " + spSessionData.get(key)));
         try {
-            String nextPhaseId = null;
-            String nextTokenId = phaseIdBuiltSession.nextTokenId();
 
             if (historyService.areIdsConsumed(tokenId, phaseId)) {
                 logger.warn("Received already consumed token and phase IDs!!");
+                message.setErrorType(ErrorType.SESSION_BUILD_FAILED);
             } else if (phaseIdInitSession.verifyPhaseId(phaseId, tokenId, stepSessionBuild)) {
-                nextPhaseId = phaseIdBuiltSession.newPhaseId(nextTokenId, stepRedirectFromSP);
-            }
 
-            Session session = uidToUserSessionsCache.getSessionByKeyAndAuthMethod(tokenId, AuthMethod.INIT);
-            logger.debug("Session with token ID " + tokenId + " exists: " + (session != null ? "YES" : "NO") + ", next phase ID: " + nextPhaseId);
-            //Check which authentication context (method) is in use
-            String spProvidedEndIdPAuthContextUrl = sessionHandlingUtils.getSpProvidedEndIdPAuthContextUrl(spSessionData);
+                Session session = uidToUserSessionsCache.getSessionByKeyAndAuthMethod(tokenId, AuthMethod.INIT);
+                logger.debug("Session with token ID " + tokenId + " exists: " + (session != null ? "YES" : "NO"));
+                //Check which authentication context (method) is in use
+                String spProvidedEndIdPAuthContextUrl = sessionHandlingUtils.getSpProvidedEndIdPAuthContextUrl(spSessionData);
 
-            AuthenticationProvider authenticationProvider = metadataService.getAuthenticationProvider(spProvidedEndIdPAuthContextUrl);
+                AuthenticationProvider authenticationProvider = metadataService.getAuthenticationProvider(spProvidedEndIdPAuthContextUrl);
 
-            if (session != null && !AuthMethodHelper.authMethodInPermittedMethods(authenticationProvider.getAuthenticationMethod().name(),
-                    session.getRequestedAuthenticationMethods())) {
-                logger.error("Error building new session: used authentication method not permitted ");
-                throw new Exception("Error building new session: used authentication method not permitted ");
-            }
-
-            IdentifiedPerson identifiedPerson = sessionPersonBuilder.build(spSessionData, authenticationProvider.getAuthenticationMethod());
-            if (session != null && StringUtils.isNotBlank(nextPhaseId) && identifiedPerson.getIdentity().getIdentifierType() != null) {
-
-                 /* Only those values what the IdP can understand, can be used from the SP's session
-                 * data package since different true identity providers can supply different
-                 * data and only those which are required for the identity session
-                 * can be used, note that legacy data must be also added in certain cases
-                 */
-                session.setIdentifiedPerson(identifiedPerson);
-                session.setAuthenticationProvider(authenticationProvider);
-                if (session.getSessionProfile() == SessionProfile.TUNNISTUSFI_LEGACY) {
-                    session.setLegacyVersion(sessionHandlingUtils.getLegacyVersion(spSessionData));
+                if (session != null && !AuthMethodHelper.authMethodInPermittedMethods(authenticationProvider.getAuthenticationMethod().name(),
+                        session.getRequestedAuthenticationMethods())) {
+                    logger.error("Error building new session: used authentication method not permitted ");
+                    throw new Exception("Error building new session: used authentication method not permitted ");
                 }
 
-                /* The session data is enriched with additional data fetched from X-Road suppliers which map
-                 * given electronic ID or SSN to basic information such as names, addresses etc.
-                 */
-                VtjVerificationRequirement vtjVerification = getVtjVerificationRequirement(metadataService.getRelyingParty(session.getRelyingPartyEntityId()),
-                        authenticationProvider.getAuthenticationMethod());
-                session.setVtjVerificationRequired(vtjVerification == MUST_SUCCEED);
+                IdentifiedPerson identifiedPerson = sessionPersonBuilder.build(spSessionData, authenticationProvider.getAuthenticationMethod());
+                if (session != null && identifiedPerson.getIdentity().getIdentifierType() != null) {
 
-                /* VTJ data retrieval validates the person at hand and may throw
-                 * InvalidVtjDataException or VtjServiceException.
-                 * InvalidVtjDataException invalidates all existing session entries and is
-                 * passed on (authentication flow will fail).
-                 * VtjServiceException is ignored if vtjVerificationRequired is false (continue
-                 * with null vtjData).
-                 */
-                if (vtjVerification != FORBIDDEN) {
-                    try {
-                        VtjPerson vtjPerson = personService.getVtjPerson(identifiedPerson);
-                        vtjPerson.validate();
-                        session.setVtjPerson(vtjPerson);
-                        session.setVtjVerified(true);
-                    } catch (InvalidVtjDataException e) {
-                        if (!session.getUid().contentEquals(SessionStatus.INIT.getStatusAsNumericalString())) {
-                            uidToUserSessionsCache.invalidateCachedSessionsByKey(session.getUid());
-                        }
-                        throw e;
-                    } catch (VtjServiceException e) {
-                        if (vtjVerification == MUST_SUCCEED) {
+                     /* Only those values what the IdP can understand, can be used from the SP's session
+                     * data package since different true identity providers can supply different
+                     * data and only those which are required for the identity session
+                     * can be used, note that legacy data must be also added in certain cases
+                     */
+                    session.setIdentifiedPerson(identifiedPerson);
+                    session.setAuthenticationProvider(authenticationProvider);
+                    if (session.getSessionProfile() == SessionProfile.TUNNISTUSFI_LEGACY) {
+                        session.setLegacyVersion(sessionHandlingUtils.getLegacyVersion(spSessionData));
+                    }
+
+                    /* The session data is enriched with additional data fetched from X-Road suppliers which map
+                     * given electronic ID or SSN to basic information such as names, addresses etc.
+                     */
+                    VtjVerificationRequirement vtjVerification = getVtjVerificationRequirement(metadataService.getRelyingParty(session.getRelyingPartyEntityId()),
+                            authenticationProvider.getAuthenticationMethod());
+                    session.setVtjVerificationRequired(vtjVerification == MUST_SUCCEED);
+
+                    /* VTJ data retrieval validates the person at hand and may throw
+                     * InvalidVtjDataException or VtjServiceException.
+                     * InvalidVtjDataException invalidates all existing session entries and is
+                     * passed on (authentication flow will fail).
+                     * VtjServiceException is ignored if vtjVerificationRequired is false (continue
+                     * with null vtjData).
+                     */
+                    if (vtjVerification != FORBIDDEN) {
+                        try {
+                            VtjPerson vtjPerson = personService.getVtjPerson(identifiedPerson);
+                            vtjPerson.validate();
+                            session.setVtjPerson(vtjPerson);
+                            session.setVtjVerified(true);
+                        } catch (InvalidVtjDataException e) {
+                            if (!session.getUid().contentEquals(SessionStatus.INIT.getStatusAsNumericalString())) {
+                                uidToUserSessionsCache.invalidateCachedSessionsByKey(session.getUid());
+                            }
                             throw e;
+                        } catch (VtjServiceException e) {
+                            if (vtjVerification == MUST_SUCCEED) {
+                                throw e;
+                            }
                         }
                     }
-                }
 
-                /* This uid value is a session reference between Proxy sessions and the IdP session.
-                 * If uid already has a value other than SessionStatus.INIT,
-                 * a session already exists in IdP and it is conserved.
-                 * Otherwise assign new value.
-                 */
-                if (session.getUid().contentEquals(SessionStatus.INIT.getStatusAsNumericalString())) {
-                    String uid = phaseIdBuiltSession.nextTokenId();
-                    //Collision check for extra safety
-                    while (uidToUserSessionsCache.cacheContainsKey(uid)) {
-                        uid = phaseIdBuiltSession.nextTokenId();
+                    /* This uid value is a session reference between Proxy sessions and the IdP session.
+                     * If uid already has a value other than SessionStatus.INIT,
+                     * a session already exists in IdP and it is conserved.
+                     * Otherwise assign new value.
+                     */
+                    if (session.getUid().contentEquals(SessionStatus.INIT.getStatusAsNumericalString())) {
+                        String uid = phaseIdBuiltSession.nextTokenId();
+                        //Collision check for extra safety
+                        while (uidToUserSessionsCache.cacheContainsKey(uid)) {
+                            uid = phaseIdBuiltSession.nextTokenId();
+                        }
+                        session.setUid(uid);
+                        logger.debug("Generated UID: {}", uid);
                     }
-                    session.setUid(uid);
-                    logger.debug("Generated UID: {}", uid);
-                }
 
-                /* If invalid session entries exist, cancel authentication
-                 */
-                if (uidToUserSessionsCache.invalidSessionsInCacheByKey(session.getUid())) {
-                    throw new InvalidVtjDataException("Invalid sessions in session cache, cannot authenticate");
-                }
+                    /* If invalid session entries exist, cancel authentication
+                     */
+                    if (uidToUserSessionsCache.invalidSessionsInCacheByKey(session.getUid())) {
+                        throw new InvalidVtjDataException("Invalid sessions in session cache, cannot authenticate");
+                    }
 
-                session.setValidated(true);
-                session.setTimestamp();
-                /* Initial session token must be removed since new token is used to store the
-                 * actual session data, this is based on security since the initial token is
-                 * exposed to external sources in HTTP 302 requests
-                 */
-                logger.debug("Update session cache with tokenid: {}, netxTokenId: {}, authProviderAuthMethod: {}", tokenId, nextTokenId, authenticationProvider.getAuthenticationMethod());
-                uidToUserSessionsCache.replaceSessionCacheKey(tokenId, nextTokenId, authenticationProvider.getAuthenticationMethod(), session);
-                if (logger.isDebugEnabled()) {
-                    uidToUserSessionsCache.debugLogSessionStatus();
+                    session.setValidated(true);
+                    session.setTimestamp();
+                    /* Initial session token must be removed since new token is used to store the
+                     * actual session data, this is based on security since the initial token is
+                     * exposed to external sources in HTTP 302 requests
+                     */
+
+                    String nextTokenId = phaseIdBuiltSession.nextTokenId();
+                    logger.debug("Update session cache with tokenId: {}, nextTokenId: {}, authProviderAuthMethod: {}", tokenId, nextTokenId, authenticationProvider.getAuthenticationMethod());
+                    uidToUserSessionsCache.replaceSessionCacheKey(tokenId, nextTokenId, authenticationProvider.getAuthenticationMethod(), session);
+                    if (logger.isDebugEnabled()) {
+                        uidToUserSessionsCache.debugLogSessionStatus();
+                    }
+
+                    String nextPhaseId = phaseIdBuiltSession.newPhaseId(nextTokenId, stepRedirectFromSP);
+                    message.setTokenId(nextTokenId);
+                    message.setPhaseId(nextPhaseId);
+                    message.setErrorType(ErrorType.NO_ERROR);
+                } else {
+                    logger.warn("<<" + logTag + ">> Building session failed, identifier type missing - tid: "
+                            + tokenId + ", pid: " + phaseId + ", identifierType: " + identifiedPerson.getIdentity().getIdentifierType());
+                    message.setErrorType(ErrorType.SESSION_BUILD_FAILED);
                 }
-                message.setTokenId(nextTokenId);
-                message.setPhaseId(nextPhaseId);
-                message.setErrorType(ErrorType.NO_ERROR);
             } else {
-                logger.warn("<<" + logTag + ">> Building session failed, token ID, phase ID or identifier type missing - tid: "
-                        + tokenId + ", pid: " + phaseId + ", identifierType: " + identifiedPerson.getIdentity().getIdentifierType());
+                logger.warn("<<" + logTag + ">> Building session failed, token ID, phase ID - tid: "
+                        + tokenId + ", pid: " + phaseId);
                 message.setErrorType(ErrorType.SESSION_BUILD_FAILED);
             }
         } catch (AuthenticationProviderNotFoundException e) {
@@ -532,7 +538,8 @@ public class SessionHandlingService {
 
     VtjVerificationRequirement getVtjVerificationRequirement(ServiceProvider relyingParty, AuthMethod requestedAuthMethod) {
         boolean vtjForbiddenMethodRequested = requestedAuthMethod.equals(AuthMethod.KATSOPWD)
-                || requestedAuthMethod.equals(AuthMethod.KATSOOTP) || requestedAuthMethod.equals(AuthMethod.MPASS1);
+                || requestedAuthMethod.equals(AuthMethod.KATSOOTP) || requestedAuthMethod.equals(AuthMethod.MPASS1)
+                || requestedAuthMethod.equals(AuthMethod.EIDAS1);
         VtjVerificationRequirement vtjVerificationRequirement;
         if (vtjForbiddenMethodRequested) {
             vtjVerificationRequirement = FORBIDDEN;

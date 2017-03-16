@@ -1,6 +1,5 @@
 # Pull base image
 FROM dev-docker-registry.kapa.ware.fi/e-identification-tomcat-base-image
-COPY License.info /License.info
 COPY target/site /site
 
 COPY conf/tomcat/proxy.xml /usr/share/tomcat/conf/Catalina/localhost/

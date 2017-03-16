@@ -22,17 +22,23 @@
  */
 package fi.vm.kapa.identification.proxy.person;
 
-import fi.vm.kapa.identification.proxy.exception.AttributeGenerationException;
-import fi.vm.kapa.identification.proxy.session.Identity;
-import fi.vm.kapa.identification.type.Identifier;
+import fi.vm.kapa.identification.proxy.exception.IdentityParsingException;
 
 import java.util.Map;
 
-public interface IdentifiedPerson {
-    Identity getIdentity();
+public class EidasPersonFactory {
+    private final EidasPersonParser eidasPersonParser;
 
-    Map<Identifier.Types,String> getIdentifiers();
+    public EidasPersonFactory(EidasPersonParser eidasPersonParser) {
+        this.eidasPersonParser = eidasPersonParser;
+    }
 
-    Map<String,String> getAttributes() throws AttributeGenerationException;
-    Map<String,String> getLegacyAttributes() throws AttributeGenerationException;
+    public EidasPerson createFromSpData(Map<String,String> spData) throws IdentityParsingException {
+        return new EidasPerson(
+                eidasPersonParser.getFamilyName(spData),
+                eidasPersonParser.getFirstNames(spData),
+                eidasPersonParser.getDateOfBirth(spData),
+                eidasPersonParser.getIdentity(spData),
+                eidasPersonParser.getIdentifiers(spData));
+    }
 }

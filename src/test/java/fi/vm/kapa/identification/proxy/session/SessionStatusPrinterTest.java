@@ -26,9 +26,10 @@ import fi.vm.kapa.identification.type.SessionProfile;
 import org.junit.Test;
 
 public class SessionStatusPrinterTest {
+
     @Test
     public void printSessionStatus() throws Exception {
-        SessionStatusPrinter sessionStatusPrinter = new SessionStatusPrinter();
+        SessionStatusPrinter sessionStatusPrinter = new SessionStatusPrinter(new SessionAttributeCollector("vtjReq", "vtjVer", "vtjInv", "legacy_v", "1.1"));
         Session session = new Session();
         session.setSessionProfile(SessionProfile.VETUMA_SAML2);
         sessionStatusPrinter.printSessionStatus(session);

@@ -73,9 +73,7 @@ public class VtjPerson {
         if (StringUtils.isNotEmpty(person.getSatu())) {
             attributes.put("samlElectronicIdentificationNumber", person.getSatu());
         }
-        if (person.isProtectionOrder()) {
-            attributes.put("samlProtectionOrder", "1");
-        }
+        attributes.put("samlProtectionOrder", person.isProtectionOrder() ? "1" : "0");
         if (StringUtils.isNotEmpty(person.getFinnishCitizenship())) {
             attributes.put("samlFinnishCitizenship", person.getFinnishCitizenship());
         }

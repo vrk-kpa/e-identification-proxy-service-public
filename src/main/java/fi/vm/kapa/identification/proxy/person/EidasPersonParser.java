@@ -22,17 +22,41 @@
  */
 package fi.vm.kapa.identification.proxy.person;
 
-import fi.vm.kapa.identification.proxy.exception.AttributeGenerationException;
+import fi.vm.kapa.identification.proxy.exception.IdentityParsingException;
 import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.type.Identifier;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-public interface IdentifiedPerson {
-    Identity getIdentity();
+@Component
+public class EidasPersonParser {
+    private final IdentityParser identityParser;
 
-    Map<Identifier.Types,String> getIdentifiers();
+    @Autowired
+    public EidasPersonParser(IdentityParser identityParser) {
+        this.identityParser = identityParser;
+    }
 
-    Map<String,String> getAttributes() throws AttributeGenerationException;
-    Map<String,String> getLegacyAttributes() throws AttributeGenerationException;
+    String getFirstNames(Map<String,String> spData) {
+        return spData.get("AJP_eidasGivenName");
+    }
+
+    String getDateOfBirth(Map<String,String> spData) {
+        return spData.get("AJP_eidasDateOfBirth");
+    }
+
+    String getFamilyName(Map<String,String> spData) {
+        return spData.get("AJP_eidasFamilyName");
+    }
+
+    Identity getIdentity(Map<String,String> spData) throws IdentityParsingException {
+        return identityParser.parse(spData);
+    }
+
+    Map<Identifier.Types,String> getIdentifiers(Map<String,String> spData) throws IdentityParsingException {
+        return identityParser.parseIdentifiers(spData);
+    }
+
 }

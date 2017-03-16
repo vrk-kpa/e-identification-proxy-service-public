@@ -313,7 +313,6 @@
                         <exclude>**/*.sh</exclude>
                         <exclude>**/Dockerfile.*</exclude>
                         <exclude>LICENSE</exclude>
-                        <exclude>License.info</exclude>
                         <exclude>Dockerfile</exclude>
 		</excludes>
                 </configuration>

@@ -26,58 +26,42 @@ import fi.vm.kapa.identification.proxy.exception.AttributeGenerationException;
 import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.type.Identifier;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
-public class GenericPerson implements IdentifiedPerson {
+public class EidasPerson implements IdentifiedPerson {
 
+    private final String familyName;
+    private final String givenName;
+    private final String dateOfBirth;
     private final Identity identity;
     private final Map<Identifier.Types,String> identifiers;
 
-    private final String commonName;
-    private final String surname;
-    private final String givenName;
-    private final String mobileNumber;
-
-    public GenericPerson(Identity identity, String commonName, String surname, String givenName, String mobileNumber, Map<Identifier.Types,String> identifiers) {
+    public EidasPerson(String familyName, String firstNames, String dateOfBirth, Identity identity, Map<Identifier.Types,String> identifiers) {
+        this.familyName = familyName;
+        this.givenName = firstNames;
+        this.dateOfBirth = dateOfBirth;
         this.identity = identity;
-        this.commonName = commonName;
-        this.surname = surname;
-        this.givenName = givenName;
-        this.mobileNumber = mobileNumber;
         this.identifiers = identifiers;
     }
 
-
-    @Override
-    public Identity getIdentity() {
-        return identity;
+    public String getFamilyName() {
+        return familyName;
     }
 
     public String getGivenName() {
         return givenName;
     }
 
-    public String getSurname() {
-        return surname;
+    public String getDateOfBirth() {
+        return dateOfBirth;
     }
 
-    public String getCommonName() {
-        return commonName;
+    public Identity getIdentity() {
+        return identity;
     }
 
-    public String getDisplayName() {
-        if (null != getGivenName()) {
-            return getGivenName().split(" ")[0] + " " + getSurname();
-        } else {
-            return getCommonName();
-        }
-    }
-
-    public String getMobileNumber() {
-        return mobileNumber;
-    }
-
-    @Override
     public Map<Identifier.Types,String> getIdentifiers() {
         return identifiers;
     }
@@ -87,43 +71,22 @@ public class GenericPerson implements IdentifiedPerson {
         Map<String,String> attributes = new HashMap<>();
         for (Map.Entry<Identifier.Types,String> entry: getIdentifiers().entrySet()) {
             switch (entry.getKey()) {
-                case HETU:
-                    attributes.put("samlNationalIdentificationNumber", entry.getValue());
-                    break;
-                case SATU:
-                    attributes.put("samlElectronicIdentificationNumber", entry.getValue());
-                    break;
-                case KID:
-                    attributes.put("samlKid", entry.getValue());
-                    break;
-                case EPPN:
-                    attributes.put("samlEppn", entry.getValue());
-                    break;
-                case UID:
+                case EIDAS_ID:
                     attributes.put("samlUid", entry.getValue());
                     break;
                 default:
                     throw new AttributeGenerationException("Unknown type:" + entry.getKey() + ", value:" + entry.getValue());
             }
         }
-        putIfNonEmpty(attributes, "samlCn", getCommonName());
-        putIfNonEmpty(attributes, "samlDisplayName", getDisplayName());
-        putIfNonEmpty(attributes, "samlGivenName", getGivenName());
-        putIfNonEmpty(attributes, "samlSn", getSurname());
-        putIfNonEmpty(attributes, "samlMobile", getMobileNumber());
+        putIfNonEmpty(attributes, "samlFirstName", getGivenName());
+        putIfNonEmpty(attributes, "samlFamilyName", getFamilyName());
+        putIfNonEmpty(attributes, "samlDateOfBirth", getDateOfBirth());
         return attributes;
     }
 
     @Override
     public Map<String,String> getLegacyAttributes() throws AttributeGenerationException {
-        Map<String,String> legacyAttributes = new HashMap<>();
-        if (getIdentity().getIdentifierType() == Identifier.Types.KID) {
-            legacyAttributes.put("legacyKid", getIdentity().getIdentifier());
-        } else {
-            legacyAttributes.put("legacyPin", getIdentity().getIdentifier());
-        }
-        legacyAttributes.put("legacyPersonName", getCommonName());
-        return legacyAttributes;
+        return Collections.emptyMap();
     }
 
     void putIfNonEmpty(Map<String,String> attributes, String key, String value) {
@@ -131,5 +94,4 @@ public class GenericPerson implements IdentifiedPerson {
             attributes.put(key, value);
         }
     }
-
 }

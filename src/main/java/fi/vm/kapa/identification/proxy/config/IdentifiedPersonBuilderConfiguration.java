@@ -22,10 +22,7 @@
  */
 package fi.vm.kapa.identification.proxy.config;
 
-import fi.vm.kapa.identification.proxy.person.GenericPersonFactory;
-import fi.vm.kapa.identification.proxy.person.IdentifiedPersonBuilder;
-import fi.vm.kapa.identification.proxy.person.IdentifiedPersonParser;
-import fi.vm.kapa.identification.proxy.person.KatsoPersonFactory;
+import fi.vm.kapa.identification.proxy.person.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
@@ -36,10 +33,14 @@ public class IdentifiedPersonBuilderConfiguration {
     @Autowired
     IdentifiedPersonParser identifiedPersonParser;
 
+    @Autowired
+    EidasPersonParser eidasPersonParser;
+
     @Bean(name = "personBuilder")
     IdentifiedPersonBuilder provide() {
         return new IdentifiedPersonBuilder(
                 new KatsoPersonFactory(identifiedPersonParser),
-                new GenericPersonFactory(identifiedPersonParser));
+                new GenericPersonFactory(identifiedPersonParser),
+                new EidasPersonFactory(eidasPersonParser));
     }
 }

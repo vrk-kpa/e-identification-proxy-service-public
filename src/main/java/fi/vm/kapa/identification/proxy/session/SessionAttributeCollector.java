@@ -23,8 +23,6 @@
 package fi.vm.kapa.identification.proxy.session;
 
 import fi.vm.kapa.identification.proxy.exception.AttributeGenerationException;
-import fi.vm.kapa.identification.proxy.person.IdentifiedPerson;
-import fi.vm.kapa.identification.type.Identifier;
 import fi.vm.kapa.identification.type.SessionProfile;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -65,10 +63,13 @@ public class SessionAttributeCollector {
             if (null != session.getAuthenticationProvider()) {
                 attributes.put("provider", session.getAuthenticationProvider().getAuthProviderAuthContextUrl());
             }
-            attributes.putAll(getLegacyAttributes(session));
+            attributes.putAll(getLegacySessionAttributes(session));
+            attributes.putAll(session.getIdentifiedPerson().getLegacyAttributes());
         }
-        else if (session.getSessionProfile() == SessionProfile.VETUMA_SAML2)
+        else if (session.getSessionProfile() == SessionProfile.VETUMA_SAML2
+                && null != session.getAuthenticationProvider()) {
             attributes.put("provider", session.getAuthenticationProvider().getDbEntityIdAuthContextUrl());
+        }
 
         attributes.putAll(getMergedPersonAttributes(session));
         return attributes;
@@ -85,20 +86,11 @@ public class SessionAttributeCollector {
         return personAttributes;
     }
 
-    private Map<String,String> getLegacyAttributes(Session session) {
+    private Map<String,String> getLegacySessionAttributes(Session session) {
         Map<String,String> legacyAttributes = new HashMap<>();
         legacyAttributes.put(legacyVersionKey, legacyVersionValue);
         if (null != session.getLegacyVersion()) {
             legacyAttributes.put("legacyVersion", session.getLegacyVersion());
-        }
-        IdentifiedPerson identifiedPerson = session.getIdentifiedPerson();
-        if (null != identifiedPerson) {
-            if (identifiedPerson.getIdentity().getIdentifierType() == Identifier.Types.KID) {
-                legacyAttributes.put("legacyKid", identifiedPerson.getIdentity().getIdentifier());
-            } else {
-                legacyAttributes.put("legacyPin", identifiedPerson.getIdentity().getIdentifier());
-            }
-            legacyAttributes.put("legacyPersonName", identifiedPerson.getCommonName());
         }
         return legacyAttributes;
     }

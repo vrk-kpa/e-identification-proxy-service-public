@@ -35,13 +35,14 @@ log4j.appender.STDOUT.layout.ConversionPattern=%d{ISO8601} %-5p {%X{user}} [%t] 
 {% endraw %}
 
 # File output
-log4j.appender.FILE=org.apache.log4j.RollingFileAppender
+log4j.appender.FILE=org.apache.log4j.DailyRollingFileAppender
 log4j.appender.FILE.Threshold={{ log_level }}
 log4j.appender.FILE.File=/data00/logs/proxy-server.log
 log4j.appender.FILE.Append=true
+log4j.appender.FILE.DatePattern='.'yyyy-MM-dd
 log4j.appender.FILE.layout=org.apache.log4j.PatternLayout
-log4j.appender.FILE.MaxFileSize=100MB
-log4j.appender.FILE.MaxBackupIndex=10
+log4j.appender.FILE.TimeInterval=65
+
 {# Make ansible ignore curly braces below #}
 {% raw %}
 log4j.appender.FILE.layout.ConversionPattern=%d{ISO8601} %-5p {%X{user}} [%t] %-5p %c: %m%n

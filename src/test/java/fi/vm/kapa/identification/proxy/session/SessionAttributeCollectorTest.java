@@ -20,19 +20,20 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package fi.vm.kapa.identification.proxy.person;
+package fi.vm.kapa.identification.proxy.session;
 
-import fi.vm.kapa.identification.proxy.exception.AttributeGenerationException;
-import fi.vm.kapa.identification.proxy.session.Identity;
-import fi.vm.kapa.identification.type.Identifier;
+import fi.vm.kapa.identification.type.SessionProfile;
+import org.junit.Test;
 
-import java.util.Map;
+import static org.junit.Assert.*;
 
-public interface IdentifiedPerson {
-    Identity getIdentity();
+public class SessionAttributeCollectorTest {
+    @Test
+    public void getAttributesDoesNotThrow() throws Exception {
+        SessionAttributeCollector collector = new SessionAttributeCollector("vtjReq", "vtjVer", "vtjInv", "legacy_v", "1.1");
+        Session session = new Session();
+        session.setSessionProfile(SessionProfile.VETUMA_SAML2);
+        collector.getAttributes(session);
+    }
 
-    Map<Identifier.Types,String> getIdentifiers();
-
-    Map<String,String> getAttributes() throws AttributeGenerationException;
-    Map<String,String> getLegacyAttributes() throws AttributeGenerationException;
 }

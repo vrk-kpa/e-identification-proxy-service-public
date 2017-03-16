@@ -99,7 +99,7 @@ public class SessionHandlingServiceTest {
     private MetadataService metadataServiceMock;
 
     @Mock
-    private DummyPersonService personServiceMock;
+    private PersonService personServiceMock;
 
     @Mock
     private IdentifiedPersonBuilder identifiedPersonBuilder;
