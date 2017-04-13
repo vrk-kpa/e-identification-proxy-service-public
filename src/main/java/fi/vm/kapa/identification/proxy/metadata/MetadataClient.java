@@ -80,8 +80,7 @@ public class MetadataClient {
         List<AuthenticationProvider> providers = new ArrayList<>();
         final String authenticationProviderMetadataReqUrl = metadataServerUrl + "?type=" + ProviderType.AUTHENTICATION_PROVIDER.toString();
         logger.debug("url to metadata server - authenticationProviders: {}", authenticationProviderMetadataReqUrl);
-        try {
-            CloseableHttpClient httpClient = HttpClients.createDefault();
+        try (CloseableHttpClient httpClient = HttpClients.createDefault()) {
             logger.debug("url to metadata server: {}", authenticationProviderMetadataReqUrl);
             HttpGet getMethod = new HttpGet(authenticationProviderMetadataReqUrl);
             List<MetadataDTO> metadata = getMetadataDTOs(httpClient, getMethod);

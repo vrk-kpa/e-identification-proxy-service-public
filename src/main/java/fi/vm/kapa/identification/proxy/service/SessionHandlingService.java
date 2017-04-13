@@ -96,7 +96,7 @@ public class SessionHandlingService {
     @Value("${legacy.version.value}")
     private String legacyVersionValue;
 
-    private PersonService personService;
+    private VtjPersonService vtjPersonService;
 
     private SessionHandlingUtils sessionHandlingUtils;
 
@@ -106,7 +106,7 @@ public class SessionHandlingService {
 
     @Autowired
     public SessionHandlingService(MetadataService metadataService,
-                                  PersonService personService,
+                                  VtjPersonService vtjPersonService,
                                   SessionHandlingUtils sessionHandlingUtils,
                                   @Named("personBuilder")
                                   IdentifiedPersonBuilder sessionPersonBuilder,
@@ -117,7 +117,7 @@ public class SessionHandlingService {
                                   @Named("sessionBuiltPhaseIdService")
                                           PhaseIdService phaseIdBuiltSession) {
         this.metadataService = metadataService;
-        this.personService = personService;
+        this.vtjPersonService = vtjPersonService;
         this.sessionHandlingUtils = sessionHandlingUtils;
         this.sessionPersonBuilder = sessionPersonBuilder;
         this.sessionAttributeCollector = sessionAttributeCollector;
@@ -286,7 +286,7 @@ public class SessionHandlingService {
                      */
                     if (vtjVerification != FORBIDDEN) {
                         try {
-                            VtjPerson vtjPerson = personService.getVtjPerson(identifiedPerson);
+                            VtjPerson vtjPerson = vtjPersonService.getVtjPerson(identifiedPerson);
                             vtjPerson.validate();
                             session.setVtjPerson(vtjPerson);
                             session.setVtjVerified(true);
@@ -479,7 +479,7 @@ public class SessionHandlingService {
                      */
                     if (vtjVerification != FORBIDDEN) {
                         try {
-                            VtjPerson vtjPerson = personService.getVtjPerson(session.getIdentifiedPerson());
+                            VtjPerson vtjPerson = vtjPersonService.getVtjPerson(session.getIdentifiedPerson());
                             vtjPerson.validate();
                             session.setVtjPerson(vtjPerson);
                             session.setVtjVerified(true);

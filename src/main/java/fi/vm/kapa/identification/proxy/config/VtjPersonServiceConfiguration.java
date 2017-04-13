@@ -20,14 +20,28 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package fi.vm.kapa.identification.proxy.service;
+package fi.vm.kapa.identification.proxy.config;
 
-import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
-import fi.vm.kapa.identification.proxy.person.IdentifiedPerson;
-import fi.vm.kapa.identification.proxy.person.VtjPerson;
-import org.springframework.stereotype.Service;
+import fi.vm.kapa.identification.proxy.service.DummyVtjPersonService;
+import fi.vm.kapa.identification.proxy.service.VtjPersonService;
+import fi.vm.kapa.identification.proxy.service.RealVtjPersonService;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-@Service
-public interface PersonService {
-    VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson) throws VtjServiceException;
+@Configuration
+public class VtjPersonServiceConfiguration {
+
+    @Value("${vtj.client.dummydata}")
+    private boolean vtjDummydataToBeUsed;
+
+    @Bean(name = "VtjPersonService")
+    VtjPersonService provideVtjPersonService() {
+        if (vtjDummydataToBeUsed) {
+            return new DummyVtjPersonService("010191-9696");
+        } else {
+            return new RealVtjPersonService();
+        }
+    }
+
 }

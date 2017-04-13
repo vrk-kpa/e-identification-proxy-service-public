@@ -25,9 +25,36 @@ package fi.vm.kapa.identification.proxy.service;
 import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.person.IdentifiedPerson;
 import fi.vm.kapa.identification.proxy.person.VtjPerson;
-import org.springframework.stereotype.Service;
+import fi.vm.kapa.identification.proxy.session.Identity;
+import fi.vm.kapa.identification.vtj.model.Person;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 
-@Service
-public interface VtjPersonService {
-    VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson) throws VtjServiceException;
+import fi.vm.kapa.identification.proxy.vtj.VtjClient;
+import fi.vm.kapa.identification.vtj.model.VTJResponse;
+
+public class RealVtjPersonService implements VtjPersonService {
+    private static final Logger logger = LoggerFactory.getLogger(RealVtjPersonService.class);
+
+    @Autowired
+    VtjClient vtjClient;
+
+    VTJResponse getVtjResponse(Identity identity) throws VtjServiceException {
+        VTJResponse response = vtjClient.fetchVtjData(identity);
+        if (response == null || response.getPerson() == null) {
+            logger.error("VTJ response null or empty");
+            throw new VtjServiceException("VTJ response null or empty");
+        } else {
+            return response;
+        }
+    }
+
+    @Override
+    public VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson) throws VtjServiceException {
+        Identity identity = identifiedPerson.getIdentity();
+        Person person = getVtjResponse(identity).getPerson();
+        return new VtjPerson(identity, person);
+    }
+
 }

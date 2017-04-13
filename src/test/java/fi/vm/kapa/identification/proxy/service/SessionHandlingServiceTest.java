@@ -99,7 +99,7 @@ public class SessionHandlingServiceTest {
     private MetadataService metadataServiceMock;
 
     @Mock
-    private PersonService personServiceMock;
+    private VtjPersonService vtjPersonServiceMock;
 
     @Mock
     private IdentifiedPersonBuilder identifiedPersonBuilder;
@@ -182,7 +182,7 @@ public class SessionHandlingServiceTest {
         when(phaseIdInitServiceMock.nextTokenId()).thenReturn("TEST_TOKEN");
         when(phaseIdInitServiceMock.newPhaseId(anyString(), anyString())).thenReturn("TEST_PHASE_ID");
         SessionHandlingService service = new SessionHandlingService(metadataServiceMock,
-                personServiceMock,
+                vtjPersonServiceMock,
                 new SessionHandlingUtils(),
                 identifiedPersonBuilder,
                 sessionAttributeCollector,
@@ -226,7 +226,7 @@ public class SessionHandlingServiceTest {
         Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
         when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
-        when(personServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
+        when(vtjPersonServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
         when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -290,7 +290,7 @@ public class SessionHandlingServiceTest {
         Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
         when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
-        when(personServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
+        when(vtjPersonServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
         when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -350,7 +350,7 @@ public class SessionHandlingServiceTest {
         //mocking x-road attribute
         Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
-        when(personServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
+        when(vtjPersonServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
         when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertEquals(ErrorType.INTERNAL_ERROR, result.getErrorType());
@@ -387,7 +387,7 @@ public class SessionHandlingServiceTest {
         Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
         when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
-        when(personServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
+        when(vtjPersonServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
         when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -436,7 +436,7 @@ public class SessionHandlingServiceTest {
         sessionData.put("AJP_Shib-AuthnContext-Decl", "nordea.tupas");
         Identity identity = new Identity("", Identifier.Types.HETU, "111190-123B");
         when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, null));
-        when(personServiceMock.getVtjPerson(any())).thenThrow(new VtjServiceException("VTJ connection failed"));
+        when(vtjPersonServiceMock.getVtjPerson(any())).thenThrow(new VtjServiceException("VTJ connection failed"));
         when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -461,7 +461,7 @@ public class SessionHandlingServiceTest {
         identifiers.put(Identifier.Types.HETU, "111190-123B");
         Identity identity = new Identity("", Identifier.Types.HETU, "111190-123B");
         when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
-        when(personServiceMock.getVtjPerson(any())).thenThrow(new VtjServiceException("VTJ connection failed"));
+        when(vtjPersonServiceMock.getVtjPerson(any())).thenThrow(new VtjServiceException("VTJ connection failed"));
         when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -485,7 +485,7 @@ public class SessionHandlingServiceTest {
         Identity identity = new Identity("", Identifier.Types.HETU, "111190-123B");
         when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, null));
         VtjPerson personMock = mock(VtjPerson.class);
-        when(personServiceMock.getVtjPerson(any())).thenReturn(personMock);
+        when(vtjPersonServiceMock.getVtjPerson(any())).thenReturn(personMock);
         doThrow(InvalidVtjDataException.class).when(personMock).validate();
         when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
         // actual test
@@ -508,7 +508,7 @@ public class SessionHandlingServiceTest {
         Map<String, String> sessionData = new HashMap<>();
         sessionData.put("AJP_Shib-AuthnContext-Decl", "katso.pwd");
         when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(new Identity(null, Identifier.Types.KID, "e12345"), null, null, null, null, null));
-        verify(personServiceMock, never()).getVtjPerson(any());
+        verify(vtjPersonServiceMock, never()).getVtjPerson(any());
         when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -547,7 +547,7 @@ public class SessionHandlingServiceTest {
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
 
         when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
-        when(personServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
+        when(vtjPersonServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
         when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -587,7 +587,7 @@ public class SessionHandlingServiceTest {
         String tokenId = "tokenId";
         String conversationKey = "convKey";
         SessionHandlingService service = new SessionHandlingService(metadataServiceMock,
-                personServiceMock,
+                vtjPersonServiceMock,
                 new SessionHandlingUtils(),
                 identifiedPersonBuilder,
                 sessionAttributeCollector,
@@ -615,7 +615,7 @@ public class SessionHandlingServiceTest {
     @Test
     public void removeSessionInvalidTidOrPid() throws Exception{
         SessionHandlingService service = new SessionHandlingService(metadataServiceMock,
-                personServiceMock,
+                vtjPersonServiceMock,
                 new SessionHandlingUtils(),
                 identifiedPersonBuilder,
                 sessionAttributeCollector,
@@ -635,7 +635,7 @@ public class SessionHandlingServiceTest {
     @Test
     public void removeSessionVerifyFailed() throws Exception{
         SessionHandlingService service = new SessionHandlingService(metadataServiceMock,
-                personServiceMock,
+                vtjPersonServiceMock,
                 new SessionHandlingUtils(),
                 identifiedPersonBuilder,
                 sessionAttributeCollector,

@@ -47,6 +47,3 @@ vtj.client.url={{vtj_client_url}}/vtj/person
 
 #dummy data for non vtj users
 vtj.client.dummydata={{vtj_client_dummydata}}
-
-#Delimiter string used to transfer SATU and issuer DN from HST-IdP to proxy
-satu.issuer.delimiter={{ satu_issuer_delimiter }}

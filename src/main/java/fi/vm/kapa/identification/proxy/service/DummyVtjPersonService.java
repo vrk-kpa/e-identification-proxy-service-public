@@ -25,9 +25,32 @@ package fi.vm.kapa.identification.proxy.service;
 import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.person.IdentifiedPerson;
 import fi.vm.kapa.identification.proxy.person.VtjPerson;
-import org.springframework.stereotype.Service;
+import fi.vm.kapa.identification.proxy.session.Identity;
+import fi.vm.kapa.identification.service.PersonService;
+import fi.vm.kapa.identification.test.DummyPersonService;
+import fi.vm.kapa.identification.vtj.model.Person;
 
-@Service
-public interface VtjPersonService {
-    VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson) throws VtjServiceException;
+import static fi.vm.kapa.identification.type.Identifier.Types.HETU;
+import static fi.vm.kapa.identification.type.Identifier.Types.SATU;
+
+public class DummyVtjPersonService implements VtjPersonService {
+    private final PersonService personService;
+
+    public DummyVtjPersonService(String hetu) {
+        this.personService = new DummyPersonService(hetu);
+    }
+
+    @Override
+    public VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson) throws VtjServiceException {
+        Identity identity = identifiedPerson.getIdentity();
+        Person person = personService.getPerson(identity.getIdentifier(), identity.getIdentifierType());
+        // if SATU identity, but HETU in identifiers, replace returned HETU
+        if (identity.getIdentifierType() == SATU) {
+            identifiedPerson.getIdentifiers().forEach(
+                    (type,identifier) -> { if (type == HETU) person.setHetu(identifier);}
+            );
+        }
+        return new VtjPerson(identity, person);
+    }
+
 }

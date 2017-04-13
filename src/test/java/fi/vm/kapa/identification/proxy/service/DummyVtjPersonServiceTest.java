@@ -40,15 +40,13 @@ import static fi.vm.kapa.identification.type.Identifier.Types.HETU;
 import static fi.vm.kapa.identification.type.Identifier.Types.SATU;
 import static org.junit.Assert.assertEquals;
 
-public class DummyPersonServiceTest {
+public class DummyVtjPersonServiceTest {
 
-    @Autowired
-    @InjectMocks
-    DummyPersonService personService;
+    DummyVtjPersonService personService;
 
     @Before
     public void setUp() throws Exception {
-        MockitoAnnotations.initMocks(this);
+        personService = new DummyVtjPersonService("010191-9696");
     }
 
     @Test
@@ -83,7 +81,7 @@ public class DummyPersonServiceTest {
     public void getVtjPersonReturnsPersonWithDefaultHetuWhenHetuNotGiven() throws Exception {
         IdentifiedPerson person = getIdentifiedPersonWithSatu("999196993");
         VtjPerson vtjPerson = personService.getVtjPerson(person);
-        assertEquals(DummyPersonService.DEFAULT_SATU_HETU, vtjPerson.getAttributes().get("samlNationalIdentificationNumber"));
+        assertEquals("010191-9696", vtjPerson.getAttributes().get("samlNationalIdentificationNumber"));
     }
 
     @Test

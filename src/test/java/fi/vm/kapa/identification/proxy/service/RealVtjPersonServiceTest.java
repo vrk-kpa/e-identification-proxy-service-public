@@ -44,7 +44,7 @@ import static org.junit.Assert.assertEquals;
 import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.when;
 
-public class VtjPersonServiceTest {
+public class RealVtjPersonServiceTest {
 
     private final Identity identity = new Identity("any", Identifier.Types.HETU, "any");
     private IdentifiedPerson identifiedPerson;
@@ -54,7 +54,7 @@ public class VtjPersonServiceTest {
 
     @Autowired
     @InjectMocks
-    private VtjPersonService personService;
+    private RealVtjPersonService personService;
 
     @Before
     public void setUp() throws Exception {

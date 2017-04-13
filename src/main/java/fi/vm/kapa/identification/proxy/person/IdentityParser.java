@@ -26,9 +26,6 @@ import fi.vm.kapa.identification.proxy.exception.IdentityParsingException;
 import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.type.Identifier;
 import jersey.repackaged.com.google.common.collect.ImmutableMap;
-import org.apache.commons.lang.StringUtils;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Scope;
 import org.springframework.stereotype.Component;
 
@@ -38,7 +35,6 @@ import java.util.Map;
 @Component
 @Scope(value = "prototype")
 public class IdentityParser {
-    private final String SATU_DELIMITER;
     private static Map<Identifier.Types,String> identifierKeys = ImmutableMap.<Identifier.Types,String>builder()
             .put(Identifier.Types.HETU, "AJP_hetu")
             .put(Identifier.Types.SATU, "AJP_satu")
@@ -48,23 +44,12 @@ public class IdentityParser {
             .put(Identifier.Types.EIDAS_ID, "AJP_eidasPersonIdentifier")
             .build();
 
-
-    @Autowired
-    public IdentityParser(@Value("${satu.issuer.delimiter}") String satuDelimiter) {
-        SATU_DELIMITER = satuDelimiter;
-    }
-
     public Map<Identifier.Types,String> parseIdentifiers(Map<String,String> spData) throws IdentityParsingException {
         Map<Identifier.Types,String> identifiers = new EnumMap<>(Identifier.Types.class);
         for (Identifier.Types identifierType: Identifier.Types.values()) {
             String key = identifierKeys.get(identifierType);
             if (spData.containsKey(key)) {
-                if (Identifier.Types.SATU == identifierType) {
-                    String[] identifierParts = getIdentifierParts(spData.get(key));
-                    identifiers.put(identifierType, identifierParts[0]);
-                } else {
-                    identifiers.put(identifierType, spData.get(key));
-                }
+                identifiers.put(identifierType, spData.get(key));
             }
         }
         return identifiers;
@@ -73,6 +58,7 @@ public class IdentityParser {
     public Identity parse(Map<String,String> spData) throws IdentityParsingException {
         Identifier.Types identifierType = getIdentifierType(spData);
         String identifier = spData.get(identifierKeys.get(identifierType));
+        String issuerCN = spData.get("AJP_issuerCN");
         switch (identifierType) {
             case HETU:
             case KID:
@@ -81,8 +67,7 @@ public class IdentityParser {
             case EIDAS_ID:
                 return new Identity(null, identifierType, identifier);
             case SATU:
-                String[] identifierParts = getIdentifierParts(identifier);
-                return new Identity(identifierParts[1], identifierType, identifierParts[0]);
+                return new Identity(issuerCN, identifierType, identifier);
             default:
                 throw new IdentityParsingException("Unknown Identifier type " + identifierType);
         }
@@ -101,18 +86,4 @@ public class IdentityParser {
         }
     }
 
-    public String[] getIdentifierParts(String identifierString) throws IdentityParsingException {
-        if (identifierString.contains(SATU_DELIMITER)) {
-            String[] satuIdentifierParts = identifierString.split(SATU_DELIMITER, 2);
-            if (satuIdentifierParts.length == 2 &&
-                    StringUtils.isNotBlank(satuIdentifierParts[0]) &&
-                    StringUtils.isNotBlank(satuIdentifierParts[1])) {
-                return satuIdentifierParts;
-            } else {
-                throw new IdentityParsingException("Invalid data with SATU delimiter");
-            }
-        } else {
-            return new String[]{identifierString, null};
-        }
-    }
 }

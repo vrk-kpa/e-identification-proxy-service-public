@@ -75,7 +75,7 @@ public class SessionHandlingServiceAttibutesTest {
     private String hmacAlgorithm;
 
     @Mock
-    private DummyPersonService personService;
+    private DummyVtjPersonService personService;
 
     @Mock
     private MetadataService metadataService;
@@ -156,7 +156,7 @@ public class SessionHandlingServiceAttibutesTest {
         when(personService.getVtjPerson(any())).thenReturn(testVtjPersonWithProtectionOrder);
 
         // SP session data
-        Map<String,String> sessionData = getMyspNordeaSessionData(Identifier.Types.HETU, userId + "E_ID_VRK" + issuerDn, "SP_HETU", "AUTH_PROVIDER_CONTEXT_URL");
+        Map<String,String> sessionData = getMyspNordeaSessionData(Identifier.Types.HETU, userId, "SP_HETU", "AUTH_PROVIDER_CONTEXT_URL");
 
         // actual test
         String requestedAuthMethods = authMethod.name();
@@ -216,7 +216,7 @@ public class SessionHandlingServiceAttibutesTest {
         when(metadataService.getRelyingParty(anyString())).thenReturn(serviceProvider);
 
         // SP session data
-        Map<String,String> sessionData = getMyspNordeaSessionData(Identifier.Types.HETU, userId + "E_ID_VRK" + issuerDn, "SP_HETU", "AUTH_PROVIDER_CONTEXT_URL");
+        Map<String,String> sessionData = getMyspNordeaSessionData(Identifier.Types.HETU, userId, "SP_HETU", "AUTH_PROVIDER_CONTEXT_URL");
 
         // actual test
         String requestedAuthMethods = authMethod.name();
@@ -273,7 +273,7 @@ public class SessionHandlingServiceAttibutesTest {
         when(metadataService.getRelyingParty(anyString())).thenReturn(serviceProvider);
 
         // SP session data
-        Map<String,String> sessionData = getMyspNordeaSessionData(Identifier.Types.HETU, userId + "E_ID_VRK" + issuerDn, "SP_HETU", "AUTH_PROVIDER_CONTEXT_URL");
+        Map<String,String> sessionData = getMyspNordeaSessionData(Identifier.Types.HETU, userId, "SP_HETU", "AUTH_PROVIDER_CONTEXT_URL");
 
         // actual test
         String requestedAuthMethods = authMethod.name();
@@ -662,7 +662,7 @@ public class SessionHandlingServiceAttibutesTest {
 
     private Map<String,String> getHstSessionData(String userId) {
         Map<String,String> sessionData = new HashMap<>();
-        sessionData.put("AJP_satu", userId); // "99900890BE_ID_VRKVRK CA for Test Purposes - G2"
+        sessionData.put("AJP_satu", userId); // "99900890B"
         sessionData.put("identifierType", "SATU");
         sessionData.put("AJP_Shib-Session-Index", "_80965ae5ebfc9bad7f43cd153fce0e1d");
         sessionData.put("AJP_Shib-Identity-Provider", "https://kortti.tunnistus-dev.xyz/hstidp/idp1");

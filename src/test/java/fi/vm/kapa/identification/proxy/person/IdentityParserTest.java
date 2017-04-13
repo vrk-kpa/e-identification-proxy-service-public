@@ -36,15 +36,15 @@ import static org.junit.Assert.*;
 
 public class IdentityParserTest {
 
-    public static final String SATU_DELIMITER = "E_VRK_ID";
-    private IdentityParser identityParser = new IdentityParser(SATU_DELIMITER);
+    private IdentityParser identityParser = new IdentityParser();
 
     @Test
     public void parseIdentifiersSatu() throws Exception {
         HashMap<Identifier.Types,String> expected = new HashMap<>();
         expected.put(SATU, "TEST_SATU");
         HashMap<String,String> spData = new HashMap<>();
-        spData.put("AJP_satu", "TEST_SATU"+SATU_DELIMITER+"TEST_ORGANIZATION");
+        spData.put("AJP_satu", "TEST_SATU");
+        spData.put("AJP_issuerCN", "TEST_ORGANIZATION");
         Map<Identifier.Types,String> identifiers = identityParser.parseIdentifiers(spData);
         assertThat(identifiers, equalTo(expected));
     }
@@ -52,7 +52,8 @@ public class IdentityParserTest {
     @Test
     public void parseSatu() throws Exception {
         HashMap<String,String> spData = new HashMap<>();
-        spData.put("AJP_satu", "TEST_SATU"+SATU_DELIMITER+"TEST_ORGANIZATION");
+        spData.put("AJP_satu", "TEST_SATU");
+        spData.put("AJP_issuerCN", "TEST_ORGANIZATION");
         spData.put("identifierType", SATU.name());
         Identity identity = identityParser.parse(spData);
         assertEquals("TEST_ORGANIZATION", identity.getIssuerDn());

@@ -38,7 +38,7 @@ public class IdentityTest {
         spData.put(Identifier.typeKey, "HETU");
         spData.put("AJP_hetu", "TEST_AJP_HETU");
         spData.put("AJP_satu", "TEST_AJP_SATU");
-        assertEquals("TEST_AJP_HETU", new IdentityParser("E_VRK_ID").parse(spData).getIdentifier());
+        assertEquals("TEST_AJP_HETU", new IdentityParser().parse(spData).getIdentifier());
     }
 
     @Test
@@ -46,7 +46,7 @@ public class IdentityTest {
         Map<String,String> spData = new HashMap<>();
         spData.put(Identifier.typeKey, "SATU");
         spData.put("AJP_satu", "TEST_AJP_SATU");
-        assertEquals("TEST_AJP_SATU", new IdentityParser("E_VRK_ID").parse(spData).getIdentifier());
+        assertEquals("TEST_AJP_SATU", new IdentityParser().parse(spData).getIdentifier());
     }
 
     @Test
@@ -54,7 +54,7 @@ public class IdentityTest {
         Map<String,String> spData = new HashMap<>();
         spData.put(Identifier.typeKey, "KID");
         spData.put("AJP_tfiKid", "TEST_AJP_KID");
-        assertEquals("TEST_AJP_KID", new IdentityParser("E_VRK_ID").parse(spData).getIdentifier());
+        assertEquals("TEST_AJP_KID", new IdentityParser().parse(spData).getIdentifier());
     }
 
     @Test
@@ -62,7 +62,7 @@ public class IdentityTest {
         Map<String,String> spData = new HashMap<>();
         spData.put(Identifier.typeKey, "EPPN");
         spData.put("AJP_eppn", "TEST_AJP_EPPN");
-        assertEquals("TEST_AJP_EPPN", new IdentityParser("E_VRK_ID").parse(spData).getIdentifier());
+        assertEquals("TEST_AJP_EPPN", new IdentityParser().parse(spData).getIdentifier());
     }
 
 

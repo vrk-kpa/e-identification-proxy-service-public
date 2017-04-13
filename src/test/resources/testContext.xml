@@ -85,7 +85,6 @@
                 <prop key="vtj.client.dummy.nationalIdentificationNumber">none</prop>
                 <prop key="vtj.client.dummy.electronicIdentificatioNumber">none</prop>
                 <prop key="vtj.client.dummy.authenticationProvider">none</prop>
-                <prop key="satu.issuer.delimiter">E_ID_VRK</prop>
             </util:properties>
         </property>
     </bean>

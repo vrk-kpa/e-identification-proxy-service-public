@@ -23,17 +23,12 @@
 package fi.vm.kapa.identification.proxy.service;
 
 import fi.vm.kapa.identification.dto.ProxyMessageDTO;
-import fi.vm.kapa.identification.dto.SessionAttributeDTO;
 import fi.vm.kapa.identification.proxy.person.IdentifiedPersonBuilder;
 import fi.vm.kapa.identification.proxy.person.GenericPerson;
 import fi.vm.kapa.identification.proxy.person.VtjPerson;
 import fi.vm.kapa.identification.proxy.session.*;
-import fi.vm.kapa.identification.proxy.exception.InvalidVtjDataException;
-import fi.vm.kapa.identification.proxy.exception.RelyingPartyNotFoundException;
-import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.metadata.AuthenticationProvider;
 import fi.vm.kapa.identification.proxy.metadata.ServiceProvider;
-import fi.vm.kapa.identification.proxy.utils.SessionHandlingUtils;
 import fi.vm.kapa.identification.service.PhaseIdService;
 import fi.vm.kapa.identification.type.*;
 
@@ -55,7 +50,6 @@ import org.springframework.test.context.TestExecutionListeners;
 import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
-import org.springframework.test.util.ReflectionTestUtils;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -100,7 +94,7 @@ public class SessionHandlingServiceTimingTest {
     private MetadataService metadataServiceMock;
 
     @Mock
-    private PersonService personServiceMock;
+    private VtjPersonService vtjPersonServiceMock;
 
     @Mock
     private IdentifiedPersonBuilder identifiedPersonBuilder;
@@ -147,7 +141,7 @@ public class SessionHandlingServiceTimingTest {
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
         when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
         // artificial wait during VTJ call
-        when(personServiceMock.getVtjPerson(any())).thenAnswer(new Answer<VtjPerson>() {
+        when(vtjPersonServiceMock.getVtjPerson(any())).thenAnswer(new Answer<VtjPerson>() {
             @Override
             public VtjPerson answer(InvocationOnMock invocation) {
                 try {
