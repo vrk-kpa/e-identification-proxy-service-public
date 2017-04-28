@@ -302,6 +302,7 @@
                     </properties>
                     <excludes>
                         <exclude>**/README</exclude>
+                        <exclude>bin/**</exclude>
                         <exclude>conf/**</exclude>
                         <exclude>script/**</exclude>
                         <exclude>**/*.war</exclude>

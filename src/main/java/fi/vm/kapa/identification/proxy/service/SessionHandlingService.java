@@ -78,24 +78,6 @@ public class SessionHandlingService {
     @Value("${phase.id.step.five}")
     private String stepCancel;
 
-    @Value("${saml.vtj.required.key}")
-    private String vtjRequiredKey;
-
-    @Value("${saml.vtj.verified.key}")
-    private String vtjVerifiedKey;
-
-    @Value("${saml.vtj.invalid.key}")
-    private String vtjDataInvalidKey;
-
-    @Value("${saml.national.id.key}")
-    private String samlNationalIdKey;
-
-    @Value("${legacy.version.key}")
-    private String legacyVersionKey;
-
-    @Value("${legacy.version.value}")
-    private String legacyVersionValue;
-
     private VtjPersonService vtjPersonService;
 
     private SessionHandlingUtils sessionHandlingUtils;

@@ -26,8 +26,6 @@ saml.auth.provider.key=samlAuthenticationProvider
 saml.vtj.required.key=samlVtjRequired
 saml.vtj.verified.key=samlVtjVerified
 saml.vtj.invalid.key=samlVtjInvalid
-# National id key
-saml.national.id.key=samlNationalIdentificationNumber
 # Legacy session data has fixed version key and value
 legacy.version.key=legacyVersion
 legacy.version.value=katso-1.1

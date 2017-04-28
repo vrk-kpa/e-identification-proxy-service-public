@@ -65,14 +65,6 @@ public class GenericPerson implements IdentifiedPerson {
         return commonName;
     }
 
-    public String getDisplayName() {
-        if (null != getGivenName()) {
-            return getGivenName().split(" ")[0] + " " + getSurname();
-        } else {
-            return getCommonName();
-        }
-    }
-
     public String getMobileNumber() {
         return mobileNumber;
     }
@@ -107,7 +99,6 @@ public class GenericPerson implements IdentifiedPerson {
             }
         }
         putIfNonEmpty(attributes, "samlCn", getCommonName());
-        putIfNonEmpty(attributes, "samlDisplayName", getDisplayName());
         putIfNonEmpty(attributes, "samlGivenName", getGivenName());
         putIfNonEmpty(attributes, "samlSn", getSurname());
         putIfNonEmpty(attributes, "samlMobile", getMobileNumber());

@@ -493,7 +493,6 @@ public class SessionHandlingServiceAttibutesTest {
         expected.put("samlNationalIdentificationNumber", "SP_HETU");
         expected.put("samlSn", "SP_SURNAME");
         expected.put("samlMobile", "SP_MOBILE");
-        expected.put("samlDisplayName", "Raija SP_SURNAME");
         expected.put("samlGivenName", "Raija Talvikki");
         assertThat(attributeMap.entrySet(), equalTo(expected.entrySet()));
     }

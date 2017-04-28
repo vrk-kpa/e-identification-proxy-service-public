@@ -54,7 +54,6 @@
                 <prop key="saml.vtj.required.key">vtjRequired</prop>
                 <prop key="saml.vtj.verified.key">vtjVerified</prop>
                 <prop key="saml.vtj.invalid.key">vtjInvalid</prop>
-                <prop key="saml.national.id.key">samlNationalIdentificationNumber</prop>
                 <prop key="legacy.version.key">version</prop>
                 <prop key="legacy.version.value">legacyvalue</prop>
                 <prop key="phase.id.shared.secret">sharedsecret</prop>
