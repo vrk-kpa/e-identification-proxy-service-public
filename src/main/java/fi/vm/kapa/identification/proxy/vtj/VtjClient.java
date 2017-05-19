@@ -24,8 +24,10 @@ package fi.vm.kapa.identification.proxy.vtj;
 
 import javax.ws.rs.client.Client;
 import javax.ws.rs.client.ClientBuilder;
+import javax.ws.rs.client.Entity;
 import javax.ws.rs.client.Invocation;
 import javax.ws.rs.client.WebTarget;
+import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 
@@ -72,15 +74,17 @@ public class VtjClient {
         Response response;
         try {
             WebTarget webTarget = getClient()
-                    .target(vtjClientEndpoint)
-                    .path(identity.getIdentifier())
-                    .path(identity.getIdentifierType().name())
-                    .queryParam("issuerDn", identity.getIssuerDn());
+                    .target(vtjClientEndpoint);
+            
+            Form form = new Form();
+            form.param("identifier", identity.getIdentifier());
+            form.param("identifierType", identity.getIdentifierType().name());
+            form.param("issuerDn", identity.getIssuerDn());
 
             Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
-            response = invocationBuilder.get();
+            response = invocationBuilder.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED));
         } catch (Exception e) {
-            logger.error("Vtj connection not established. Service request failed.", e);
+            logger.error("Vtj connection not established. Service request failed.");
             throw new VtjServiceException("Vtj connection not established. Service request failed.");
         }
         return response;

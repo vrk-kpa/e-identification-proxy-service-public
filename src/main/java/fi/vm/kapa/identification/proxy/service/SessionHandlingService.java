@@ -334,16 +334,16 @@ public class SessionHandlingService {
                 message.setErrorType(ErrorType.SESSION_BUILD_FAILED);
             }
         } catch (AuthenticationProviderNotFoundException e) {
-            logger.error("<<{}>> Error building new session", logTag, e);
+            logger.error("<<{}>> Error building new session: {}", logTag, e.getMessage());
             message.setErrorType(ErrorType.INTERNAL_ERROR);
         } catch (InvalidVtjDataException ve) {
-            logger.error("<<{}>> Error building new session", logTag, ve);
+            logger.error("<<{}>> Error building new session: {}", logTag, ve.getMessage());
             message.setErrorType(ErrorType.VTJ_INVALID);
         } catch (VtjServiceException se) {
-            logger.error("<<{}>> Error building new session", logTag, se);
+            logger.error("<<{}>> Error building new session: {}", logTag, se.getMessage());
             message.setErrorType(ErrorType.VTJ_FAILED);
         } catch (Exception e) {
-            logger.error("<<{}>> Error building new session", logTag, e);
+            logger.error("<<{}>> Error building new session: {}", logTag, e.getMessage());
             message.setErrorType(ErrorType.INTERNAL_ERROR);
         }
 
