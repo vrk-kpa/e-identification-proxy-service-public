@@ -62,39 +62,39 @@ public class ProxyResourceImplTest {
     public void fromIdPInitSessionThrows503WhenVtjFailed() throws Exception {
         ProxyMessageDTO proxyMessage = new ProxyMessageDTO();
         proxyMessage.setErrorType(ErrorType.VTJ_FAILED);
-        when(sessionHandlingService.initNewSession(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(proxyMessage);
+        when(sessionHandlingService.initNewSession(anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(proxyMessage);
         try {
-            proxyApiController.fromIdPInitSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0");
+            proxyApiController.fromIdPInitSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0", "id");
         } catch (WebApplicationException e) {
             assertEquals(503, e.getResponse().getStatus());
         }
-        verify(sessionHandlingService, times(1)).initNewSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0");
+        verify(sessionHandlingService, times(1)).initNewSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0", "id");
     }
 
     @Test
     public void fromIdPInitSessionThrows400WhenPhaseIdFailed() throws Exception {
         ProxyMessageDTO proxyMessage = new ProxyMessageDTO();
         proxyMessage.setErrorType(ErrorType.PHASE_ID_FAILED);
-        when(sessionHandlingService.initNewSession(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(proxyMessage);
+        when(sessionHandlingService.initNewSession(anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(proxyMessage);
         try {
-            proxyApiController.fromIdPInitSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0");
+            proxyApiController.fromIdPInitSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0", "id");
         } catch (WebApplicationException e) {
             assertEquals(400, e.getResponse().getStatus());
         }
-        verify(sessionHandlingService, times(1)).initNewSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0");
+        verify(sessionHandlingService, times(1)).initNewSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0", "id");
     }
 
     @Test
     public void fromIdPInitSessionThrows500WhenInternalError() throws Exception {
         ProxyMessageDTO proxyMessage = new ProxyMessageDTO();
         proxyMessage.setErrorType(ErrorType.INTERNAL_ERROR);
-        when(sessionHandlingService.initNewSession(anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(proxyMessage);
+        when(sessionHandlingService.initNewSession(anyString(), anyString(), anyString(), anyString(), anyString(), anyString())).thenReturn(proxyMessage);
         try {
-            proxyApiController.fromIdPInitSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0");
+            proxyApiController.fromIdPInitSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0", "id");
         } catch (WebApplicationException e) {
             assertEquals(500, e.getResponse().getStatus());
         }
-        verify(sessionHandlingService, times(1)).initNewSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0");
+        verify(sessionHandlingService, times(1)).initNewSession("relyingParty", "0", "key", "TEST_AUTH_METHOD", "0", "id");
     }
 
     @Test

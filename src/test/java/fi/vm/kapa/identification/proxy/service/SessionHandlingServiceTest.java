@@ -128,7 +128,7 @@ public class SessionHandlingServiceTest {
     public void initializeNewSession() throws Exception {
         ServiceProvider serviceProvider = new ServiceProvider("service-provider", "", "TUPAS;HST", SessionProfile.VETUMA_SAML2, true);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession("service-provider", "0", "testkey", "TUPAS;HST", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession("service-provider", "0", "testkey", "TUPAS;HST", "logtag", "authnRequestId");
         Assert.assertNotNull(message);
         Assert.assertNotNull(message.getTokenId());
         Assert.assertNotNull(message.getPhaseId());
@@ -141,7 +141,7 @@ public class SessionHandlingServiceTest {
     public void initExistingSession() throws Exception {
         ServiceProvider serviceProvider = new ServiceProvider("service-provider", "", "TUPAS;HST", SessionProfile.VETUMA_SAML2, true);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession("service-provider", "uid12345uid", "testkey", "TUPAS;HST", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession("service-provider", "uid12345uid", "testkey", "TUPAS;HST", "logtag", "authnRequestId");
         Assert.assertNotNull(message);
         Assert.assertNotNull(message.getTokenId());
         Assert.assertNotNull(message.getPhaseId());
@@ -152,7 +152,7 @@ public class SessionHandlingServiceTest {
     public void initNewSessionFailsWhenRelyingPartyAuthenticationMethodIsBlank() throws RelyingPartyNotFoundException {
         ServiceProvider relyingParty = getServiceProviderWithSessionProfileAndAuthenticationMethods(SessionProfile.VETUMA_SAML2, "");
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(relyingParty);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession("service-provider", "uid12345uid", "testkey", "TUPAS;HST", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession("service-provider", "uid12345uid", "testkey", "TUPAS;HST", "logtag", "authnRequestId");
         Assert.assertTrue(message.getErrorType() == ErrorType.INTERNAL_ERROR);
     }
 
@@ -160,7 +160,7 @@ public class SessionHandlingServiceTest {
     public void initNewSessionFailsWhenRequestedAuthenticationMethodNotInRelyingPartyAuthMethods() throws RelyingPartyNotFoundException {
         ServiceProvider relyingParty = getServiceProviderWithSessionProfileAndAuthenticationMethods(SessionProfile.VETUMA_SAML2, "HST");
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(relyingParty);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession("service-provider", "uid12345uid", "testkey", "TUPAS;KATSOPWD", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession("service-provider", "uid12345uid", "testkey", "TUPAS;KATSOPWD", "logtag", "authnRequestId");
         Assert.assertTrue(message.getErrorType() == ErrorType.INTERNAL_ERROR);
     }
 
@@ -169,7 +169,7 @@ public class SessionHandlingServiceTest {
         String relyingPartyId = "service-provider";
         ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "", "HST", null, true);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "uid12345uid", "testkey", "HST", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "uid12345uid", "testkey", "HST", "logtag", "authnRequestId");
         Assert.assertTrue(message.getErrorType() == ErrorType.SESSION_INIT_FAILED);
     }
 
@@ -189,7 +189,7 @@ public class SessionHandlingServiceTest {
                 uidToUserSessionsCache,
                 phaseIdInitServiceMock,
                 phaseIdBuiltSession);
-        ProxyMessageDTO message = service.initNewSession(relyingPartyId, "uid12345uid", "testkey", " ", "logtag");
+        ProxyMessageDTO message = service.initNewSession(relyingPartyId, "uid12345uid", "testkey", " ", "logtag", "authnRequestId");
         Assert.assertEquals("TUPAS;HST", message.getAuthenticationMethods());
         Assert.assertEquals("TUPAS;HST", uidToUserSessionsCache.getSessionsCache().get("TEST_TOKEN").get(AuthMethod.INIT).getRequestedAuthenticationMethods());
     }
@@ -204,7 +204,7 @@ public class SessionHandlingServiceTest {
         String relyingPartyId = "service-provider";
         ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "", "TUPAS;HST", SessionProfile.TUNNISTUSFI_LEGACY, false);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "0", convKey, "TUPAS;HST", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "0", convKey, "TUPAS;HST", "logtag", "authnRequestId");
         Assert.assertNotNull(message);
 
         String tokenId = message.getTokenId();
@@ -267,7 +267,7 @@ public class SessionHandlingServiceTest {
         String relyingPartyId = "service-provider";
         ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "", "TUPAS;HST", SessionProfile.TUNNISTUSFI_LEGACY, false);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "0", convKey, "TUPAS;HST", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "0", convKey, "TUPAS;HST", "logtag", "authnRequestId");
         Assert.assertNotNull(message);
 
         String tokenId = message.getTokenId();
@@ -331,7 +331,7 @@ public class SessionHandlingServiceTest {
         String relyingPartyId = "service-provider";
         ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "", "TUPAS;HST", SessionProfile.TUNNISTUSFI_LEGACY, false);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "0", convKey, "TUPAS;HST", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "0", convKey, "TUPAS;HST", "logtag", "authnRequestId");
         Assert.assertNotNull(message);
 
         String tokenId = message.getTokenId();
@@ -364,7 +364,7 @@ public class SessionHandlingServiceTest {
         String relyingPartyId = "service-provider";
         ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "", "TUPAS;HST", SessionProfile.TUNNISTUSFI_LEGACY, true);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession("service-provider", "0", convKey, "", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession("service-provider", "0", convKey, "", "logtag", "authnRequestId");
         Assert.assertNotNull(message);
 
         String tokenId = message.getTokenId();
@@ -428,7 +428,7 @@ public class SessionHandlingServiceTest {
         String entityId = "service-provider";
         ServiceProvider serviceProvider = new ServiceProvider(entityId, "", "TUPAS;HST", SessionProfile.TUNNISTUSFI_LEGACY, false);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(entityId, "0", convKey, "TUPAS;HST", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(entityId, "0", convKey, "TUPAS;HST", "logtag", "authnRequestId");
 
         String tokenId = message.getTokenId();
         String nextPhaseId = phaseIdInitSession.newPhaseId(tokenId, stepSessionBuild);
@@ -451,7 +451,7 @@ public class SessionHandlingServiceTest {
         String entityId = "service-provider";
         ServiceProvider serviceProvider = new ServiceProvider(entityId, "", "TUPAS;HST", SessionProfile.VETUMA_SAML2, true);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(entityId, "0", convKey, "TUPAS;HST", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(entityId, "0", convKey, "TUPAS;HST", "logtag", "authnRequestId");
         Assert.assertNotNull(message);
         String tokenId = message.getTokenId();
         String nextPhaseId = phaseIdInitSession.newPhaseId(tokenId, stepSessionBuild);
@@ -476,7 +476,7 @@ public class SessionHandlingServiceTest {
         String entityId = "service-provider";
         ServiceProvider serviceProvider = new ServiceProvider(entityId, "", "TUPAS;HST", SessionProfile.TUNNISTUSFI_LEGACY, false);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(entityId, "0", convKey, "TUPAS;HST", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(entityId, "0", convKey, "TUPAS;HST", "logtag", "authnRequestId");
         Assert.assertNotNull(message);
         String tokenId = message.getTokenId();
         String nextPhaseId = phaseIdInitSession.newPhaseId(tokenId, stepSessionBuild);
@@ -502,7 +502,7 @@ public class SessionHandlingServiceTest {
         String entityId = "service-provider";
         ServiceProvider serviceProvider = new ServiceProvider(entityId, "", "TUPAS;HST;KATSOPWD", SessionProfile.TUNNISTUSFI_LEGACY, true);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(entityId, "0", convKey, "TUPAS;HST;KATSOPWD", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(entityId, "0", convKey, "TUPAS;HST;KATSOPWD", "logtag", "authnRequestId");
         String tokenId = message.getTokenId();
         String nextPhaseId = phaseIdInitSession.newPhaseId(tokenId, stepSessionBuild);
         Map<String, String> sessionData = new HashMap<>();
@@ -523,7 +523,7 @@ public class SessionHandlingServiceTest {
         String relyingPartyId = "service-provider";
         ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "", "TUPAS;HST", SessionProfile.TUNNISTUSFI_LEGACY, true);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "uid56789uid", convKey, "TUPAS;HST", "logtag");
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "uid56789uid", convKey, "TUPAS;HST", "logtag", "authnRequestId");
         Assert.assertNotNull(message);
 
         String tokenId = message.getTokenId();

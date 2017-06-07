@@ -45,3 +45,8 @@ vtj.client.url={{vtj_client_url}}/vtj/person
 
 #dummy data for non vtj users
 vtj.client.dummydata={{vtj_client_dummydata}}
+
+token.keystore=/data00/deploy/{{token_keystore}}
+token.keystore.alias={{token_keystore_alias}}
+token.keystore.password={{token_keystore_password}}
+token.keystore.keypassword={{token_keystore_keypassword}}

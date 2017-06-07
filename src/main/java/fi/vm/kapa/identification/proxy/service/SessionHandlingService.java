@@ -32,6 +32,7 @@ import fi.vm.kapa.identification.proxy.session.*;
 import fi.vm.kapa.identification.proxy.metadata.AuthenticationProvider;
 import fi.vm.kapa.identification.proxy.metadata.ServiceProvider;
 import fi.vm.kapa.identification.proxy.utils.SessionHandlingUtils;
+import fi.vm.kapa.identification.proxy.utils.TokenCreator;
 import fi.vm.kapa.identification.service.PhaseIdHistoryService;
 import fi.vm.kapa.identification.service.PhaseIdService;
 import fi.vm.kapa.identification.type.*;
@@ -46,6 +47,7 @@ import org.springframework.stereotype.Service;
 import javax.annotation.PostConstruct;
 import javax.inject.Named;
 
+import java.util.Date;
 import java.util.Map;
 
 import static fi.vm.kapa.identification.proxy.session.VtjVerificationRequirement.FORBIDDEN;
@@ -85,6 +87,9 @@ public class SessionHandlingService {
     private MetadataService metadataService;
 
     private UidToUserSessionsCache uidToUserSessionsCache;
+
+    @Autowired
+    private TokenCreator tokenCreator;
 
     @Autowired
     public SessionHandlingService(MetadataService metadataService,
@@ -130,9 +135,9 @@ public class SessionHandlingService {
      * @param logTag          identifier used to pin point errors from logs
      * @return message DTO class used to transfer data from Proxy
      */
-    public ProxyMessageDTO initNewSession(String relyingPartyId, String uid, String conversationKey, String requestedAuthenticationMethodStr, String logTag) {
+    public ProxyMessageDTO initNewSession(String relyingPartyId, String uid, String conversationKey, String requestedAuthenticationMethodStr, String logTag, String authnRequestId) {
 
-        logger.debug("initNewSession called with relyingPartyId: {}, uid: {}, conversationKey {}, requestedAuthenticationMethodStr: {}, logTag: {}", relyingPartyId, uid, conversationKey, requestedAuthenticationMethodStr, logTag);
+        logger.debug("initNewSession called with relyingPartyId: {}, uid: {}, conversationKey {}, requestedAuthenticationMethodStr: {}, logTag: {}, authnRequestId: {}", relyingPartyId, uid, conversationKey, requestedAuthenticationMethodStr, logTag, authnRequestId);
 
         ProxyMessageDTO message = new ProxyMessageDTO();
 
@@ -156,6 +161,7 @@ public class SessionHandlingService {
                 session.setConversationKey(conversationKey);
                 session.setSessionProfile(relyingParty.getSessionProfile());
                 session.setRelyingPartyEntityId(relyingPartyId);
+                session.setAuthnRequestId(authnRequestId);
 
                 String permittedAuthMethodsStr = relyingParty.getPermittedAuthMethods();
                 //Permitted authentication methods for SP cannot be empty
@@ -499,6 +505,24 @@ public class SessionHandlingService {
             /* Add VTJ attributes to session data for use by IdP
              */
             attributes.getAttributeMap().putAll(sessionAttributeCollector.getAttributes(session));
+
+            // Generate JWT authentication token
+            try {
+                String authenticationToken = tokenCreator.getAuthenticationToken(
+                        attributes.getAttributeMap().get("samlNationalIdentificationNumber"),
+                        authMethodOid,
+                        session.getRelyingPartyEntityId(), // relyingParty.getEntityId()
+                        session.getUid(),
+                        session.getAuthnRequestId(),
+                        new Date() // "issued at" timestamp
+                );
+                logger.debug("JWT: " + authenticationToken);
+                attributes.getAttributeMap().put("samlAuthenticationToken", authenticationToken);
+            }
+            catch (TokenCreatorException e)
+            {
+                logger.error("Unable to create JWT token: "+e.getMessage());
+            }
 
         }
 

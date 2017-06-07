@@ -50,10 +50,10 @@ public class ProxyResourceImpl implements ProxyResource {
     private SessionHandlingService sessionHandlingService;
 
     @Override
-    public ProxyMessageDTO fromIdPInitSession(String relyingParty, String uid, String key, String authMethodReqStr, String logTag) {
+    public ProxyMessageDTO fromIdPInitSession(String relyingParty, String uid, String key, String authMethodReqStr, String logTag, String authnRequestId) {
         logger.debug("Got session init from Shibboleth IdP, conversation key: {}", key);
 
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingParty, uid, key, authMethodReqStr, logTag);
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingParty, uid, key, authMethodReqStr, logTag, authnRequestId);
         if (message.getErrorType() == ErrorType.NO_ERROR) {
             return message;
         }

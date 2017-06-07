@@ -41,6 +41,8 @@ public class Session {
 
     private String conversationKey;
 
+    private String authnRequestId;
+
     private boolean validated;
 
     private boolean vtjDataInvalid;
@@ -184,4 +186,8 @@ public class Session {
     public void setLegacyVersion(String legacyVersion) {
         this.legacyVersion = legacyVersion;
     }
+
+    public String getAuthnRequestId() { return authnRequestId; }
+
+    public void setAuthnRequestId(String authnRequestId) { this.authnRequestId = authnRequestId; }
 }

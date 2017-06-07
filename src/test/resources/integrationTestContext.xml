@@ -85,6 +85,10 @@
                 <prop key="vtj.client.dummy.nationalIdentificationNumber">none</prop>
                 <prop key="vtj.client.dummy.electronicIdentificatioNumber">none</prop>
                 <prop key="vtj.client.dummy.authenticationProvider">none</prop>
+                <prop key="token.keystore">src/test/resources/token-test.jks</prop>
+                <prop key="token.keystore.alias">token</prop>
+                <prop key="token.keystore.password">tokentest</prop>
+                <prop key="token.keystore.keypassword">tokentest</prop>
             </util:properties>
         </property>
     </bean>
