@@ -26,6 +26,7 @@ public class SatuFormatException extends Exception {
     public SatuFormatException(String message) {
         super(message);
     }
+
     public SatuFormatException(String message, Throwable t) {
         super(message, t);
     }

@@ -46,7 +46,7 @@ public class IdentityParser {
 
     public Map<Identifier.Types,String> parseIdentifiers(Map<String,String> spData) throws IdentityParsingException {
         Map<Identifier.Types,String> identifiers = new EnumMap<>(Identifier.Types.class);
-        for (Identifier.Types identifierType: Identifier.Types.values()) {
+        for (Identifier.Types identifierType : Identifier.Types.values()) {
             String key = identifierKeys.get(identifierType);
             if (spData.containsKey(key)) {
                 identifiers.put(identifierType, spData.get(key));

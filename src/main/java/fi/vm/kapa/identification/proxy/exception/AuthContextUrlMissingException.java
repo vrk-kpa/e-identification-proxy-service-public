@@ -26,6 +26,7 @@ public class AuthContextUrlMissingException extends Exception {
     public AuthContextUrlMissingException(String message) {
         super(message);
     }
+
     public AuthContextUrlMissingException(String message, Throwable t) {
         super(message, t);
     }

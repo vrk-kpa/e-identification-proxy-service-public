@@ -89,6 +89,7 @@
                 <prop key="token.keystore.alias">token</prop>
                 <prop key="token.keystore.password">tokentest</prop>
                 <prop key="token.keystore.keypassword">tokentest</prop>
+                <prop key="token.issuer">Suomi.fi-tunnistus</prop>
             </util:properties>
         </property>
     </bean>

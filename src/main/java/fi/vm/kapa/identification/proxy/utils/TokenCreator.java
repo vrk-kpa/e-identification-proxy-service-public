@@ -28,6 +28,7 @@ import com.auth0.jwt.exceptions.JWTCreationException;
 import fi.vm.kapa.identification.proxy.exception.TokenCreatorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+
 import java.util.Date;
 
 public class TokenCreator {
@@ -36,14 +37,19 @@ public class TokenCreator {
 
     private final Algorithm algorithm;
 
-    public TokenCreator(Algorithm algorithm) { this.algorithm = algorithm; }
+    private final String issuer;
+
+    public TokenCreator(Algorithm algorithm, final String issuer) {
+        this.algorithm = algorithm;
+        this.issuer = issuer;
+    }
 
     public String getAuthenticationToken(String hetu, String method, String rp, String sfi_id, String req_id, Date iat) throws TokenCreatorException {
 
         String token = null;
         try {
             token = JWT.create()
-                    .withIssuer("Suomi.fi-tunnistus")
+                    .withIssuer(issuer)
                     .withIssuedAt(iat)
                     .withClaim("auth_method", method)
                     .withClaim("hetu", hetu)
@@ -53,7 +59,7 @@ public class TokenCreator {
                     .sign(algorithm);
         } catch (JWTCreationException e) {
             logger.error("Unable to create JWT: " + e.getMessage());
-            throw new TokenCreatorException("JWT creation failed: "+e.getMessage());
+            throw new TokenCreatorException("JWT creation failed: " + e.getMessage());
         }
         return token;
     }

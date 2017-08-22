@@ -26,13 +26,12 @@ import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.person.IdentifiedPerson;
 import fi.vm.kapa.identification.proxy.person.VtjPerson;
 import fi.vm.kapa.identification.proxy.session.Identity;
+import fi.vm.kapa.identification.proxy.vtj.VtjClient;
 import fi.vm.kapa.identification.vtj.model.Person;
+import fi.vm.kapa.identification.vtj.model.VTJResponse;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-
-import fi.vm.kapa.identification.proxy.vtj.VtjClient;
-import fi.vm.kapa.identification.vtj.model.VTJResponse;
 
 public class RealVtjPersonService implements VtjPersonService {
     private static final Logger logger = LoggerFactory.getLogger(RealVtjPersonService.class);

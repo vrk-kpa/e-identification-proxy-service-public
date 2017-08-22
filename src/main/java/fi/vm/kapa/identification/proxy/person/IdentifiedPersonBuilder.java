@@ -53,8 +53,7 @@ public class IdentifiedPersonBuilder {
                 return katsoPersonFactory.createFromSpData(spData);
             } else if (authenticationMethod == AuthMethod.EIDAS1) {
                 return eidasPersonFactory.createFromSpData(spData);
-            }
-            else {
+            } else {
                 return genericPersonFactory.createFromSpData(spData);
             }
         } catch (IdentityParsingException e) {

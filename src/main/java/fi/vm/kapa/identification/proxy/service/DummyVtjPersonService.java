@@ -47,7 +47,9 @@ public class DummyVtjPersonService implements VtjPersonService {
         // if SATU identity, but HETU in identifiers, replace returned HETU
         if (identity.getIdentifierType() == SATU) {
             identifiedPerson.getIdentifiers().forEach(
-                    (type,identifier) -> { if (type == HETU) person.setHetu(identifier);}
+                    (type, identifier) -> {
+                        if (type == HETU) person.setHetu(identifier);
+                    }
             );
         }
         return new VtjPerson(identity, person);

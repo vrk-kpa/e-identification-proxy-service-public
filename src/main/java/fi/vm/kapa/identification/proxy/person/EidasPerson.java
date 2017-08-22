@@ -69,7 +69,7 @@ public class EidasPerson implements IdentifiedPerson {
     @Override
     public Map<String,String> getAttributes() throws AttributeGenerationException {
         Map<String,String> attributes = new HashMap<>();
-        for (Map.Entry<Identifier.Types,String> entry: getIdentifiers().entrySet()) {
+        for (Map.Entry<Identifier.Types,String> entry : getIdentifiers().entrySet()) {
             switch (entry.getKey()) {
                 case EIDAS_ID:
                     attributes.put("samlUid", entry.getValue());

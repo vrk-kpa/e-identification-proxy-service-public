@@ -28,15 +28,14 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Singleton;
-
-import java.util.*;
+import java.util.Map;
 
 @Service
 @Singleton
 public class SessionHandlingUtils {
     private static final Logger logger = LoggerFactory.getLogger(SessionHandlingUtils.class);
 
-    public String getSpProvidedEndIdPAuthContextUrl(Map<String, String> spSessionData) throws AuthContextUrlMissingException {
+    public String getSpProvidedEndIdPAuthContextUrl(Map<String,String> spSessionData) throws AuthContextUrlMissingException {
         String spProvidedEndIdPAuthContextUrl;
         if (spSessionData.get("AJP_Shib-AuthnContext-Class") != null) {
             spProvidedEndIdPAuthContextUrl = spSessionData.get("AJP_Shib-AuthnContext-Class");
@@ -49,7 +48,7 @@ public class SessionHandlingUtils {
         return spProvidedEndIdPAuthContextUrl;
     }
 
-    public String getLegacyVersion(Map<String, String> spSessionData) {
+    public String getLegacyVersion(Map<String,String> spSessionData) {
         return spSessionData.get("AJP_tfiVersion");
     }
 

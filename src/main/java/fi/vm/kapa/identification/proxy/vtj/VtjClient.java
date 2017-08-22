@@ -22,16 +22,9 @@
  */
 package fi.vm.kapa.identification.proxy.vtj;
 
-import javax.ws.rs.client.Client;
-import javax.ws.rs.client.ClientBuilder;
-import javax.ws.rs.client.Entity;
-import javax.ws.rs.client.Invocation;
-import javax.ws.rs.client.WebTarget;
-import javax.ws.rs.core.Form;
-import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-
+import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.session.Identity;
+import fi.vm.kapa.identification.vtj.model.VTJResponse;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.slf4j.Logger;
@@ -40,8 +33,10 @@ import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
 
-import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
-import fi.vm.kapa.identification.vtj.model.VTJResponse;
+import javax.ws.rs.client.*;
+import javax.ws.rs.core.Form;
+import javax.ws.rs.core.MediaType;
+import javax.ws.rs.core.Response;
 
 
 @Component
@@ -49,13 +44,13 @@ public class VtjClient {
 
     @Value("${vtj.client.url}")
     private String vtjClientEndpoint;
-    
+
     private static final Logger logger = LoggerFactory.getLogger(VtjClient.class);
 
     public VTJResponse fetchVtjData(Identity identity) throws VtjServiceException {
         VTJResponse vtjResponse = getVtjResponseForUser(identity);
         if (vtjResponse == null) {
-           logger.debug("VTJ returned no data for user " + identity.getIdentifier());
+            logger.debug("VTJ returned no data for user " + identity.getIdentifier());
         }
         return vtjResponse;
     }
@@ -75,7 +70,7 @@ public class VtjClient {
         try {
             WebTarget webTarget = getClient()
                     .target(vtjClientEndpoint);
-            
+
             Form form = new Form();
             form.param("identifier", identity.getIdentifier());
             form.param("identifierType", identity.getIdentifierType().name());

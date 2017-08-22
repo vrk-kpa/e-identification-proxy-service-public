@@ -27,14 +27,12 @@ import fi.vm.kapa.identification.proxy.exception.RelyingPartyNotFoundException;
 import fi.vm.kapa.identification.proxy.metadata.AuthenticationProvider;
 import fi.vm.kapa.identification.proxy.metadata.MetadataClient;
 import fi.vm.kapa.identification.proxy.metadata.ServiceProvider;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Singleton;
-
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.List;
@@ -49,7 +47,7 @@ public class MetadataService {
     private MetadataClient metadataClient;
 
     //cached service providers
-    private Map<String, ServiceProvider> serviceProviderMetaDataCache = new HashMap<>();
+    private Map<String,ServiceProvider> serviceProviderMetaDataCache = new HashMap<>();
     //cached authentication providers
     private ApprovedAuthenticationProviders approvedAuthenticationProviders =
             new ApprovedAuthenticationProviders(Collections.emptyList());
@@ -63,11 +61,11 @@ public class MetadataService {
         this.metadataClient = metadataClient;
     }
 
-    public Map<String, ServiceProvider> getServiceProviderMetaDataCache() {
+    public Map<String,ServiceProvider> getServiceProviderMetaDataCache() {
         return serviceProviderMetaDataCache;
     }
 
-    public void setServiceProviderMetaDataCache(Map<String, ServiceProvider> serviceProviderMetaDataCache) {
+    public void setServiceProviderMetaDataCache(Map<String,ServiceProvider> serviceProviderMetaDataCache) {
         logger.debug("Clearing previous serviceProvider cache, content size {}", this.serviceProviderMetaDataCache.size());
         this.serviceProviderMetaDataCache = serviceProviderMetaDataCache;
     }
@@ -90,7 +88,7 @@ public class MetadataService {
 
     public AuthenticationProvider getAuthenticationProvider(String authContextUrl) throws AuthenticationProviderNotFoundException {
         AuthenticationProvider authenticationProvider = approvedAuthenticationProviders.getAuthenticationProviderByAuthContextUrl(authContextUrl);
-        if (authenticationProvider == null ) {
+        if (authenticationProvider == null) {
             throw new AuthenticationProviderNotFoundException("authentication provider not found: " + authContextUrl);
         }
         return authenticationProvider;
@@ -100,7 +98,7 @@ public class MetadataService {
         try {
             MetadataService.ApprovedAuthenticationProviders newAuthenticationProviders =
                     getAuthenticationProviders();
-            Map<String, ServiceProvider> newServiceProviders = metadataClient.getServiceProviders();
+            Map<String,ServiceProvider> newServiceProviders = metadataClient.getServiceProviders();
 
             if (!newServiceProviders.isEmpty() && !newAuthenticationProviders.allProviders.isEmpty()) {
                 setServiceProviderMetaDataCache(newServiceProviders); // when done replace old with new

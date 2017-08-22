@@ -138,7 +138,7 @@ public class SessionHandlingServiceAttibutesTest {
 
         // actual test
         String requestedAuthMethods = authMethod.name();
-        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag", "authnRequestId");
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag");
         assertEquals(serviceProvider.getLevelOfAssurance(), initResponse.getLoaProfile());
         assertEquals(requestedAuthMethods, initResponse.getAuthenticationMethods());
     }
@@ -160,7 +160,7 @@ public class SessionHandlingServiceAttibutesTest {
 
         // actual test
         String requestedAuthMethods = authMethod.name();
-        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag", "authnRequestId");
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag");
         ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(initResponse.getTokenId(), "1", sessionData, "logtag");
         ProxyMessageDTO result = sessionHandlingService.getSessionById(buildResponse.getTokenId(), "2", "logtag");
         assertEquals(convKey, result.getConversationKey());
@@ -169,11 +169,10 @@ public class SessionHandlingServiceAttibutesTest {
         assertEquals(ErrorType.NO_ERROR, result.getErrorType());
 
         // get attributes
-        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId");
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId", false, "authnRequestId");
         assertNotNull(attributes);
 
         Map<String,String> attributeMap = attributes.getAttributeMap();
-        attributeMap.remove("samlAuthenticationToken"); // tested separately
         Map<String,String> expected = new HashMap<>();
         expected.put("vtjInvalid", "false");
         expected.put("vtjVerified", "true");
@@ -221,7 +220,7 @@ public class SessionHandlingServiceAttibutesTest {
 
         // actual test
         String requestedAuthMethods = authMethod.name();
-        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag", "authnRequestId");
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag");
         ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(initResponse.getTokenId(), "1", sessionData, "logtag");
         ProxyMessageDTO result = sessionHandlingService.getSessionById(buildResponse.getTokenId(), "2", "logtag");
         assertEquals(convKey, result.getConversationKey());
@@ -230,11 +229,10 @@ public class SessionHandlingServiceAttibutesTest {
         assertEquals(ErrorType.NO_ERROR, result.getErrorType());
 
         // get attributes
-        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId");
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId", false, "authnRequestId");
         assertNotNull(attributes);
 
         Map<String,String> attributeMap = attributes.getAttributeMap();
-        attributeMap.remove("samlAuthenticationToken"); // tested separately
         Map<String,String> expected = new HashMap<>();
         expected.put("vtjInvalid", "false");
         expected.put("vtjVerified", "true");
@@ -279,7 +277,7 @@ public class SessionHandlingServiceAttibutesTest {
 
         // actual test
         String requestedAuthMethods = authMethod.name();
-        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag", "authnRequestId");
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag");
         ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(initResponse.getTokenId(), "1", sessionData, "logtag");
         ProxyMessageDTO result = sessionHandlingService.getSessionById(buildResponse.getTokenId(), "2", "logtag");
         assertEquals(convKey, result.getConversationKey());
@@ -288,11 +286,10 @@ public class SessionHandlingServiceAttibutesTest {
         assertEquals(ErrorType.NO_ERROR, result.getErrorType());
 
         // get attributes
-        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId");
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId", false, "authnRequestId");
         assertNotNull(attributes);
 
         Map<String,String> attributeMap = attributes.getAttributeMap();
-        attributeMap.remove("samlAuthenticationToken"); // tested separately
         Map<String,String> expected = new HashMap<>();
         expected.put("vtjInvalid", "false");
         expected.put("vtjVerified", "true");
@@ -336,7 +333,7 @@ public class SessionHandlingServiceAttibutesTest {
 
         // actual test
         String requestedAuthMethods = authMethod.name();
-        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag", "authnRequestId");
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag");
         ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(initResponse.getTokenId(), "1", sessionData, "logtag");
         ProxyMessageDTO result = sessionHandlingService.getSessionById(buildResponse.getTokenId(), "2", "logtag");
         assertEquals(convKey, result.getConversationKey());
@@ -345,12 +342,11 @@ public class SessionHandlingServiceAttibutesTest {
         assertEquals(ErrorType.NO_ERROR, result.getErrorType());
 
         // get attributes
-        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId");
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId", false, "authnRequestId");
         assertNotNull(attributes);
 
         Map<String,String> attributeMap = attributes.getAttributeMap();
         Map<String,String> expected = new HashMap<>();
-        attributeMap.remove("samlAuthenticationToken"); // tested separately
         expected.put("vtjInvalid", "false");
         expected.put("vtjVerified", "false");
         expected.put("vtjRequired", "false");
@@ -374,7 +370,7 @@ public class SessionHandlingServiceAttibutesTest {
 
         // actual test
         String requestedAuthMethods = authMethod.name();
-        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag", "authnRequestId");
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag");
         ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(initResponse.getTokenId(), "1", sessionData, "logtag");
         ProxyMessageDTO result = sessionHandlingService.getSessionById(buildResponse.getTokenId(), "2", "logtag");
         assertEquals(convKey, result.getConversationKey());
@@ -383,11 +379,10 @@ public class SessionHandlingServiceAttibutesTest {
         assertEquals(ErrorType.NO_ERROR, result.getErrorType());
 
         // get attributes
-        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId");
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId", false, "authnRequestId");
         assertNotNull(attributes);
 
         Map<String,String> attributeMap = attributes.getAttributeMap();
-        attributeMap.remove("samlAuthenticationToken"); // tested separately
         Map<String,String> expected = new HashMap<>();
         expected.put("vtjInvalid", "false");
         expected.put("vtjVerified", "false");
@@ -417,7 +412,7 @@ public class SessionHandlingServiceAttibutesTest {
 
         // actual test
         String requestedAuthMethods = authMethod.name();
-        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag", "authnRequestId");
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag");
         ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(initResponse.getTokenId(), "1", sessionData, "logtag");
         ProxyMessageDTO result = sessionHandlingService.getSessionById(buildResponse.getTokenId(), "2", "logtag");
         assertEquals(convKey, result.getConversationKey());
@@ -426,11 +421,10 @@ public class SessionHandlingServiceAttibutesTest {
         assertEquals(ErrorType.NO_ERROR, result.getErrorType());
 
         // get attributes
-        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId");
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId", false, "authnRequestId");
         assertNotNull(attributes);
 
         Map<String,String> attributeMap = attributes.getAttributeMap();
-        attributeMap.remove("samlAuthenticationToken"); // tested separately
         Map<String,String> expected = new HashMap<>();
         expected.put("vtjInvalid", "false");
         expected.put("vtjVerified", "true");
@@ -477,7 +471,7 @@ public class SessionHandlingServiceAttibutesTest {
 
         // actual test
         String requestedAuthMethods = authMethod.name();
-        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag", "authnRequestId");
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag");
         ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(initResponse.getTokenId(), "1", sessionData, "logtag");
         ProxyMessageDTO result = sessionHandlingService.getSessionById(buildResponse.getTokenId(), "2", "logtag");
         assertEquals(convKey, result.getConversationKey());
@@ -486,11 +480,10 @@ public class SessionHandlingServiceAttibutesTest {
         assertEquals(ErrorType.NO_ERROR, result.getErrorType());
 
         // get attributes
-        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId");
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId", false, "authnRequestId");
         assertNotNull(attributes);
 
         Map<String,String> attributeMap = attributes.getAttributeMap();
-        attributeMap.remove("samlAuthenticationToken"); // tested separately
         Map<String,String> expected = new HashMap<>();
         expected.put("vtjInvalid", "false");
         expected.put("vtjVerified", "false");
@@ -520,7 +513,7 @@ public class SessionHandlingServiceAttibutesTest {
 
         // actual test
         String requestedAuthMethods = authMethod.name();
-        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag", "authnRequestId");
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), "0", convKey, requestedAuthMethods, "logtag");
         ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(initResponse.getTokenId(), "1", sessionData, "logtag");
         ProxyMessageDTO result = sessionHandlingService.getSessionById(buildResponse.getTokenId(), "2", "logtag");
         assertEquals(convKey, result.getConversationKey());
@@ -529,11 +522,10 @@ public class SessionHandlingServiceAttibutesTest {
         assertEquals(ErrorType.NO_ERROR, result.getErrorType());
 
         // get attributes
-        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId");
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId", false, "authnRequestId");
         assertNotNull(attributes);
 
         Map<String,String> attributeMap = attributes.getAttributeMap();
-        attributeMap.remove("samlAuthenticationToken"); // tested separately
         Map<String,String> expected = new HashMap<>();
         expected.put("vtjInvalid", "false");
         expected.put("vtjVerified", "false");

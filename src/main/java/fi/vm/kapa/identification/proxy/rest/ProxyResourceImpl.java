@@ -28,7 +28,6 @@ import fi.vm.kapa.identification.proxy.exception.AttributeGenerationException;
 import fi.vm.kapa.identification.proxy.service.SessionHandlingService;
 import fi.vm.kapa.identification.resource.ProxyResource;
 import fi.vm.kapa.identification.type.ErrorType;
-
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -37,7 +36,6 @@ import org.springframework.util.CollectionUtils;
 
 import javax.ws.rs.*;
 import javax.ws.rs.core.Response;
-
 import java.util.Map;
 
 @Component
@@ -50,14 +48,17 @@ public class ProxyResourceImpl implements ProxyResource {
     private SessionHandlingService sessionHandlingService;
 
     @Override
-    public ProxyMessageDTO fromIdPInitSession(String relyingParty, String uid, String key, String authMethodReqStr, String logTag, String authnRequestId) {
+    public ProxyMessageDTO fromIdPInitSession(String relyingParty,
+                                              String uid,
+                                              String key,
+                                              String authMethodReqStr,
+                                              String logTag) {
         logger.debug("Got session init from Shibboleth IdP, conversation key: {}", key);
 
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingParty, uid, key, authMethodReqStr, logTag, authnRequestId);
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingParty, uid, key, authMethodReqStr, logTag);
         if (message.getErrorType() == ErrorType.NO_ERROR) {
             return message;
-        }
-        else {
+        } else {
             throw resolveError(message);
         }
     }
@@ -69,8 +70,7 @@ public class ProxyResourceImpl implements ProxyResource {
         ProxyMessageDTO message = sessionHandlingService.getSessionById(tokenId, phaseId, logTag);
         if (message.getErrorType() == ErrorType.NO_ERROR) {
             return message;
-        }
-        else {
+        } else {
             throw resolveError(message);
         }
     }
@@ -82,40 +82,37 @@ public class ProxyResourceImpl implements ProxyResource {
         ProxyMessageDTO message = sessionHandlingService.removeSessionById(tokenId, phaseId, logTag);
         if (message.getErrorType() == ErrorType.NO_ERROR) {
             return message;
-        }
-        else {
+        } else {
             throw resolveError(message);
         }
     }
 
     @Override
-    public SessionAttributeDTO getSessionAttributes(String uid, String authMethodOid, String relyingParty) {
-        logger.debug("Got session attributes request from Shibboleth IdP, uid: {}, authMethodOid: {}, relyingParty: {}", uid, authMethodOid, relyingParty);
+    public SessionAttributeDTO getSessionAttributes(String uid, String authMethodOid, String relyingParty, boolean tokenRequired, String authnRequestId) {
+        logger.debug("Got session attributes request from Shibboleth IdP, uid: {}, authMethodOid: {}, relyingParty: {}, tokenRequired: {}, authnRequestId: {}", uid, authMethodOid, relyingParty, tokenRequired, authnRequestId);
 
         SessionAttributeDTO attributes = null;
         try {
-            attributes = sessionHandlingService.getSessionAttributes(uid, authMethodOid, relyingParty);
+            attributes = sessionHandlingService.getSessionAttributes(uid, authMethodOid, relyingParty, tokenRequired, authnRequestId);
         } catch (AttributeGenerationException e) {
             throw new WebApplicationException(Response.Status.INTERNAL_SERVER_ERROR);
         }
         if (!CollectionUtils.isEmpty(attributes.getAttributeMap())) {
             return attributes;
-        }
-        else {
+        } else {
             throw new WebApplicationException(Response.Status.NOT_FOUND);
         }
     }
 
     @Override
     public ProxyMessageDTO fromSPBuildSessionPost(String tokenId, String phaseId,
-                                                  String logTag, Map<String, String> spSessionData) {
+                                                  String logTag, Map<String,String> spSessionData) {
         logger.debug("Got build session POST request from Shibboleth SP, tokenId: {} , phaseId: {}", tokenId, phaseId);
 
         ProxyMessageDTO message = sessionHandlingService.buildNewSession(tokenId, phaseId, spSessionData, logTag);
         if (message.getErrorType() == ErrorType.NO_ERROR) {
             return message;
-        }
-        else {
+        } else {
             throw resolveError(message);
         }
     }
@@ -123,11 +120,9 @@ public class ProxyResourceImpl implements ProxyResource {
     private WebApplicationException resolveError(ProxyMessageDTO message) {
         if (message.getErrorType() == ErrorType.VTJ_FAILED) {
             return new ServiceUnavailableException();
-        }
-        else if (message.getErrorType() == ErrorType.INTERNAL_ERROR) {
+        } else if (message.getErrorType() == ErrorType.INTERNAL_ERROR) {
             return new InternalServerErrorException();
-        }
-        else {
+        } else {
             return new BadRequestException();
         }
     }

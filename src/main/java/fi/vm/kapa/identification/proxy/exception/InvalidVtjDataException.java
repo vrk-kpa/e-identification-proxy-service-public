@@ -23,7 +23,7 @@
 package fi.vm.kapa.identification.proxy.exception;
 
 public class InvalidVtjDataException extends Exception {
-        private static final long serialVersionUID = 1L;
+    private static final long serialVersionUID = 1L;
 
     public InvalidVtjDataException(String reason, Throwable t) {
         super(reason, t);

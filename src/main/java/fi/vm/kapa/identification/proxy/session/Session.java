@@ -41,8 +41,6 @@ public class Session {
 
     private String conversationKey;
 
-    private String authnRequestId;
-
     private boolean validated;
 
     private boolean vtjDataInvalid;
@@ -58,7 +56,7 @@ public class Session {
     private SessionProfile sessionProfile;
     private AuthenticationProvider authenticationProvider;
     private String legacyVersion;
-    
+
     //holds all requested authentication methods separated by semicolons
     private String requestedAuthenticationMethodStr;
 
@@ -159,6 +157,7 @@ public class Session {
     public String getRelyingPartyEntityId() {
         return relyingPartyEntityId;
     }
+
     public void setRelyingPartyEntityId(String relyingPartyEntityId) {
         this.relyingPartyEntityId = relyingPartyEntityId;
     }
@@ -186,8 +185,4 @@ public class Session {
     public void setLegacyVersion(String legacyVersion) {
         this.legacyVersion = legacyVersion;
     }
-
-    public String getAuthnRequestId() { return authnRequestId; }
-
-    public void setAuthnRequestId(String authnRequestId) { this.authnRequestId = authnRequestId; }
 }

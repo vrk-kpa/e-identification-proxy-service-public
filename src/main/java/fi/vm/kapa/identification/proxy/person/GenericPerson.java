@@ -26,7 +26,8 @@ import fi.vm.kapa.identification.proxy.exception.AttributeGenerationException;
 import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.type.Identifier;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.Map;
 
 public class GenericPerson implements IdentifiedPerson {
 
@@ -77,7 +78,7 @@ public class GenericPerson implements IdentifiedPerson {
     @Override
     public Map<String,String> getAttributes() throws AttributeGenerationException {
         Map<String,String> attributes = new HashMap<>();
-        for (Map.Entry<Identifier.Types,String> entry: getIdentifiers().entrySet()) {
+        for (Map.Entry<Identifier.Types,String> entry : getIdentifiers().entrySet()) {
             switch (entry.getKey()) {
                 case HETU:
                     attributes.put("samlNationalIdentificationNumber", entry.getValue());

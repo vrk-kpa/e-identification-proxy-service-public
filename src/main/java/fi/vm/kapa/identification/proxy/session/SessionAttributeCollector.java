@@ -65,8 +65,7 @@ public class SessionAttributeCollector {
             }
             attributes.putAll(getLegacySessionAttributes(session));
             attributes.putAll(session.getIdentifiedPerson().getLegacyAttributes());
-        }
-        else if (session.getSessionProfile() == SessionProfile.VETUMA_SAML2
+        } else if (session.getSessionProfile() == SessionProfile.VETUMA_SAML2
                 && null != session.getAuthenticationProvider()) {
             attributes.put("provider", session.getAuthenticationProvider().getDbEntityIdAuthContextUrl());
         }

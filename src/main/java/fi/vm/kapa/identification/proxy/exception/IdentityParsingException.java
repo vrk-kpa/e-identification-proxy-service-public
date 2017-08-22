@@ -26,6 +26,7 @@ public class IdentityParsingException extends Exception {
     public IdentityParsingException(String message) {
         super(message);
     }
+
     public IdentityParsingException(String message, Throwable t) {
         super(message, t);
     }

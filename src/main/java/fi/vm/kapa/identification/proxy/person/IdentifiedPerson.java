@@ -34,5 +34,6 @@ public interface IdentifiedPerson {
     Map<Identifier.Types,String> getIdentifiers();
 
     Map<String,String> getAttributes() throws AttributeGenerationException;
+
     Map<String,String> getLegacyAttributes() throws AttributeGenerationException;
 }

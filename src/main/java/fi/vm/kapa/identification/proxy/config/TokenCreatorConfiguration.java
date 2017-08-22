@@ -42,12 +42,18 @@ public class TokenCreatorConfiguration {
 
     @Value("${token.keystore}")
     private String tokenKeystoreFilename;
+
     @Value("${token.keystore.alias}")
     private String tokenKeystoreAlias;
+
     @Value("${token.keystore.password}")
     private String tokenKeystorePass;
+
     @Value("${token.keystore.keypassword}")
     private String tokenKeystoreKeyPass;
+
+    @Value("${token.issuer}")
+    private String tokenIssuer;
 
     private static final Logger logger = LoggerFactory.getLogger(TokenCreatorConfiguration.class);
 
@@ -60,15 +66,15 @@ public class TokenCreatorConfiguration {
             tokenKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
             tokenKeyStore.load(is, tokenKeystorePass.toCharArray());
         } catch (IOException e) {
-            throw new TokenCreatorException("KeyStore access problem: "+e.getMessage());
-        } catch (KeyStoreException |NoSuchAlgorithmException |CertificateException e) {
-            throw new TokenCreatorException("KeyStore instantiation problem: "+e.getMessage());
+            throw new TokenCreatorException("KeyStore access problem: " + e.getMessage());
+        } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+            throw new TokenCreatorException("KeyStore instantiation problem: " + e.getMessage());
         }
 
         try {
             Key key = tokenKeyStore.getKey(tokenKeystoreAlias, tokenKeystoreKeyPass.toCharArray());
-            Algorithm algorithm = Algorithm.RSA256((RSAPrivateKey)key);
-            return new TokenCreator(algorithm);
+            Algorithm algorithm = Algorithm.RSA256((RSAPrivateKey) key);
+            return new TokenCreator(algorithm, tokenIssuer);
         } catch (KeyStoreException e) {
             throw new TokenCreatorException("KeyStore problem: ", e);
         } catch (NoSuchAlgorithmException e) {

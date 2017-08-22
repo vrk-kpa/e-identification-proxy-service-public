@@ -22,22 +22,20 @@
  */
 package fi.vm.kapa.identification.proxy.background;
 
-import java.util.ArrayList;
-import java.util.List;
-import java.util.Map;
-
+import fi.vm.kapa.identification.proxy.session.Session;
 import fi.vm.kapa.identification.proxy.session.UidToUserSessionsCache;
 import fi.vm.kapa.identification.type.AuthMethod;
 import javafx.util.Pair;
 import org.joda.time.DateTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
-import fi.vm.kapa.identification.proxy.session.Session;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Map;
 
 @Service
 public class SessionCleanup {
@@ -58,7 +56,7 @@ public class SessionCleanup {
     SessionCleanup(@Value("${sessions.cache.active.ttl}") int activeSessionsTTL,
                    @Value("${sessions.cache.failed.ttl}") int failedSessionsTTL,
                    UidToUserSessionsCache uidToUserSessionsCache
-                   ) {
+    ) {
         this.activeSessionsTTL = activeSessionsTTL;
         this.failedSessionsTTL = failedSessionsTTL;
         this.uidToUserSessionsCache = uidToUserSessionsCache;
@@ -66,23 +64,22 @@ public class SessionCleanup {
 
     public void runCleanup() {
         try {
-            Map<String, Map<AuthMethod,Session>> sessionsInCache = uidToUserSessionsCache.getSessionsCache();
+            Map<String,Map<AuthMethod,Session>> sessionsInCache = uidToUserSessionsCache.getSessionsCache();
 
             long originalSize = getAuthSessionsSize(sessionsInCache);
             logger.info("Currently there are {} sessions in cache", originalSize);
 
-            List<Pair<String, AuthMethod>> toBeRemoved = getSessionsToBeRemoved(sessionsInCache);
+            List<Pair<String,AuthMethod>> toBeRemoved = getSessionsToBeRemoved(sessionsInCache);
             toBeRemoved.forEach(pair -> uidToUserSessionsCache.removeFromSessionCache(pair.getKey(), pair.getValue()));
 
             long finalSize = getAuthSessionsSize(sessionsInCache);
             logger.info("Removed {} expired sessions from cache", originalSize - finalSize);
-        }
-        catch (Exception e) {
+        } catch (Exception e) {
             logger.error("Error running session cleanup", e);
         }
     }
 
-    private long getAuthSessionsSize(Map<String, Map<AuthMethod,Session>> sessionsInCache) {
+    private long getAuthSessionsSize(Map<String,Map<AuthMethod,Session>> sessionsInCache) {
         long size = 0;
         for (Map<AuthMethod,Session> sessionDTOMap : sessionsInCache.values()) {
             size += sessionDTOMap.size();
@@ -98,10 +95,10 @@ public class SessionCleanup {
         return DateTimeUtils.currentTimeMillis() - failedSessionsTTL * 60000;
     }
 
-    List<Pair<String, AuthMethod>> getSessionsToBeRemoved(Map<String, Map<AuthMethod,Session>> sessionsInCache) {
+    List<Pair<String,AuthMethod>> getSessionsToBeRemoved(Map<String,Map<AuthMethod,Session>> sessionsInCache) {
         long activeTTLThreshold = getActiveTTLThreshold();
         long failedTTLThreshold = getFailedTTLThreshold();
-        List<Pair<String, AuthMethod>> toBeRemoved = new ArrayList<>();
+        List<Pair<String,AuthMethod>> toBeRemoved = new ArrayList<>();
         sessionsInCache.forEach((key, sessionDTOMap) ->
                 sessionDTOMap.forEach((authMethod, sessionDTO) -> {
                     if ((sessionDTO.isValidated() && sessionDTO.getTimestamp() < activeTTLThreshold) ||

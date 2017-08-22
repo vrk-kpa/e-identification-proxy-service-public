@@ -40,7 +40,7 @@ import java.util.concurrent.ConcurrentMap;
 public class UidToUserSessionsCache {
     private static final Logger logger = LoggerFactory.getLogger(UidToUserSessionsCache.class);
 
-    private final ConcurrentMap<String, Map<AuthMethod,Session>> sessionsCache;
+    private final ConcurrentMap<String,Map<AuthMethod,Session>> sessionsCache;
 
     @Autowired
     private SessionStatusPrinter sessionStatusPrinter;
@@ -49,7 +49,7 @@ public class UidToUserSessionsCache {
         sessionsCache = new ConcurrentHashMap<>();
     }
 
-    UidToUserSessionsCache(@NotNull ConcurrentMap<String, Map<AuthMethod,Session>> sessions) {
+    UidToUserSessionsCache(@NotNull ConcurrentMap<String,Map<AuthMethod,Session>> sessions) {
         sessionsCache = sessions;
     }
 
@@ -58,7 +58,7 @@ public class UidToUserSessionsCache {
     }
 
     /**
-       This is used during the authentication process session finalising phase.
+     * This is used during the authentication process session finalising phase.
      */
     public Map<AuthMethod,Session> getSessionDTOMapByKey(String key) {
         return sessionsCache.get(key);
@@ -81,7 +81,7 @@ public class UidToUserSessionsCache {
     }
 
     /**
-     *  Called when uid is set as the final key or session data is updated
+     * Called when uid is set as the final key or session data is updated
      */
     public void replaceSessionCacheKey(String oldKey, String newKey, AuthMethod authMethod, Session session) {
         sessionsCache.remove(oldKey);
@@ -89,14 +89,14 @@ public class UidToUserSessionsCache {
     }
 
     /**
-     *  Invalidates the session, sets invalidated attribute for all auth methods in session
+     * Invalidates the session, sets invalidated attribute for all auth methods in session
      */
     public void invalidateCachedSessionsByKey(String key) {
         sessionsCache.getOrDefault(key, Collections.emptyMap()).forEach((authMethod, sessionDTO) -> sessionDTO.setVtjDataInvalid(true));
     }
 
     /**
-     *  Checks that no session is invalid
+     * Checks that no session is invalid
      */
     public boolean invalidSessionsInCacheByKey(String key) {
         boolean invalidSessions = false;
@@ -123,7 +123,7 @@ public class UidToUserSessionsCache {
         return removedSession != null ? removedSession : new Session();
     }
 
-    public Map<String, Map<AuthMethod,Session>> getSessionsCache() {
+    public Map<String,Map<AuthMethod,Session>> getSessionsCache() {
         return sessionsCache;
     }
 

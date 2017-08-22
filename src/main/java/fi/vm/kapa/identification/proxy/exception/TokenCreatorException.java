@@ -26,6 +26,7 @@ public class TokenCreatorException extends Exception {
     public TokenCreatorException(String message) {
         super(message);
     }
+
     public TokenCreatorException(String message, Throwable t) {
         super(message, t);
     }

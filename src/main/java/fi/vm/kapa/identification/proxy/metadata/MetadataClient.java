@@ -52,12 +52,12 @@ public class MetadataClient {
     @Value("${metadata.server.url}")
     private String metadataServerUrl;
 
-    public Map<String, ServiceProvider> getServiceProviders() throws IOException {
+    public Map<String,ServiceProvider> getServiceProviders() throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
         final String serviceProviderMetadataReqUrl = metadataServerUrl + "?type=" + ProviderType.SERVICE_PROVIDER.toString();
         logger.debug("url to metadata server: {}", serviceProviderMetadataReqUrl);
         HttpGet getMethod = new HttpGet(serviceProviderMetadataReqUrl);
-        final Map<String, ServiceProvider> serviceProviders = new HashMap<>();
+        final Map<String,ServiceProvider> serviceProviders = new HashMap<>();
         List<MetadataDTO> serviceProvidersAsMetadataDTOs = getMetadataDTOs(httpClient, getMethod);
         if (!CollectionUtils.isEmpty(serviceProvidersAsMetadataDTOs)) {
             serviceProvidersAsMetadataDTOs.forEach(data -> {

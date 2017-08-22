@@ -23,8 +23,8 @@
 package fi.vm.kapa.identification.proxy.config;
 
 import fi.vm.kapa.identification.proxy.service.DummyVtjPersonService;
-import fi.vm.kapa.identification.proxy.service.VtjPersonService;
 import fi.vm.kapa.identification.proxy.service.RealVtjPersonService;
+import fi.vm.kapa.identification.proxy.service.VtjPersonService;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;

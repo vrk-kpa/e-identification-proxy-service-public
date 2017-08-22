@@ -22,13 +22,11 @@
  */
 package fi.vm.kapa.identification.proxy.background;
 
+import fi.vm.kapa.identification.proxy.service.MetadataService;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
-
-import fi.vm.kapa.identification.proxy.service.MetadataService;
 
 @Service
 public class MetadataUpdater {

@@ -26,6 +26,7 @@ public class RelyingPartyNotFoundException extends Exception {
     public RelyingPartyNotFoundException(String message) {
         super(message);
     }
+
     public RelyingPartyNotFoundException(String message, Throwable t) {
         super(message, t);
     }
