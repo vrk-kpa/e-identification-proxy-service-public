@@ -22,6 +22,7 @@
  */
 package fi.vm.kapa.identification.proxy.vtj;
 
+import fi.vm.kapa.identification.proxy.exception.InvalidVtjDataException;
 import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.vtj.model.VTJResponse;
@@ -37,6 +38,7 @@ import javax.ws.rs.client.*;
 import javax.ws.rs.core.Form;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
+import javax.ws.rs.core.Response.Status;
 
 
 @Component
@@ -47,7 +49,7 @@ public class VtjClient {
 
     private static final Logger logger = LoggerFactory.getLogger(VtjClient.class);
 
-    public VTJResponse fetchVtjData(Identity identity) throws VtjServiceException {
+    public VTJResponse fetchVtjData(Identity identity) throws VtjServiceException, InvalidVtjDataException {
         VTJResponse vtjResponse = getVtjResponseForUser(identity);
         if (vtjResponse == null) {
             logger.debug("VTJ returned no data for user " + identity.getIdentifier());
@@ -55,8 +57,12 @@ public class VtjClient {
         return vtjResponse;
     }
 
-    VTJResponse getVtjResponseForUser(Identity identity) throws VtjServiceException {
+    VTJResponse getVtjResponseForUser(Identity identity) throws VtjServiceException, InvalidVtjDataException {
         Response response = getVtjHttpResponse(identity);
+        if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
+        	throw new InvalidVtjDataException("Person not found in VTJ");
+        }
+        
         if (response.getStatus() == HttpStatus.OK.value()) {
             return response.readEntity(VTJResponse.class);
         } else {

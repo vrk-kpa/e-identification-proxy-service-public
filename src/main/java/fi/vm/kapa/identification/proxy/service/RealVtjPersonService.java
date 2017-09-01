@@ -22,6 +22,7 @@
  */
 package fi.vm.kapa.identification.proxy.service;
 
+import fi.vm.kapa.identification.proxy.exception.InvalidVtjDataException;
 import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.person.IdentifiedPerson;
 import fi.vm.kapa.identification.proxy.person.VtjPerson;
@@ -39,7 +40,7 @@ public class RealVtjPersonService implements VtjPersonService {
     @Autowired
     VtjClient vtjClient;
 
-    VTJResponse getVtjResponse(Identity identity) throws VtjServiceException {
+    VTJResponse getVtjResponse(Identity identity) throws VtjServiceException, InvalidVtjDataException {
         VTJResponse response = vtjClient.fetchVtjData(identity);
         if (response == null || response.getPerson() == null) {
             logger.error("VTJ response null or empty");
@@ -50,7 +51,7 @@ public class RealVtjPersonService implements VtjPersonService {
     }
 
     @Override
-    public VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson) throws VtjServiceException {
+    public VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson) throws VtjServiceException, InvalidVtjDataException {
         Identity identity = identifiedPerson.getIdentity();
         Person person = getVtjResponse(identity).getPerson();
         return new VtjPerson(identity, person);

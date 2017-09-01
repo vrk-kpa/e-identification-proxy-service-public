@@ -174,7 +174,7 @@ public class SessionHandlingServiceTest {
     }
 
     @Test
-    public void initNewSessionSetsAuthenticationMethodsByRelyingPartyWhenRequestedAuthenticationMethodIsBlank() throws Exception {
+    public void initNewSessionFailsWhenRequestedAuthenticationMethodIsBlank() throws Exception {
         String relyingPartyId = "service-provider";
         ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "", "TUPAS;HST", SessionProfile.VETUMA_SAML2, true);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
@@ -190,8 +190,8 @@ public class SessionHandlingServiceTest {
                 phaseIdInitServiceMock,
                 phaseIdBuiltSession);
         ProxyMessageDTO message = service.initNewSession(relyingPartyId, "uid12345uid", "testkey", " ", "logtag");
-        Assert.assertEquals("TUPAS;HST", message.getAuthenticationMethods());
-        Assert.assertEquals("TUPAS;HST", uidToUserSessionsCache.getSessionsCache().get("TEST_TOKEN").get(AuthMethod.INIT).getRequestedAuthenticationMethods());
+        Assert.assertEquals(ErrorType.INTERNAL_ERROR, message.getErrorType());
+        Assert.assertNull(uidToUserSessionsCache.getSessionsCache().get("TEST_TOKEN"));
     }
 
     @Test
@@ -353,71 +353,6 @@ public class SessionHandlingServiceTest {
         Assert.assertEquals(ErrorType.INTERNAL_ERROR, result.getErrorType());
     }
 
-
-    @Test
-    public void buildNewSessionWithNoRequestedAuthenticationMethods() throws Exception {
-        AuthMethod authMethod = AuthMethod.TUPAS;
-        String convKey = "testkey";
-        String relyingPartyId = "service-provider";
-        ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "", "TUPAS;HST", SessionProfile.TUNNISTUSFI_LEGACY, true);
-        when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession("service-provider", "0", convKey, "", "logtag");
-        Assert.assertNotNull(message);
-
-        String tokenId = message.getTokenId();
-        String phaseId = message.getPhaseId();
-        Assert.assertNotNull(tokenId);
-        Assert.assertNotNull(phaseId);
-        Assert.assertEquals(ErrorType.NO_ERROR, message.getErrorType());
-        Assert.assertEquals(true, phaseIdInitSession.verifyPhaseId(phaseId, tokenId, stepSessionInit));
-
-        String nextPhaseId = phaseIdInitSession.newPhaseId(tokenId, stepSessionBuild);
-        Assert.assertNotNull(nextPhaseId);
-        Assert.assertNotEquals(phaseId, nextPhaseId);
-
-        Map<String, String> sessionData = new HashMap<>();
-        sessionData.put("AJP_Shib-AuthnContext-Decl", "nordea.tupas");
-        Person testVtjPerson = getMinimalValidPerson("111190-123B");
-        Map<Identifier.Types,String> identifiers = new HashMap<>();
-        identifiers.put(Identifier.Types.SATU, "1234567A");
-        //mocking x-road attribute
-        Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
-        VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
-        when(vtjPersonServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
-        when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
-        ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
-        Assert.assertNotNull(result);
-        Assert.assertNotEquals(tokenId, result.getTokenId());
-        Assert.assertEquals(ErrorType.NO_ERROR, result.getErrorType());
-
-        // This is for testing replay prevention
-        ProxyMessageDTO invalidResult = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
-        Assert.assertNotNull(invalidResult);
-        Assert.assertEquals(ErrorType.SESSION_BUILD_FAILED, invalidResult.getErrorType());
-
-        tokenId = result.getTokenId();
-        phaseId = result.getPhaseId();
-        Assert.assertNotNull(tokenId);
-        Assert.assertNotNull(phaseId);
-        Assert.assertEquals(true, phaseIdBuiltSession.verifyPhaseId(phaseId, tokenId, stepRedirectFromSP));
-
-        nextPhaseId = phaseIdBuiltSession.newPhaseId(tokenId, stepGetSession);
-        Assert.assertNotNull(nextPhaseId);
-
-        result = sessionHandlingService.getSessionById(tokenId, nextPhaseId, "logtag");
-        Assert.assertNotNull(result);
-        Assert.assertEquals(convKey, result.getConversationKey());
-        Assert.assertNotNull(result.getUid());
-        Assert.assertEquals(ErrorType.NO_ERROR, result.getErrorType());
-
-        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId", false, "authnRequestId");
-        Assert.assertNotNull(attributes);
-        Assert.assertNotEquals(0, attributes.getAttributeMap().size());
-        //checking x-road attribute
-        Assert.assertEquals(true, attributes.getAttributeMap().containsValue("111190-123B"));
-    }
-
     @Test
     public void buildNewSessionVtjFailsVtjNotRequired() throws Exception {
         AuthMethod authMethod = AuthMethod.TUPAS;
@@ -490,6 +425,98 @@ public class SessionHandlingServiceTest {
         Assert.assertNotNull(result);
         Assert.assertNotEquals(tokenId, result.getTokenId());
         Assert.assertEquals(ErrorType.VTJ_INVALID, result.getErrorType());
+    }
+    
+    @Test
+    public void buildNewSessionVtjDataNotFound() throws Exception {
+        AuthMethod authMethod = AuthMethod.TUPAS;
+        String convKey = "testkey";
+        String entityId = "service-provider";
+        ServiceProvider serviceProvider = new ServiceProvider(entityId, "", "TUPAS;HST", SessionProfile.TUNNISTUSFI_LEGACY, false);
+        when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(entityId, "0", convKey, "TUPAS;HST", "logtag");
+        Assert.assertNotNull(message);
+        String tokenId = message.getTokenId();
+        String nextPhaseId = phaseIdInitSession.newPhaseId(tokenId, stepSessionBuild);
+        Map<String, String> sessionData = new HashMap<>();
+        sessionData.put("AJP_Shib-AuthnContext-Decl", "nordea.tupas");
+        Identity identity = new Identity("", Identifier.Types.HETU, "111190-123B");
+        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, null));
+
+        doThrow(InvalidVtjDataException.class).when(vtjPersonServiceMock).getVtjPerson(any());
+        when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
+        
+        // actual test
+        ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
+        Assert.assertNotNull(result);
+        Assert.assertNotEquals(tokenId, result.getTokenId());
+        Assert.assertEquals(ErrorType.VTJ_INVALID, result.getErrorType());
+    }
+    
+    @Test
+    public void buildNewSessionVtjNotFoundInGetSessionAttributes() throws Exception {
+        AuthMethod authMethod = AuthMethod.TUPAS;
+        String convKey = "testkey";
+        String relyingPartyId = "service-provider";
+        ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "", "TUPAS;HST", SessionProfile.TUNNISTUSFI_LEGACY, false);
+        when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "0", convKey, "TUPAS;HST", "logtag");
+        Assert.assertNotNull(message);
+
+        String tokenId = message.getTokenId();
+        String phaseId = message.getPhaseId();
+        Assert.assertNotNull(tokenId);
+        Assert.assertNotNull(phaseId);
+        Assert.assertEquals(ErrorType.NO_ERROR, message.getErrorType());
+        Assert.assertEquals(true, phaseIdInitSession.verifyPhaseId(phaseId, tokenId, stepSessionInit));
+
+        String nextPhaseId = phaseIdInitSession.newPhaseId(tokenId, stepSessionBuild);
+        Assert.assertNotNull(nextPhaseId);
+        Assert.assertNotEquals(phaseId, nextPhaseId);
+
+        Map<String, String> sessionData = new HashMap<>();
+        sessionData.put("AJP_Shib-AuthnContext-Class", "nordea.tupas");
+        Person testVtjPerson = getMinimalValidPerson("111190-123B");
+        Map<Identifier.Types,String> identifiers = new HashMap<>();
+        identifiers.put(Identifier.Types.SATU, "1234567A");
+        //mocking x-road attribute
+        Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
+        VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
+        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
+        when(vtjPersonServiceMock.getVtjPerson(any())).thenReturn(vtjPerson);
+        when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
+        
+        doThrow(VtjServiceException.class).when(vtjPersonServiceMock).getVtjPerson(any());
+        ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
+        Assert.assertNotNull(result);
+        Assert.assertNotEquals(tokenId, result.getTokenId());
+        Assert.assertEquals(ErrorType.NO_ERROR, result.getErrorType());
+
+        // This is for testing replay prevention
+        ProxyMessageDTO invalidResult = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
+        Assert.assertNotNull(invalidResult);
+        Assert.assertEquals(ErrorType.SESSION_BUILD_FAILED, invalidResult.getErrorType());
+
+        tokenId = result.getTokenId();
+        phaseId = result.getPhaseId();
+        Assert.assertNotNull(tokenId);
+        Assert.assertNotNull(phaseId);
+        Assert.assertEquals(true, phaseIdBuiltSession.verifyPhaseId(phaseId, tokenId, stepRedirectFromSP));
+
+        nextPhaseId = phaseIdBuiltSession.newPhaseId(tokenId, stepGetSession);
+        Assert.assertNotNull(nextPhaseId);
+
+        result = sessionHandlingService.getSessionById(tokenId, nextPhaseId, "logtag");
+        Assert.assertNotNull(result);
+        Assert.assertEquals(convKey, result.getConversationKey());
+        Assert.assertNotNull(result.getUid());
+        Assert.assertEquals(ErrorType.NO_ERROR, result.getErrorType());
+        
+        doThrow(InvalidVtjDataException.class).when(vtjPersonServiceMock).getVtjPerson(any());
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), "testEntityId", false, "authnRequestId");
+        verify(vtjPersonServiceMock, times(2)).getVtjPerson(any());
+        Assert.assertNotNull(attributes);
+        Assert.assertEquals(false, attributes.getAttributeMap().containsValue("111190-123B"));
     }
 
     @Test

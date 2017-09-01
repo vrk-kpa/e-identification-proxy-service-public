@@ -22,6 +22,7 @@
  */
 package fi.vm.kapa.identification.proxy.service;
 
+import fi.vm.kapa.identification.proxy.exception.InvalidVtjDataException;
 import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.person.IdentifiedPerson;
 import fi.vm.kapa.identification.proxy.person.VtjPerson;
@@ -29,5 +30,5 @@ import org.springframework.stereotype.Service;
 
 @Service
 public interface VtjPersonService {
-    VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson) throws VtjServiceException;
+    VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson) throws VtjServiceException, InvalidVtjDataException;
 }

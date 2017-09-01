@@ -22,6 +22,7 @@
  */
 package fi.vm.kapa.identification.proxy.service;
 
+import fi.vm.kapa.identification.proxy.exception.InvalidVtjDataException;
 import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.person.GenericPerson;
 import fi.vm.kapa.identification.proxy.person.IdentifiedPerson;
@@ -75,13 +76,26 @@ public class RealVtjPersonServiceTest {
         assertEquals(validPerson, vtjResponse.getPerson());
     }
 
-
     @Test(expected = VtjServiceException.class)
     public void getPersonDataFromVTJThrowsVtjServiceExceptionWhenNoPersonInfoIsReturnedFromVTJ() throws Exception {
         when(vtjClient.fetchVtjData(any(Identity.class))).thenReturn(new VTJResponse());
         personService.getVtjPerson(identifiedPerson);
     }
-
+    
+    /**
+     * Make sure VtjPersonService passes InvalidVtjDataException through
+     * @throws Exception
+     */
+    @Test(expected = InvalidVtjDataException.class)
+    public void testGetVtjPersonThrowsInvalidVtjExceptionOnNotFound() throws InvalidVtjDataException {
+    	try {
+    		when(vtjClient.fetchVtjData(any(Identity.class))).thenThrow(InvalidVtjDataException.class);
+    		personService.getVtjPerson(identifiedPerson);
+    	} catch (VtjServiceException e) {
+			
+		}
+    }
+    
     private Person getMinimalValidPerson(String hetu) {
         Person person = new Person();
         person.setHetu(hetu);

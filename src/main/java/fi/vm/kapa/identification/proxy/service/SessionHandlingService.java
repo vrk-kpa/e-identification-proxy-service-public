@@ -167,14 +167,9 @@ public class SessionHandlingService {
                 session.setSessionProfile(relyingParty.getSessionProfile());
                 session.setRelyingPartyEntityId(relyingPartyId);
 
-                String permittedAuthMethodsStr = relyingParty.getPermittedAuthMethods();
-                //Permitted authentication methods for SP cannot be empty
-                if (StringUtils.isBlank(permittedAuthMethodsStr)) {
+                // Permitted authentication methods for SP or requested authentication methods cannot be empty
+                if (StringUtils.isBlank(relyingParty.getPermittedAuthMethods()) || StringUtils.isBlank(requestedAuthenticationMethodStr)) {
                     throw new Exception("Error in requesting explicit authentication methods");
-                } else if (StringUtils.isBlank(requestedAuthenticationMethodStr)) {
-                    //Set metadata defaults if requested is empty
-                    logger.debug("Requested authentication methods was empty, setting relying party defaults");
-                    session.setRequestedAuthenticationMethods(permittedAuthMethodsStr);
                 } else if (relyingParty.isAuthMethodListPermitted(requestedAuthenticationMethodStr)) {
                     session.setRequestedAuthenticationMethods(requestedAuthenticationMethodStr);
                 } else {
@@ -477,7 +472,7 @@ public class SessionHandlingService {
                             vtjPerson.validate();
                             session.setVtjPerson(vtjPerson);
                             session.setVtjVerified(true);
-                        } catch (InvalidVtjDataException e) {
+                        } catch (InvalidVtjDataException e) { // idp service check vtj data validity
                             session.setVtjDataInvalid(true);
                             uidToUserSessionsCache.invalidateCachedSessionsByKey(uid);
                         } catch (VtjServiceException e) {
