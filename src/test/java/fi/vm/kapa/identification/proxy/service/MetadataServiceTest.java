@@ -27,6 +27,7 @@ import fi.vm.kapa.identification.proxy.metadata.AuthenticationProvider;
 import fi.vm.kapa.identification.proxy.metadata.MetadataClient;
 import fi.vm.kapa.identification.proxy.metadata.ServiceProvider;
 import fi.vm.kapa.identification.type.AuthMethod;
+import fi.vm.kapa.identification.type.EidasSupport;
 import fi.vm.kapa.identification.type.SessionProfile;
 import org.junit.Before;
 import org.junit.Test;
@@ -74,7 +75,7 @@ public class MetadataServiceTest {
     ServiceProvider getDefaultServiceProvider() {
         return new ServiceProvider("TEST_ENTITY_ID", "TEST_LOA",
                 "TEST_ATTRIBUTE_LOA",
-                SessionProfile.VETUMA_SAML2, true);
+                SessionProfile.VETUMA_SAML2, true,  "",EidasSupport.full, null);
     }
 
     @Test
@@ -174,7 +175,7 @@ public class MetadataServiceTest {
     }
 
     private MetadataService.ApprovedAuthenticationProviders getApprovedAuthenticationProvidersWithDefaultNamedProvider(String name) {
-        AuthenticationProvider authenticationProviderDTO = new AuthenticationProvider(name, "TEST_DOMAIN_NAME", AuthMethod.TESTI, "TEST_AUTH_CONTEXT_URL", "TEST_DB_ENTITY_URL");
+        AuthenticationProvider authenticationProviderDTO = new AuthenticationProvider(name, "TEST_DOMAIN_NAME", "TESTI", AuthMethod.TESTI, "TEST_AUTH_CONTEXT_URL", "TEST_DB_ENTITY_URL");
         List<AuthenticationProvider> authenticationProviderDTOs = Arrays.asList(authenticationProviderDTO);
         return new MetadataService.ApprovedAuthenticationProviders(authenticationProviderDTOs);
     }
@@ -188,7 +189,7 @@ public class MetadataServiceTest {
 
     private ServiceProvider getServiceProviderWithEntityIdAndVtjVerificationRequired(String entityId, boolean vtjVerificationRequired) {
         return new ServiceProvider(entityId, "TEST_LOA", "TEST_ATTRIBUTE_LOA",
-                SessionProfile.VETUMA_SAML2, vtjVerificationRequired);
+                SessionProfile.VETUMA_SAML2, vtjVerificationRequired,  "",EidasSupport.full, null);
     }
 
 }

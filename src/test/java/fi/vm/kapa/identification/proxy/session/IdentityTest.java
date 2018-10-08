@@ -57,13 +57,4 @@ public class IdentityTest {
         assertEquals("TEST_AJP_KID", new IdentityParser().parse(spData).getIdentifier());
     }
 
-    @Test
-    public void builderSetsEppnFromAjpEppn() throws Exception {
-        Map<String,String> spData = new HashMap<>();
-        spData.put(Identifier.typeKey, "EPPN");
-        spData.put("AJP_eppn", "TEST_AJP_EPPN");
-        assertEquals("TEST_AJP_EPPN", new IdentityParser().parse(spData).getIdentifier());
-    }
-
-
 }

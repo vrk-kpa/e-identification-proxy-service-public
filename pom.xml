@@ -48,7 +48,7 @@
         <servlet.version>3.0.1</servlet.version>
         <slf4j.version>1.7.10</slf4j.version>
         <docker.image.tag></docker.image.tag>
-        <docker.image.prefix>dev-docker-registry.kapa.ware.fi</docker.image.prefix>
+        <docker.image.prefix>e-identification-docker-virtual.vrk-artifactory-01.eden.csc.fi</docker.image.prefix>
         <spotify-docker.version>0.3.1</spotify-docker.version>
         <!-- KAPA internal versions -->
         <kapa.shared.version>1.0-SNAPSHOT</kapa.shared.version>

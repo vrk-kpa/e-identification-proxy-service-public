@@ -25,7 +25,6 @@ package fi.vm.kapa.identification.proxy.background;
 import fi.vm.kapa.identification.proxy.session.Session;
 import fi.vm.kapa.identification.proxy.session.UidToUserSessionsCache;
 import fi.vm.kapa.identification.type.AuthMethod;
-import javafx.util.Pair;
 import org.joda.time.DateTimeUtils;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -33,6 +32,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
 
+import java.util.AbstractMap;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
@@ -69,7 +69,7 @@ public class SessionCleanup {
             long originalSize = getAuthSessionsSize(sessionsInCache);
             logger.info("Currently there are {} sessions in cache", originalSize);
 
-            List<Pair<String,AuthMethod>> toBeRemoved = getSessionsToBeRemoved(sessionsInCache);
+            List<Map.Entry<String,AuthMethod>> toBeRemoved = getSessionsToBeRemoved(sessionsInCache);
             toBeRemoved.forEach(pair -> uidToUserSessionsCache.removeFromSessionCache(pair.getKey(), pair.getValue()));
 
             long finalSize = getAuthSessionsSize(sessionsInCache);
@@ -95,15 +95,15 @@ public class SessionCleanup {
         return DateTimeUtils.currentTimeMillis() - failedSessionsTTL * 60000;
     }
 
-    List<Pair<String,AuthMethod>> getSessionsToBeRemoved(Map<String,Map<AuthMethod,Session>> sessionsInCache) {
+    List<Map.Entry<String,AuthMethod>> getSessionsToBeRemoved(Map<String,Map<AuthMethod,Session>> sessionsInCache) {
         long activeTTLThreshold = getActiveTTLThreshold();
         long failedTTLThreshold = getFailedTTLThreshold();
-        List<Pair<String,AuthMethod>> toBeRemoved = new ArrayList<>();
+        List<Map.Entry<String,AuthMethod>> toBeRemoved = new ArrayList<>();
         sessionsInCache.forEach((key, sessionDTOMap) ->
                 sessionDTOMap.forEach((authMethod, sessionDTO) -> {
                     if ((sessionDTO.isValidated() && sessionDTO.getTimestamp() < activeTTLThreshold) ||
                             (!sessionDTO.isValidated() && sessionDTO.getTimestamp() < failedTTLThreshold)) {
-                        toBeRemoved.add(new Pair<>(key, authMethod));
+                        toBeRemoved.add(new AbstractMap.SimpleEntry<>(key, authMethod));
                     }
                 }));
         return toBeRemoved;

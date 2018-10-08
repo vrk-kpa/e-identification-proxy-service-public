@@ -1,5 +1,5 @@
 # Pull base image
-FROM dev-docker-registry.kapa.ware.fi/e-identification-tomcat-base-image
+FROM e-identification-docker-virtual.vrk-artifactory-01.eden.csc.fi/e-identification-tomcat-base-image
 COPY target/site /site
 
 COPY conf/tomcat/proxy.xml /usr/share/tomcat/conf/Catalina/localhost/

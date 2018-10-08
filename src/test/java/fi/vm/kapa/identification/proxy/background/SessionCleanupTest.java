@@ -25,7 +25,6 @@ package fi.vm.kapa.identification.proxy.background;
 import fi.vm.kapa.identification.proxy.session.Session;
 import fi.vm.kapa.identification.proxy.session.UidToUserSessionsCache;
 import fi.vm.kapa.identification.type.AuthMethod;
-import javafx.util.Pair;
 import org.joda.time.DateTimeUtils;
 import org.junit.Before;
 import org.junit.Test;
@@ -60,16 +59,16 @@ public class SessionCleanupTest {
                 failedSessionsTTL,
                 cacheSpy);
         HashMap<String, Map<AuthMethod,Session>> sessions = new HashMap<>();
-        sessions.put("TEST_KEY_1", getAuthMethodToSession(AuthMethod.HST, true));
-        sessions.put("TEST_KEY_2", getAuthMethodToSession(AuthMethod.TUPAS, true));
+        sessions.put("TEST_KEY_1", getAuthMethodToSession(AuthMethod.fLoA3, true));
+        sessions.put("TEST_KEY_2", getAuthMethodToSession(AuthMethod.fLoA2, true));
 
         DateTimeUtils.setCurrentMillisFixed(activeSessionsTTL * 60000 + System.currentTimeMillis() + 1);
         when(cacheSpy.getSessionsCache()).thenReturn(sessions);
 
         sessionCleanup.runCleanup();
         verify(cacheSpy, times(1)).getSessionsCache();
-        verify(cacheSpy, times(1)).removeFromSessionCache("TEST_KEY_1", AuthMethod.HST);
-        verify(cacheSpy, times(1)).removeFromSessionCache("TEST_KEY_2", AuthMethod.TUPAS);
+        verify(cacheSpy, times(1)).removeFromSessionCache("TEST_KEY_1", AuthMethod.fLoA3);
+        verify(cacheSpy, times(1)).removeFromSessionCache("TEST_KEY_2", AuthMethod.fLoA2);
         verifyNoMoreInteractions(cacheSpy);
     }
 
@@ -77,7 +76,7 @@ public class SessionCleanupTest {
     public void getSessionsToBeRemovedDoesNotReturnNewlyCreatedSessions() throws Exception {
         Map<String, Map<AuthMethod,Session>> sessionsCache = new HashMap<>();
 
-        Map<AuthMethod,Session> authToSession = getAuthMethodToSession(AuthMethod.HST, true);
+        Map<AuthMethod,Session> authToSession = getAuthMethodToSession(AuthMethod.fLoA3, true);
         sessionsCache.put("TEST_KEY_1", authToSession);
 
         Map<AuthMethod,Session> authToSession2 = getAuthMethodToSession(AuthMethod.INIT, false);
@@ -85,7 +84,7 @@ public class SessionCleanupTest {
 
         DateTimeUtils.setCurrentMillisFixed(failedSessionsTTL * 60000 + System.currentTimeMillis() - 1);
 
-        List<Pair<String, AuthMethod>> sessionsToBeRemoved = sessionCleanup.getSessionsToBeRemoved(sessionsCache);
+        List<Map.Entry<String, AuthMethod>> sessionsToBeRemoved = sessionCleanup.getSessionsToBeRemoved(sessionsCache);
         assertTrue(sessionsToBeRemoved.isEmpty());
     }
 
@@ -93,14 +92,14 @@ public class SessionCleanupTest {
     public void getSessionsToBeRemovedReturnsNotValidatedSessionsAfterFailedSessionTTL() throws Exception {
         Map<String, Map<AuthMethod,Session>> sessionsCache = new HashMap<>();
 
-        Map<AuthMethod,Session> authToSession = getAuthMethodToSession(AuthMethod.HST, true);
+        Map<AuthMethod,Session> authToSession = getAuthMethodToSession(AuthMethod.fLoA3, true);
         sessionsCache.put("TEST_KEY_1", authToSession);
         Map<AuthMethod,Session> expiringFailedSession = getAuthMethodToSession(AuthMethod.INIT, false);
         sessionsCache.put("TEST_KEY_2", expiringFailedSession);
 
         DateTimeUtils.setCurrentMillisFixed(failedSessionsTTL * 60000 + System.currentTimeMillis() + 1);
 
-        List<Pair<String, AuthMethod>> sessionsToBeRemoved = sessionCleanup.getSessionsToBeRemoved(sessionsCache);
+        List<Map.Entry<String, AuthMethod>> sessionsToBeRemoved = sessionCleanup.getSessionsToBeRemoved(sessionsCache);
         assertEquals(1, sessionsToBeRemoved.size());
         assertEquals("TEST_KEY_2", sessionsToBeRemoved.get(0).getKey());
     }
@@ -109,14 +108,14 @@ public class SessionCleanupTest {
     public void getSessionsToBeRemovedReturnsExpiredSessionsAfterActiveSessionTTL() throws Exception {
         Map<String, Map<AuthMethod,Session>> sessionsCache = new HashMap<>();
 
-        Map<AuthMethod,Session> authToSession = getAuthMethodToSession(AuthMethod.HST, true);
+        Map<AuthMethod,Session> authToSession = getAuthMethodToSession(AuthMethod.fLoA3, true);
         sessionsCache.put("TEST_KEY_1", authToSession);
-        Map<AuthMethod,Session> authToSession2 = getAuthMethodToSession(AuthMethod.TUPAS, true);
+        Map<AuthMethod,Session> authToSession2 = getAuthMethodToSession(AuthMethod.fLoA2, true);
         sessionsCache.put("TEST_KEY_2", authToSession2);
 
         DateTimeUtils.setCurrentMillisFixed(activeSessionsTTL * 60000 + System.currentTimeMillis() + 1);
 
-        List<Pair<String, AuthMethod>> sessionsToBeRemoved = sessionCleanup.getSessionsToBeRemoved(sessionsCache);
+        List<Map.Entry<String, AuthMethod>> sessionsToBeRemoved = sessionCleanup.getSessionsToBeRemoved(sessionsCache);
         assertEquals(2, sessionsToBeRemoved.size());
     }
 

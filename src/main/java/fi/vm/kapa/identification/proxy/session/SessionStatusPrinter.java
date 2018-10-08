@@ -46,7 +46,7 @@ public class SessionStatusPrinter {
 
         joiner.add("-----CKEY: " + session.getConversationKey());
         joiner.add("------REQUESTED METHODS: " + session.getRequestedAuthenticationMethods());
-        joiner.add("------SESSIONID: " + session.getSessionId());
+        //joiner.add("------SESSIONID: " + session.getSessionId());
         joiner.add("------RELYING PARTY: " + session.getRelyingPartyEntityId());
         try {
             sessionAttributeCollector.getAttributes(session).forEach(
@@ -56,7 +56,7 @@ public class SessionStatusPrinter {
         } catch (Exception e) {
             logger.warn("failed print session attributes, error in code. reason ", e);
         }
-        joiner.add("------SESSIONPROFILE: " + session.getSessionProfile().toString());
+        joiner.add("------SESSIONPROFILE: " + (session.getSessionProfile() == null ? "null" :session.getSessionProfile().toString()));
         joiner.add("------TIMESTAMP: " + session.getTimestamp());
         joiner.add("------VALIDATED: " + session.isValidated());
         return joiner.toString();

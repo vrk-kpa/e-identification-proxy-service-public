@@ -33,6 +33,13 @@ import java.util.Date;
 
 public class TokenCreator {
 
+    public static final String AUTHMETHOD_CLAIM_KEY = "auth_method";
+    public static final String HETU_CLAIM_KEY = "hetu";
+    public static final String RP_CLAIM_KEY = "rp";
+    public static final String SFI_ID_CLAIM_KEY = "sfi_id";
+    public static final String REQ_ID_CLAIM_KEY = "req_id";
+    public static final String PID_CLAIM_KEY = "pid";
+
     private static final Logger logger = LoggerFactory.getLogger(TokenCreator.class);
 
     private final Algorithm algorithm;
@@ -51,11 +58,31 @@ public class TokenCreator {
             token = JWT.create()
                     .withIssuer(issuer)
                     .withIssuedAt(iat)
-                    .withClaim("auth_method", method)
-                    .withClaim("hetu", hetu)
-                    .withClaim("rp", rp)
-                    .withClaim("sfi_id", sfi_id)
-                    .withClaim("req_id", req_id)
+                    .withClaim(AUTHMETHOD_CLAIM_KEY, method)
+                    .withClaim(HETU_CLAIM_KEY, hetu)
+                    .withClaim(RP_CLAIM_KEY, rp)
+                    .withClaim(SFI_ID_CLAIM_KEY, sfi_id)
+                    .withClaim(REQ_ID_CLAIM_KEY, req_id)
+                    .sign(algorithm);
+        } catch (JWTCreationException e) {
+            logger.error("Unable to create JWT: " + e.getMessage());
+            throw new TokenCreatorException("JWT creation failed: " + e.getMessage());
+        }
+        return token;
+    }
+
+    public String getEidasAuthenticationToken(String pid, String method, String rp, String sfi_id, String req_id, Date iat) throws TokenCreatorException {
+
+        String token = null;
+        try {
+            token = JWT.create()
+                    .withIssuer(issuer)
+                    .withIssuedAt(iat)
+                    .withClaim(AUTHMETHOD_CLAIM_KEY, method)
+                    .withClaim(PID_CLAIM_KEY, pid)
+                    .withClaim(RP_CLAIM_KEY, rp)
+                    .withClaim(SFI_ID_CLAIM_KEY, sfi_id)
+                    .withClaim(REQ_ID_CLAIM_KEY, req_id)
                     .sign(algorithm);
         } catch (JWTCreationException e) {
             logger.error("Unable to create JWT: " + e.getMessage());

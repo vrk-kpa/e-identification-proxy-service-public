@@ -73,7 +73,12 @@ public class IdentifiedPersonBuilderTest {
     }
 
     @Test
-    public void buildReturnsGenericPersonForTupasSession() throws Exception {
-        assertTrue(identifiedPersonBuilder.build(null, AuthMethod.TUPAS) instanceof GenericPerson);
+    public void buildReturnsGenericPersonForLoa2Session() throws Exception {
+        assertTrue(identifiedPersonBuilder.build(null, AuthMethod.fLoA2) instanceof GenericPerson);
+    }
+
+    @Test
+    public void buildReturnsGenericPersonForLoa3Session() throws Exception {
+        assertTrue(identifiedPersonBuilder.build(null, AuthMethod.fLoA3) instanceof GenericPerson);
     }
 }

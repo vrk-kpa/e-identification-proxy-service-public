@@ -22,6 +22,7 @@
  */
 package fi.vm.kapa.identification.proxy.metadata;
 
+import fi.vm.kapa.identification.type.EidasSupport;
 import fi.vm.kapa.identification.type.SessionProfile;
 import org.junit.Test;
 
@@ -31,68 +32,68 @@ public class ServiceProviderTest {
 
     @Test
     public void getEntityId() throws Exception {
-        ServiceProvider serviceProvider = new ServiceProvider("TEST_ENTITY_ID", null, null, null, false);
+        ServiceProvider serviceProvider = new ServiceProvider("TEST_ENTITY_ID", null, null, null, false, "",EidasSupport.full, null);
         assertEquals("TEST_ENTITY_ID", serviceProvider.getEntityId());
     }
 
     @Test
     public void getLevelOfAssurance() throws Exception {
-        ServiceProvider serviceProvider = new ServiceProvider(null, "TEST_LOA", null, null, false);
+        ServiceProvider serviceProvider = new ServiceProvider(null, "TEST_LOA", null, null, false,  "",EidasSupport.full, null);
         assertEquals("TEST_LOA", serviceProvider.getLevelOfAssurance());
     }
 
     @Test
     public void getPermittedAuthMethods() throws Exception {
-        ServiceProvider serviceProvider = new ServiceProvider(null, null, "TEST_PERMITTED_METHODS", null, false);
+        ServiceProvider serviceProvider = new ServiceProvider(null, null, "TEST_PERMITTED_METHODS", null, false,  "",EidasSupport.full, null);
         assertEquals("TEST_PERMITTED_METHODS", serviceProvider.getPermittedAuthMethods());
     }
 
     @Test
     public void getSessionProfileReturnsSaml2() throws Exception {
-        ServiceProvider serviceProvider = new ServiceProvider(null, null, null, SessionProfile.VETUMA_SAML2, false);
+        ServiceProvider serviceProvider = new ServiceProvider(null, null, null, SessionProfile.VETUMA_SAML2, false,  "",EidasSupport.full, null);
         assertEquals(SessionProfile.VETUMA_SAML2, serviceProvider.getSessionProfile());
     }
 
     @Test
     public void getSessionProfileReturnsVetumaLegacy() throws Exception {
-        ServiceProvider serviceProvider = new ServiceProvider(null, null, null, SessionProfile.VETUMA_LEGACY, false);
+        ServiceProvider serviceProvider = new ServiceProvider(null, null, null, SessionProfile.VETUMA_LEGACY, false,  "",EidasSupport.full, null);
         assertEquals(SessionProfile.VETUMA_LEGACY, serviceProvider.getSessionProfile());
     }
 
     @Test
     public void isVtjVerificationRequiredReturnsFalse() throws Exception {
-        ServiceProvider serviceProvider = new ServiceProvider(null, null, null, null, false);
+        ServiceProvider serviceProvider = new ServiceProvider(null, null, null, null, false,  "",EidasSupport.full, null);
         assertEquals(false, serviceProvider.isVtjVerificationRequired());
     }
 
     @Test
     public void isVtjVerificationRequiredReturnsTrue() throws Exception {
-        ServiceProvider serviceProvider = new ServiceProvider(null, null, null, null, true);
+        ServiceProvider serviceProvider = new ServiceProvider(null, null, null, null, true,  "",EidasSupport.full, null);
         assertEquals(true, serviceProvider.isVtjVerificationRequired());
     }
 
     @Test
     public void isAuthMethodListPermittedReturnsFalseCalledWithStringThatIsNotAuthMethod() throws Exception {
-        ServiceProvider serviceProvider = new ServiceProvider(null, null, "HST;TUPAS", null, true);
+        ServiceProvider serviceProvider = new ServiceProvider(null, null, "fLoA3;fLoA2", null, true,  "",EidasSupport.full, null);
         assertFalse(serviceProvider.isAuthMethodListPermitted("INIT"));
     }
 
     @Test
     public void isAuthMethodListPermittedReturnsFalseWhenRequestedWithNonPermittedMethod() throws Exception {
-        ServiceProvider serviceProvider = new ServiceProvider(null, null, "HST;TUPAS", null, true);
-        assertFalse(serviceProvider.isAuthMethodListPermitted("MOBIILI"));
+        ServiceProvider serviceProvider = new ServiceProvider(null, null, "fLoA3;fLoA2", null, true,  "",EidasSupport.full, null);
+        assertFalse(serviceProvider.isAuthMethodListPermitted("KATSOOTP"));
     }
 
     @Test
     public void isAuthMethodListPermittedReturnsTrueWhenRequestedWithPermittedMethod() throws Exception {
-        ServiceProvider serviceProvider = new ServiceProvider(null, null, "HST;TUPAS", null, true);
-        assertTrue(serviceProvider.isAuthMethodListPermitted("TUPAS"));
+        ServiceProvider serviceProvider = new ServiceProvider(null, null, "fLoA3;fLoA2", null, true,  "",EidasSupport.full, null);
+        assertTrue(serviceProvider.isAuthMethodListPermitted("fLoA2"));
     }
 
     @Test
     public void isAuthMethodListPermittedIgnoresOrdering() throws Exception {
-        ServiceProvider serviceProvider = new ServiceProvider(null, null, "HST;TUPAS", null, true);
-        assertTrue(serviceProvider.isAuthMethodListPermitted("TUPAS;HST"));
+        ServiceProvider serviceProvider = new ServiceProvider(null, null, "fLoA3;fLoA2", null, true,  "",EidasSupport.full, null);
+        assertTrue(serviceProvider.isAuthMethodListPermitted("fLoA2;fLoA3"));
     }
 
 

@@ -22,7 +22,9 @@
  */
 package fi.vm.kapa.identification.proxy.metadata;
 
+import fi.vm.kapa.identification.dto.MultiLanguageDTO;
 import fi.vm.kapa.identification.proxy.session.AuthMethodHelper;
+import fi.vm.kapa.identification.type.EidasSupport;
 import fi.vm.kapa.identification.type.SessionProfile;
 
 public class ServiceProvider {
@@ -31,17 +33,26 @@ public class ServiceProvider {
     private final String permittedAuthMethods;
     private final SessionProfile sessionProfile;
     private final boolean vtjVerificationRequired;
+    private final String eidasContactAddress;
+    private final EidasSupport eidasSupport;
+    private final MultiLanguageDTO displayName;
 
     public ServiceProvider(String entityId,
                            String levelOfAssurance,
                            String permittedAuthMethods,
                            SessionProfile sessionProfile,
-                           boolean vtjVerificationRequired) {
+                           boolean vtjVerificationRequired,
+                           String eidasContactAddress,
+                           EidasSupport eidasSupport,
+                           MultiLanguageDTO displayName) {
         this.entityId = entityId;
         this.levelOfAssurance = levelOfAssurance;
         this.permittedAuthMethods = permittedAuthMethods;
         this.sessionProfile = sessionProfile;
         this.vtjVerificationRequired = vtjVerificationRequired;
+        this.eidasContactAddress = eidasContactAddress;
+        this.eidasSupport = eidasSupport;
+        this.displayName = displayName;
     }
 
     public String getEntityId() {
@@ -66,5 +77,17 @@ public class ServiceProvider {
 
     public boolean isAuthMethodListPermitted(String requestedAuthenticationMethodStr) {
         return AuthMethodHelper.authMethodsInPermittedMethods(requestedAuthenticationMethodStr, permittedAuthMethods);
+    }
+
+    public String getEidasContactAddress() {
+        return eidasContactAddress;
+    }
+
+    public EidasSupport getEidasSupport() {
+        return eidasSupport;
+    }
+
+    public MultiLanguageDTO getDisplayName() {
+        return displayName;
     }
 }

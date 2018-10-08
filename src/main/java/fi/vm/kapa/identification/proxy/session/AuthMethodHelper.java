@@ -22,14 +22,17 @@
  */
 package fi.vm.kapa.identification.proxy.session;
 
+import fi.vm.kapa.identification.type.AuthMethod;
+import org.apache.commons.lang.StringUtils;
+
 import java.util.Arrays;
 import java.util.HashSet;
 import java.util.Set;
 
 public class AuthMethodHelper {
 
-    public static final String AUTH_METHOD_SEPARATOR = ";";
-
+    private static final String AUTH_METHOD_SEPARATOR = ";";
+    
     private AuthMethodHelper() {
     }
 
@@ -40,9 +43,14 @@ public class AuthMethodHelper {
         return permittedMethodSet.containsAll(requestedMethodSet);
     }
 
-    public static boolean authMethodInPermittedMethods(String authMethod, String permittedAuthMethods) {
-        Set<String> permittedMethodSet = new HashSet<>(Arrays.asList(permittedAuthMethods.split(AUTH_METHOD_SEPARATOR)));
-
-        return permittedMethodSet.contains(authMethod);
+    public static Set<AuthMethod> getAuthMethodSet(String permittedAuthMethodsStr) {
+        Set<AuthMethod> authMethodsSet = new HashSet<>();
+        for (String authMethod : permittedAuthMethodsStr.split(AUTH_METHOD_SEPARATOR) ) {
+            authMethodsSet.add(AuthMethod.valueOf(authMethod));
+        }
+        return authMethodsSet;
+    }
+    public static String getAuthMethodSetAsString(Set<AuthMethod> authMethods) {
+        return StringUtils.join(authMethods,AUTH_METHOD_SEPARATOR);
     }
 }

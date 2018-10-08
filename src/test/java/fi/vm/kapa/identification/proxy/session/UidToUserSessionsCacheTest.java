@@ -42,43 +42,43 @@ public class UidToUserSessionsCacheTest {
     @Test
     public void getSessionByKeyAndAuthMethod() {
         ConcurrentMap<String, Map<AuthMethod,Session>> tokenSessions = new ConcurrentHashMap<>();
-        tokenSessions.put("TEST_KEY", getUserSessionsWithOneSession(AuthMethod.HST, "TEST_SESSION_ID"));
+        tokenSessions.put("TEST_KEY", getUserSessionsWithOneSession(AuthMethod.fLoA3));
         UidToUserSessionsCache uidToUserSessionsCache = new UidToUserSessionsCache(tokenSessions);
-        Session session = uidToUserSessionsCache.getSessionByKeyAndAuthMethod("TEST_KEY", AuthMethod.HST);
+        Session session = uidToUserSessionsCache.getSessionByKeyAndAuthMethod("TEST_KEY", AuthMethod.fLoA3);
         assertNotNull(session);
     }
 
     @Test
     public void getSessionByKeyAndAuthMethodReturnNullIfUserSessionsNotFound() {
         ConcurrentMap<String, Map<AuthMethod,Session>> uidToUserSessions = new ConcurrentHashMap<>();
-        uidToUserSessions.put("TEST_KEY", getUserSessionsWithOneSession(AuthMethod.HST, "TEST_SESSION_ID"));
+        uidToUserSessions.put("TEST_KEY", getUserSessionsWithOneSession(AuthMethod.fLoA3));
         UidToUserSessionsCache uidToUserSessionsCache = new UidToUserSessionsCache(uidToUserSessions);
-        assertEquals(null, uidToUserSessionsCache.getSessionByKeyAndAuthMethod("TOKEN_NOT_FOUND", AuthMethod.HST));
+        assertEquals(null, uidToUserSessionsCache.getSessionByKeyAndAuthMethod("TOKEN_NOT_FOUND", AuthMethod.fLoA3));
     }
 
     @Test
     public void getSessionByKeyAndAuthMethodReturnNullIfUserSessionWithAuthMethodNotFound() {
         ConcurrentMap<String, Map<AuthMethod,Session>> uidToUserSessions = new ConcurrentHashMap<>();
-        uidToUserSessions.put("TEST_KEY", getUserSessionsWithOneSession(AuthMethod.HST, "TEST_SESSION_ID"));
+        uidToUserSessions.put("TEST_KEY", getUserSessionsWithOneSession(AuthMethod.fLoA3));
         UidToUserSessionsCache uidToUserSessionsCache = new UidToUserSessionsCache(uidToUserSessions);
-        assertEquals(null, uidToUserSessionsCache.getSessionByKeyAndAuthMethod("TEST_KEY", AuthMethod.TUPAS));
+        assertEquals(null, uidToUserSessionsCache.getSessionByKeyAndAuthMethod("TEST_KEY", AuthMethod.fLoA2));
     }
 
     @Test
     public void getSessionDTOMapByKey() {
-        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.HST, new Session());
+        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.fLoA3, new Session());
         Map<AuthMethod,Session> sessionDTOMap = uidToUserSessionsCache.getSessionDTOMapByKey("TEST_KEY");
-        assertTrue(sessionDTOMap.containsKey(AuthMethod.HST));
+        assertTrue(sessionDTOMap.containsKey(AuthMethod.fLoA3));
     }
 
     @Test
     public void insertIntoSessionCacheWhenCacheEmpty() {
         UidToUserSessionsCache uidToUserSessionsCache = new UidToUserSessionsCache();
-        uidToUserSessionsCache.insertIntoSessionCache("TEST_KEY", AuthMethod.TUPAS, new Session());
+        uidToUserSessionsCache.insertIntoSessionCache("TEST_KEY", AuthMethod.fLoA2, new Session());
         Map<String, Map<AuthMethod,Session>> sessionsCache = uidToUserSessionsCache.getSessionsCache();
         assertNotNull(sessionsCache.get("TEST_KEY"));
         assertEquals(1, sessionsCache.get("TEST_KEY").size());
-        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.TUPAS));
+        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.fLoA2));
     }
 
     @Test
@@ -88,69 +88,65 @@ public class UidToUserSessionsCacheTest {
         // the addition had not yet happened, return empty map
         when(sessions.getOrDefault(any(), anyMap())).thenReturn(new HashMap<>());
         HashMap<Object, Object> addedSessions = new HashMap<>();
-        addedSessions.put(AuthMethod.HST, new Session());
+        addedSessions.put(AuthMethod.fLoA3, new Session());
         // the addition happened
         when(sessions.putIfAbsent(any(), anyMap())).thenReturn(addedSessions);
         // actual test
-        uidToUserSessionsCache.insertIntoSessionCache("TEST_KEY", AuthMethod.TUPAS, new Session());
+        uidToUserSessionsCache.insertIntoSessionCache("TEST_KEY", AuthMethod.fLoA2, new Session());
         Map<String, Map<AuthMethod,Session>> sessionsCache = uidToUserSessionsCache.getSessionsCache();
         assertEquals(2, addedSessions.size());
-        assertTrue(addedSessions.containsKey(AuthMethod.HST));
-        assertTrue(addedSessions.containsKey(AuthMethod.TUPAS));
+        assertTrue(addedSessions.containsKey(AuthMethod.fLoA3));
+        assertTrue(addedSessions.containsKey(AuthMethod.fLoA2));
     }
 
     @Test
     public void insertIntoSessionCacheWhenCacheHasUserSessionWithDifferentAuthMethod() {
-        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.HST, new Session());
-        uidToUserSessionsCache.insertIntoSessionCache("TEST_KEY", AuthMethod.TUPAS, new Session());
+        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.fLoA3, new Session());
+        uidToUserSessionsCache.insertIntoSessionCache("TEST_KEY", AuthMethod.fLoA2, new Session());
         Map<String, Map<AuthMethod,Session>> sessionsCache = uidToUserSessionsCache.getSessionsCache();
         assertNotNull(sessionsCache.get("TEST_KEY"));
         assertEquals(2, sessionsCache.get("TEST_KEY").size());
-        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.TUPAS));
-        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.HST));
+        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.fLoA2));
+        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.fLoA3));
     }
 
     @Test
     public void insertIntoSessionCacheReplacesSessionWhenCacheHasUserSessionWithSameAuthMethod() {
-        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.HST, new Session());
+        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.fLoA3, new Session());
         Session session = new Session();
-        session.setSessionId("TEST_NEW_ID");
-        uidToUserSessionsCache.insertIntoSessionCache("TEST_KEY", AuthMethod.HST, session);
+        uidToUserSessionsCache.insertIntoSessionCache("TEST_KEY", AuthMethod.fLoA3, session);
         Map<String, Map<AuthMethod,Session>> sessionsCache = uidToUserSessionsCache.getSessionsCache();
         assertNotNull(sessionsCache.get("TEST_KEY"));
         assertEquals(1, sessionsCache.get("TEST_KEY").size());
-        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.HST));
-        assertEquals("TEST_NEW_ID", sessionsCache.get("TEST_KEY").get(AuthMethod.HST).getSessionId());
+        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.fLoA3));
     }
 
     @Test
     public void insertIntoSessionCacheAddsSessionWhenCacheHasUserSessionWithDifferentAuthMethod() {
-        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.HST, new Session());
+        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.fLoA3, new Session());
         Session session = new Session();
-        session.setSessionId("TEST_NEW_ID");
-        uidToUserSessionsCache.insertIntoSessionCache("TEST_KEY", AuthMethod.TUPAS, session);
+        uidToUserSessionsCache.insertIntoSessionCache("TEST_KEY", AuthMethod.fLoA2, session);
         Map<String, Map<AuthMethod,Session>> sessionsCache = uidToUserSessionsCache.getSessionsCache();
         assertNotNull(sessionsCache.get("TEST_KEY"));
         assertEquals(2, sessionsCache.get("TEST_KEY").size());
-        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.HST));
-        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.TUPAS));
-        assertEquals("TEST_NEW_ID", sessionsCache.get("TEST_KEY").get(AuthMethod.TUPAS).getSessionId());
+        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.fLoA3));
+        assertTrue(sessionsCache.get("TEST_KEY").containsKey(AuthMethod.fLoA2));
     }
 
     @Test
     public void replaceSessionCacheKey() throws Exception {
         Session oldSession = new Session();
-        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.HST, oldSession);
+        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.fLoA3, oldSession);
         Session newSession = new Session();
-        uidToUserSessionsCache.replaceSessionCacheKey("TEST_KEY", "NEW_KEY", AuthMethod.HST, newSession);
+        uidToUserSessionsCache.replaceSessionCacheKey("TEST_KEY", "NEW_KEY", AuthMethod.fLoA3, newSession);
         assertFalse(uidToUserSessionsCache.getSessionsCache().containsKey("TEST_KEY"));
         assertTrue(uidToUserSessionsCache.getSessionsCache().containsKey("NEW_KEY"));
-        assertEquals(newSession, uidToUserSessionsCache.getSessionsCache().get("NEW_KEY").get(AuthMethod.HST));
+        assertEquals(newSession, uidToUserSessionsCache.getSessionsCache().get("NEW_KEY").get(AuthMethod.fLoA3));
     }
 
     @Test
     public void invalidateCachedSessionsByKey() throws Exception {
-        UidToUserSessionsCache sessionsCache = getUidToUserSessionsCacheWithOneTokenSessionTwoSessions("TEST_KEY", AuthMethod.HST, AuthMethod.TUPAS);
+        UidToUserSessionsCache sessionsCache = getUidToUserSessionsCacheWithOneTokenSessionTwoSessions("TEST_KEY", AuthMethod.fLoA3, AuthMethod.fLoA2);
         sessionsCache.invalidateCachedSessionsByKey("TEST_KEY");
         Collection<Session> values = sessionsCache.getSessionsCache().get("TEST_KEY").values();
         assertEquals(2, values.size());
@@ -159,7 +155,7 @@ public class UidToUserSessionsCacheTest {
 
     @Test
     public void invalidSessionsInCacheByKeyReturnsFalseWhenSessionWithValidVtjDataFound() {
-        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.HST, new Session());
+        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.fLoA3, new Session());
         assertFalse(uidToUserSessionsCache.invalidSessionsInCacheByKey("TEST_KEY"));
     }
 
@@ -167,22 +163,22 @@ public class UidToUserSessionsCacheTest {
     public void invalidSessionsInCacheByKeyReturnsTrueWhenSessionWithInvalidVtjDataFound() {
         Session session = new Session();
         session.setVtjDataInvalid(true);
-        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.HST, session);
+        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.fLoA3, session);
         assertTrue(uidToUserSessionsCache.invalidSessionsInCacheByKey("TEST_KEY"));
     }
 
     @Test
     public void removeFromSessionCacheRemovesSessionWhenMoreThanOneSessionFound() {
-        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSessionTwoSessions("TEST_KEY", AuthMethod.HST, AuthMethod.TUPAS);
-        uidToUserSessionsCache.removeFromSessionCache("TEST_KEY", AuthMethod.HST);
-        assertTrue(uidToUserSessionsCache.getSessionsCache().get("TEST_KEY").containsKey(AuthMethod.TUPAS));
-        assertFalse(uidToUserSessionsCache.getSessionsCache().get("TEST_KEY").containsKey(AuthMethod.HST));
+        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSessionTwoSessions("TEST_KEY", AuthMethod.fLoA3, AuthMethod.fLoA2);
+        uidToUserSessionsCache.removeFromSessionCache("TEST_KEY", AuthMethod.fLoA3);
+        assertTrue(uidToUserSessionsCache.getSessionsCache().get("TEST_KEY").containsKey(AuthMethod.fLoA2));
+        assertFalse(uidToUserSessionsCache.getSessionsCache().get("TEST_KEY").containsKey(AuthMethod.fLoA3));
     }
 
     @Test
     public void removeFromSessionCacheRemovesSessionWhenOneSessionFoundRemovesTheTokenSession() {
-        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.HST, new Session());
-        uidToUserSessionsCache.removeFromSessionCache("TEST_KEY", AuthMethod.HST);
+        UidToUserSessionsCache uidToUserSessionsCache = getUidToUserSessionsCacheWithOneTokenSession("TEST_KEY", AuthMethod.fLoA3, new Session());
+        uidToUserSessionsCache.removeFromSessionCache("TEST_KEY", AuthMethod.fLoA3);
         assertNull(uidToUserSessionsCache.getSessionsCache().get("TEST_KEY"));
     }
 
@@ -204,10 +200,9 @@ public class UidToUserSessionsCacheTest {
     }
 
 
-    private Map<AuthMethod,Session> getUserSessionsWithOneSession(AuthMethod authMethod, String sessionId) {
+    private Map<AuthMethod,Session> getUserSessionsWithOneSession(AuthMethod authMethod) {
         Map<AuthMethod,Session> userSessions = new HashMap<>();
         Session session = new Session();
-        session.setSessionId(sessionId);
         userSessions.put(authMethod, session);
         return userSessions;
     }

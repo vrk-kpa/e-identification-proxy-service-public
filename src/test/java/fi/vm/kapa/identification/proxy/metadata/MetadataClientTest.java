@@ -87,6 +87,7 @@ public class MetadataClientTest {
         MetadataDTO authProvider = new MetadataDTO();
         authProvider.setName("TEST_AUTH_PROVIDER");
         authProvider.setDnsName("TEST_AUTH_PROVIDER_DNS_NAME");
+        authProvider.setLevelOfAssurance("fLoA2");
         authProvider.setAttributeLevelOfAssurance("TUPAS");
         authProvider.setAcsAddress("TEST_AUTH_PROVIDER_CONTEXT_URL");
         authProvider.setEntityId("TEST_AUTH_PROVIDER_DB_ENTITY_ID");
@@ -99,7 +100,7 @@ public class MetadataClientTest {
         AuthenticationProvider returnedAuthProvider = authProviders.get(0);
         assertEquals("TEST_AUTH_PROVIDER", returnedAuthProvider.getName());
         assertEquals("TEST_AUTH_PROVIDER_DNS_NAME", returnedAuthProvider.getDomainName());
-        assertEquals(AuthMethod.TUPAS, returnedAuthProvider.getAuthenticationMethod());
+        assertEquals(AuthMethod.fLoA2, returnedAuthProvider.getAuthenticationMethod());
         assertEquals("TEST_AUTH_PROVIDER_CONTEXT_URL", returnedAuthProvider.getAuthProviderAuthContextUrl());
         assertEquals("TEST_AUTH_PROVIDER_DB_ENTITY_ID", returnedAuthProvider.getDbEntityIdAuthContextUrl());
     }

@@ -51,7 +51,9 @@ import org.springframework.test.context.junit4.SpringJUnit4ClassRunner;
 import org.springframework.test.context.support.DependencyInjectionTestExecutionListener;
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 
+import java.util.ArrayList;
 import java.util.HashMap;
+import java.util.List;
 import java.util.Map;
 
 import static org.mockito.Mockito.*;
@@ -112,6 +114,8 @@ public class SessionHandlingServiceTimingTest {
     private PhaseIdService phaseIdInitSession;
     private PhaseIdService phaseIdBuiltSession;
 
+    private final AuthenticationProvider tupasAuthenticationProvider = new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", "TUPAS", AuthMethod.fLoA2, "AUTH_PROVIDER_CONTEXT_URL", "DB_ENTITY_AUTH_CONTEXT_URL");
+
     @Before
     public void setUp() throws Exception {
         MockitoAnnotations.initMocks(this);
@@ -122,12 +126,17 @@ public class SessionHandlingServiceTimingTest {
 
     @Test
     public void buildNewSessionWithSlowVtj() throws Exception {
-        AuthMethod authMethod = AuthMethod.TUPAS;
+        AuthMethod authMethod = AuthMethod.fLoA2;
         String convKey = "testkey";
         String relyingPartyId = "service-provider";
-        ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "", "TUPAS;HST", SessionProfile.TUNNISTUSFI_LEGACY, false);
+        ServiceProvider serviceProvider = new ServiceProvider(relyingPartyId, "", "fLoA2;fLoA3", SessionProfile.TUNNISTUSFI_LEGACY, false,  "",EidasSupport.full, null);
         when(metadataServiceMock.getRelyingParty(anyString())).thenReturn(serviceProvider);
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "0", convKey, "TUPAS;HST", "logtag");
+
+        List<AuthenticationProvider> providers = new ArrayList();
+        providers.add(tupasAuthenticationProvider);
+        when(metadataServiceMock.getAuthenticationProviders()).thenReturn(new MetadataService.ApprovedAuthenticationProviders(providers));
+
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "0", convKey, "fLoA2;fLoA3", "logtag");
 
         String tokenId = message.getTokenId();
         String nextPhaseId = phaseIdInitSession.newPhaseId(tokenId, stepSessionBuild);
@@ -152,7 +161,7 @@ public class SessionHandlingServiceTimingTest {
                 return vtjPerson;
             }
         });
-        when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", authMethod, "", ""));
+        when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", "", authMethod, "", ""));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertEquals(true, phaseIdBuiltSession.verifyPhaseId(result.getPhaseId(), result.getTokenId(), stepRedirectFromSP));
     }

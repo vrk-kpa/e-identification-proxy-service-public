@@ -48,10 +48,9 @@ public class IdentifiedPersonBuilder {
 
     public IdentifiedPerson build(Map<String,String> spData, AuthMethod authenticationMethod) throws PersonParsingException {
         try {
-            if (authenticationMethod == AuthMethod.KATSOPWD ||
-                    authenticationMethod == AuthMethod.KATSOOTP) {
+            if (authenticationMethod == AuthMethod.KATSOPWD || authenticationMethod == AuthMethod.KATSOOTP) {
                 return katsoPersonFactory.createFromSpData(spData);
-            } else if (authenticationMethod == AuthMethod.EIDAS1) {
+            } else if (  authenticationMethod == AuthMethod.eLoA3 ) {
                 return eidasPersonFactory.createFromSpData(spData);
             } else {
                 return genericPersonFactory.createFromSpData(spData);

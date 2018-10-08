@@ -40,10 +40,7 @@ import org.springframework.stereotype.Component;
 import org.springframework.util.CollectionUtils;
 
 import java.io.IOException;
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Component
 public class MetadataClient {
@@ -69,7 +66,10 @@ public class MetadataClient {
                         data.getLevelOfAssurance(),
                         data.getAttributeLevelOfAssurance(),
                         data.getSessionProfile(),
-                        data.isVtjVerificationRequired());
+                        data.isVtjVerificationRequired(),
+                        data.getEidasContactAddress(),
+                        data.getEidasSupport(),
+                        data.getDisplayName());
                 serviceProviders.put(data.getEntityId(), serviceProvider);
             });
         }
@@ -84,12 +84,19 @@ public class MetadataClient {
             logger.debug("url to metadata server: {}", authenticationProviderMetadataReqUrl);
             HttpGet getMethod = new HttpGet(authenticationProviderMetadataReqUrl);
             List<MetadataDTO> metadata = getMetadataDTOs(httpClient, getMethod);
-            metadata.forEach(data -> providers.add(new AuthenticationProvider(data.getName() + "",
-                    data.getDnsName(),
-                    AuthMethod.valueOf(data.getAttributeLevelOfAssurance()),
-                    data.getAcsAddress(),
-                    data.getEntityId()))
-            );
+            for ( MetadataDTO data: metadata ) {
+                try {
+                    providers.add(new AuthenticationProvider(data.getName() + "",
+                            data.getDnsName(),
+                            data.getAttributeLevelOfAssurance(),
+                            AuthMethod.valueOf(data.getLevelOfAssurance()),
+                            data.getAcsAddress(),
+                            data.getEntityId()));
+                }
+                catch ( Exception e ) {
+                    logger.warn("Found incompatible authentication provider with entityID: " + data.getEntityId());
+                }
+            }
         } catch (Exception e) {
             logger.error("Error updating proxy ApprovedAuthenticationProviders", e);
         }

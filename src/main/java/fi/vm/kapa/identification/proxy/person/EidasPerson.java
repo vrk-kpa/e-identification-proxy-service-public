@@ -72,7 +72,7 @@ public class EidasPerson implements IdentifiedPerson {
         for (Map.Entry<Identifier.Types,String> entry : getIdentifiers().entrySet()) {
             switch (entry.getKey()) {
                 case EIDAS_ID:
-                    attributes.put("samlUid", entry.getValue());
+                    attributes.put("samlPersonIdentifier", entry.getValue());
                     break;
                 default:
                     throw new AttributeGenerationException("Unknown type:" + entry.getKey() + ", value:" + entry.getValue());

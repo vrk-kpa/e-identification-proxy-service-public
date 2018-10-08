@@ -25,7 +25,10 @@ package fi.vm.kapa.identification.proxy.session;
 import fi.vm.kapa.identification.proxy.metadata.AuthenticationProvider;
 import fi.vm.kapa.identification.proxy.person.IdentifiedPerson;
 import fi.vm.kapa.identification.proxy.person.VtjPerson;
+import fi.vm.kapa.identification.type.AuthMethod;
 import fi.vm.kapa.identification.type.SessionProfile;
+
+import java.util.Set;
 
 /**
  * This class is used to store any session related data. This class is mainly used
@@ -36,8 +39,6 @@ import fi.vm.kapa.identification.type.SessionProfile;
 public class Session {
 
     private String uid;
-
-    private String sessionId;
 
     private String conversationKey;
 
@@ -57,8 +58,8 @@ public class Session {
     private AuthenticationProvider authenticationProvider;
     private String legacyVersion;
 
-    //holds all requested authentication methods separated by semicolons
-    private String requestedAuthenticationMethodStr;
+    //holds all requested authentication methods
+    private Set<AuthMethod> requestedAuthenticationMethods;
 
     private IdentifiedPerson identifiedPerson;
     private VtjPerson vtjPerson;
@@ -71,14 +72,6 @@ public class Session {
 
     public void setUid(String uid) {
         this.uid = uid;
-    }
-
-    public String getSessionId() {
-        return sessionId;
-    }
-
-    public void setSessionId(String sessionId) {
-        this.sessionId = sessionId;
     }
 
     public String getConversationKey() {
@@ -145,13 +138,12 @@ public class Session {
         this.authenticationProvider = authenticationProvider;
     }
 
-    public String getRequestedAuthenticationMethods() {
-        return requestedAuthenticationMethodStr;
+    public Set<AuthMethod> getRequestedAuthenticationMethods() {
+        return requestedAuthenticationMethods;
     }
 
-    public void setRequestedAuthenticationMethods(
-            String requestedAuthenticationMethodStr) {
-        this.requestedAuthenticationMethodStr = requestedAuthenticationMethodStr;
+    public void setRequestedAuthenticationMethods(Set<AuthMethod> requestedAuthenticationMethods) {
+        this.requestedAuthenticationMethods = requestedAuthenticationMethods;
     }
 
     public String getRelyingPartyEntityId() {

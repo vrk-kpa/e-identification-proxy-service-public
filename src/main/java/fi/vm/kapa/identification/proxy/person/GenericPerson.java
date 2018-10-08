@@ -87,13 +87,7 @@ public class GenericPerson implements IdentifiedPerson {
                     attributes.put("samlElectronicIdentificationNumber", entry.getValue());
                     break;
                 case KID:
-                    attributes.put("samlKid", entry.getValue());
-                    break;
-                case EPPN:
-                    attributes.put("samlEppn", entry.getValue());
-                    break;
-                case UID:
-                    attributes.put("samlUid", entry.getValue());
+                    attributes.put("samlKid", entry.getValue());                   
                     break;
                 default:
                     throw new AttributeGenerationException("Unknown type:" + entry.getKey() + ", value:" + entry.getValue());

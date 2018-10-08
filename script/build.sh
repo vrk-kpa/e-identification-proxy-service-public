@@ -59,7 +59,7 @@ done
 
 
 # Pull the base image
-docker pull dev-docker-registry.kapa.ware.fi/e-identification-tomcat-base-image
+docker pull e-identification-docker-virtual.vrk-artifactory-01.eden.csc.fi/e-identification-tomcat-base-image
 
 #build
 if [ "$nodeps" = "1" ]; then
@@ -68,7 +68,7 @@ if [ "$nodeps" = "1" ]; then
 else
         mvn clean install project-info-reports:dependencies -Ddependency.locations.enabled=false
 fi
-IMAGE_NAME=dev-docker-registry.kapa.ware.fi/proxy-server:${TARGET_ENV}
+IMAGE_NAME=e-identification-docker-virtual.vrk-artifactory-01.eden.csc.fi/proxy-server:${TARGET_ENV}
 
 #build, tag and push docker image
 

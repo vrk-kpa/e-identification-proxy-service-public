@@ -28,18 +28,21 @@ public class AuthenticationProvider {
 
     private final String name;
     private final String domainName;
-    private final AuthMethod authenticationMethod;
+    private final String realMethod; // real authentication method, db: attr_loa
+    private final AuthMethod authenticationMethod; // LoA, db: loa
     private final String authProviderAuthContextUrl;
     private final String dbEntityIdAuthContextUrl;
 
     public AuthenticationProvider(
             String name,
             String domainName,
+            String realMethod,
             AuthMethod authenticationMethod,
             String authProviderAuthContextUrl,
             String dbEntityIdAuthContextUrl) {
         this.name = name;
         this.domainName = domainName;
+        this.realMethod = realMethod;
         this.authenticationMethod = authenticationMethod;
         this.authProviderAuthContextUrl = authProviderAuthContextUrl;
         this.dbEntityIdAuthContextUrl = dbEntityIdAuthContextUrl;
@@ -51,6 +54,10 @@ public class AuthenticationProvider {
 
     public String getDomainName() {
         return domainName;
+    }
+
+    public String getRealMethod() {
+        return realMethod;
     }
 
     public AuthMethod getAuthenticationMethod() {
