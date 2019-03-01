@@ -23,8 +23,10 @@
 package fi.vm.kapa.identification.proxy.service;
 
 import fi.vm.kapa.identification.proxy.exception.AuthenticationProviderNotFoundException;
+import fi.vm.kapa.identification.proxy.exception.CountryNotFoundException;
 import fi.vm.kapa.identification.proxy.exception.RelyingPartyNotFoundException;
 import fi.vm.kapa.identification.proxy.metadata.AuthenticationProvider;
+import fi.vm.kapa.identification.proxy.metadata.Country;
 import fi.vm.kapa.identification.proxy.metadata.MetadataClient;
 import fi.vm.kapa.identification.proxy.metadata.ServiceProvider;
 import org.slf4j.Logger;
@@ -33,10 +35,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import javax.inject.Singleton;
-import java.util.Collections;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 @Service
 @Singleton
@@ -51,6 +50,8 @@ public class MetadataService {
     //cached authentication providers
     private ApprovedAuthenticationProviders approvedAuthenticationProviders =
             new ApprovedAuthenticationProviders(Collections.emptyList());
+    //cached country data
+    private Map<String, Country> countryCache = new HashMap<>();
 
     @SuppressWarnings("unused")
     private MetadataService() {
@@ -78,6 +79,15 @@ public class MetadataService {
         this.approvedAuthenticationProviders = approvedAuthenticationProviders;
     }
 
+    public Map<String, Country> getCountryCache() {
+        return countryCache;
+    }
+
+    public void setCountryCache(Map<String, Country> countryCache) {
+        logger.debug("Clearing previous country cache, content size {}", this.countryCache.size());
+        this.countryCache = countryCache;
+    }
+
     public ServiceProvider getRelyingParty(String relyingPartyEntityId) throws RelyingPartyNotFoundException {
         ServiceProvider serviceProvider = serviceProviderMetaDataCache.get(relyingPartyEntityId);
         if (null == serviceProvider) {
@@ -94,6 +104,22 @@ public class MetadataService {
         return authenticationProvider;
     }
 
+    public AuthenticationProvider getAuthenticationProviderByEntityId(String entityId) throws AuthenticationProviderNotFoundException {
+        AuthenticationProvider authenticationProvider = approvedAuthenticationProviders.getAuthenticationProviderByEntityId(entityId);
+        if (authenticationProvider == null) {
+            throw new AuthenticationProviderNotFoundException("authentication provider not found by entityId: " + entityId);
+        }
+        return authenticationProvider;
+    }
+
+    public Country getCountry(String countryCode) throws CountryNotFoundException {
+        Country country = countryCache.get(countryCode);
+        if (null == country) {
+            throw new CountryNotFoundException("Country not found: " + countryCode);
+        }
+        return country;
+    }
+
     public void updateMetadataCache() {
         try {
             MetadataService.ApprovedAuthenticationProviders newAuthenticationProviders =
@@ -103,6 +129,11 @@ public class MetadataService {
             if (!newServiceProviders.isEmpty() && !newAuthenticationProviders.allProviders.isEmpty()) {
                 setServiceProviderMetaDataCache(newServiceProviders); // when done replace old with new
                 setApprovedAuthenticationProviders(newAuthenticationProviders);
+            }
+
+            Map<String, Country> newCountries = metadataClient.getCountries();
+            if ( !newCountries.isEmpty() ) {
+                setCountryCache(newCountries); // when done replace old with new
             }
         } catch (Exception e) {
             logger.error("Error updating proxy metadata", e);
@@ -125,6 +156,15 @@ public class MetadataService {
         private AuthenticationProvider getAuthenticationProviderByAuthContextUrl(String authContextUrl) {
             for (AuthenticationProvider authProvider : allProviders) {
                 if (authProvider.getAuthProviderAuthContextUrl().equals(authContextUrl)) {
+                    return authProvider;
+                }
+            }
+            return null;
+        }
+
+        private AuthenticationProvider getAuthenticationProviderByEntityId(String entityId) {
+            for (AuthenticationProvider authProvider : allProviders) {
+                if (authProvider.getDbEntityIdAuthContextUrl().equals(entityId)) {
                     return authProvider;
                 }
             }

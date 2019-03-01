@@ -49,6 +49,7 @@
         <property name="properties">
             <util:properties local-override="true">
                 <prop key="metadata.server.url">none</prop>
+                <prop key="metadata.server.country.url">none</prop>
                 <prop key="identifier.key">REMOTE_USER</prop>
                 <prop key="saml.auth.provider.key">provider</prop>
                 <prop key="saml.vtj.required.key">vtjRequired</prop>
@@ -90,6 +91,8 @@
                 <prop key="token.keystore.password">tokentest</prop>
                 <prop key="token.keystore.keypassword">tokentest</prop>
                 <prop key="token.issuer">Suomi.fi-tunnistus</prop>
+                <prop key="token.header.kid">Suomi.fi-tunnistus</prop>
+                <prop key="token.expiration.time">1000</prop>
             </util:properties>
         </property>
     </bean>

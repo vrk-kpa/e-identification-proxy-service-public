@@ -32,6 +32,7 @@ public class AuthenticationProvider {
     private final AuthMethod authenticationMethod; // LoA, db: loa
     private final String authProviderAuthContextUrl;
     private final String dbEntityIdAuthContextUrl;
+    private final String loginContext;
 
     public AuthenticationProvider(
             String name,
@@ -39,13 +40,15 @@ public class AuthenticationProvider {
             String realMethod,
             AuthMethod authenticationMethod,
             String authProviderAuthContextUrl,
-            String dbEntityIdAuthContextUrl) {
+            String dbEntityIdAuthContextUrl,
+            String loginContext) {
         this.name = name;
         this.domainName = domainName;
         this.realMethod = realMethod;
         this.authenticationMethod = authenticationMethod;
         this.authProviderAuthContextUrl = authProviderAuthContextUrl;
         this.dbEntityIdAuthContextUrl = dbEntityIdAuthContextUrl;
+        this.loginContext = loginContext;
     }
 
     public String getName() {
@@ -70,5 +73,21 @@ public class AuthenticationProvider {
 
     public String getDbEntityIdAuthContextUrl() {
         return dbEntityIdAuthContextUrl;
+    }
+
+    public String getLoginContext() {
+        return loginContext;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if ( obj == null ) {
+            return false;
+        }
+        if (!AuthenticationProvider.class.isAssignableFrom(obj.getClass())) {
+            return false;
+        }
+
+        return this.dbEntityIdAuthContextUrl.equals(((AuthenticationProvider) obj).dbEntityIdAuthContextUrl);
     }
 }

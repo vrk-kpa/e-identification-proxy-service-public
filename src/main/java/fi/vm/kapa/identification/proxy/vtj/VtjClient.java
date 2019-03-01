@@ -26,6 +26,7 @@ import fi.vm.kapa.identification.proxy.exception.InvalidVtjDataException;
 import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.vtj.model.VTJResponse;
+import fi.vm.kapa.identification.vtj.model.VtjIssue;
 import org.glassfish.jersey.client.ClientConfig;
 import org.glassfish.jersey.jackson.JacksonFeature;
 import org.slf4j.Logger;
@@ -49,16 +50,16 @@ public class VtjClient {
 
     private static final Logger logger = LoggerFactory.getLogger(VtjClient.class);
 
-    public VTJResponse fetchVtjData(Identity identity) throws VtjServiceException, InvalidVtjDataException {
-        VTJResponse vtjResponse = getVtjResponseForUser(identity);
+    public VTJResponse fetchVtjData(Identity identity, VtjIssue vtjIssue) throws VtjServiceException, InvalidVtjDataException {
+        VTJResponse vtjResponse = getVtjResponseForUser(identity, vtjIssue);
         if (vtjResponse == null) {
             logger.debug("VTJ returned no data for user " + identity.getIdentifier());
         }
         return vtjResponse;
     }
 
-    VTJResponse getVtjResponseForUser(Identity identity) throws VtjServiceException, InvalidVtjDataException {
-        Response response = getVtjHttpResponse(identity);
+    VTJResponse getVtjResponseForUser(Identity identity, VtjIssue vtjIssue) throws VtjServiceException, InvalidVtjDataException {
+        Response response = getVtjHttpResponse(identity, vtjIssue);
         if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
         	throw new InvalidVtjDataException("Person not found in VTJ");
         }
@@ -71,7 +72,7 @@ public class VtjClient {
         }
     }
 
-    Response getVtjHttpResponse(Identity identity) throws VtjServiceException {
+    Response getVtjHttpResponse(Identity identity, VtjIssue vtjIssue) throws VtjServiceException {
         Response response;
         try {
             WebTarget webTarget = getClient()
@@ -83,6 +84,7 @@ public class VtjClient {
             form.param("issuerDn", identity.getIssuerDn());
 
             Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
+            invocationBuilder.header(VtjIssue.REQUEST_IDENTIFIER_HEADER, vtjIssue.toString());
             response = invocationBuilder.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED));
         } catch (Exception e) {
             logger.error("Vtj connection not established. Service request failed.");

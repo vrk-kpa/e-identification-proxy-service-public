@@ -30,6 +30,7 @@ import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.service.PersonService;
 import fi.vm.kapa.identification.test.DummyPersonService;
 import fi.vm.kapa.identification.vtj.model.Person;
+import fi.vm.kapa.identification.vtj.model.VtjIssue;
 
 import static fi.vm.kapa.identification.type.Identifier.Types.HETU;
 import static fi.vm.kapa.identification.type.Identifier.Types.SATU;
@@ -42,7 +43,7 @@ public class DummyVtjPersonService implements VtjPersonService {
     }
 
     @Override
-    public VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson) throws VtjServiceException, InvalidVtjDataException {
+    public VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson, VtjIssue vtjIssue) throws VtjServiceException, InvalidVtjDataException {
         Identity identity = identifiedPerson.getIdentity();
         Person person = personService.getPerson(identity.getIdentifier(), identity.getIdentifierType());
         // if SATU identity, but HETU in identifiers, replace returned HETU

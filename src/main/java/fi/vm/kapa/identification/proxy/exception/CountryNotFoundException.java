@@ -20,21 +20,10 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package fi.vm.kapa.identification.proxy.session;
+package fi.vm.kapa.identification.proxy.exception;
 
-import fi.vm.kapa.identification.proxy.metadata.AuthenticationProvider;
-import fi.vm.kapa.identification.type.AuthMethod;
-import fi.vm.kapa.identification.type.SessionProfile;
-import org.junit.Test;
-
-public class SessionStatusPrinterTest {
-
-    @Test
-    public void printSessionStatus() throws Exception {
-        SessionStatusPrinter sessionStatusPrinter = new SessionStatusPrinter(new SessionAttributeCollector("vtjReq", "vtjVer", "vtjInv", "legacy_v", "1.1"));
-        Session session = new Session();
-        session.setSessionProfile(SessionProfile.VETUMA_SAML2);
-        session.setSelectedAuthenticationProvider(new AuthenticationProvider("name", "", "", AuthMethod.fLoA2, "", "entityid.tupas", ""));
-        sessionStatusPrinter.printSessionStatus(session);
+public class CountryNotFoundException extends Exception {
+    public CountryNotFoundException(String message) {
+        super(message);
     }
 }

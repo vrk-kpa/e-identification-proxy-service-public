@@ -114,7 +114,7 @@ public class SessionHandlingServiceTimingTest {
     private PhaseIdService phaseIdInitSession;
     private PhaseIdService phaseIdBuiltSession;
 
-    private final AuthenticationProvider tupasAuthenticationProvider = new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", "TUPAS", AuthMethod.fLoA2, "AUTH_PROVIDER_CONTEXT_URL", "DB_ENTITY_AUTH_CONTEXT_URL");
+    private final AuthenticationProvider tupasAuthenticationProvider = new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", "TUPAS", AuthMethod.fLoA2, "AUTH_PROVIDER_CONTEXT_URL", "DB_ENTITY_AUTH_CONTEXT_URL", "LOGINCONTEXT");
 
     @Before
     public void setUp() throws Exception {
@@ -135,8 +135,8 @@ public class SessionHandlingServiceTimingTest {
         List<AuthenticationProvider> providers = new ArrayList();
         providers.add(tupasAuthenticationProvider);
         when(metadataServiceMock.getAuthenticationProviders()).thenReturn(new MetadataService.ApprovedAuthenticationProviders(providers));
-
-        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, "0", convKey, "fLoA2;fLoA3", "logtag");
+        when(metadataServiceMock.getAuthenticationProviderByEntityId(anyString())).thenReturn(tupasAuthenticationProvider);
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(relyingPartyId, tupasAuthenticationProvider.getDbEntityIdAuthContextUrl(), "","0", convKey, "fLoA2;fLoA3", "logtag");
 
         String tokenId = message.getTokenId();
         String nextPhaseId = phaseIdInitSession.newPhaseId(tokenId, stepSessionBuild);
@@ -150,7 +150,7 @@ public class SessionHandlingServiceTimingTest {
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
         when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
         // artificial wait during VTJ call
-        when(vtjPersonServiceMock.getVtjPerson(any())).thenAnswer(new Answer<VtjPerson>() {
+        when(vtjPersonServiceMock.getVtjPerson(any(), any())).thenAnswer(new Answer<VtjPerson>() {
             @Override
             public VtjPerson answer(InvocationOnMock invocation) {
                 try {
@@ -161,7 +161,7 @@ public class SessionHandlingServiceTimingTest {
                 return vtjPerson;
             }
         });
-        when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(new AuthenticationProvider("", "", "", authMethod, "", ""));
+        when(metadataServiceMock.getAuthenticationProvider(anyString())).thenReturn(tupasAuthenticationProvider);
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertEquals(true, phaseIdBuiltSession.verifyPhaseId(result.getPhaseId(), result.getTokenId(), stepRedirectFromSP));
     }

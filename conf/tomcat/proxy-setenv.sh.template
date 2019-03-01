@@ -3,4 +3,5 @@ export JAVA_HOME=/usr/lib/jvm/java-8-oracle
 export JAVA_OPTS="{{ proxy_jvm_debug_options | default('') }} -server -Xmx{{ java_xmx_megabytes }}m -Djavax.net.ssl.trustStore=/opt/kapa-ca -Djavax.net.ssl.trustStorePassword={{ java_truststore_password }} -Djavax.net.ssl.keyStore=/usr/share/tomcat/properties/tomcat_keystore -Djavax.net.ssl.keyStorePassword={{ tomcat_cert_storepass }}"
 export PROXY_HOME=/opt/proxy-server
 export CATALINA_OPTS=" -Djava.rmi.server.hostname={{ proxy_host }}"
+export UMASK=0022
 

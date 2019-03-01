@@ -31,6 +31,7 @@ import fi.vm.kapa.identification.proxy.vtj.VtjClient;
 import fi.vm.kapa.identification.type.Identifier;
 import fi.vm.kapa.identification.vtj.model.Person;
 import fi.vm.kapa.identification.vtj.model.VTJResponse;
+import fi.vm.kapa.identification.vtj.model.VtjIssue;
 import org.junit.Before;
 import org.junit.Test;
 import org.mockito.InjectMocks;
@@ -69,17 +70,18 @@ public class RealVtjPersonServiceTest {
     public void getVtjResponseReturnsPersonFromVtjClient() throws Exception {
         VTJResponse response = new VTJResponse();
         Person validPerson = getMinimalValidPerson("TESTHETU");
+        VtjIssue vtjIssue = new VtjIssue();
         response.setPerson(validPerson);
-        when(vtjClient.fetchVtjData(identity)).thenReturn(response);
+        when(vtjClient.fetchVtjData(identity, vtjIssue)).thenReturn(response);
 
-        VTJResponse vtjResponse = personService.getVtjResponse(identity);
+        VTJResponse vtjResponse = personService.getVtjResponse(identity, vtjIssue);
         assertEquals(validPerson, vtjResponse.getPerson());
     }
 
     @Test(expected = VtjServiceException.class)
     public void getPersonDataFromVTJThrowsVtjServiceExceptionWhenNoPersonInfoIsReturnedFromVTJ() throws Exception {
-        when(vtjClient.fetchVtjData(any(Identity.class))).thenReturn(new VTJResponse());
-        personService.getVtjPerson(identifiedPerson);
+        when(vtjClient.fetchVtjData(any(Identity.class), any(VtjIssue.class))).thenReturn(new VTJResponse());
+        personService.getVtjPerson(identifiedPerson, new VtjIssue());
     }
     
     /**
@@ -89,8 +91,8 @@ public class RealVtjPersonServiceTest {
     @Test(expected = InvalidVtjDataException.class)
     public void testGetVtjPersonThrowsInvalidVtjExceptionOnNotFound() throws InvalidVtjDataException {
     	try {
-    		when(vtjClient.fetchVtjData(any(Identity.class))).thenThrow(InvalidVtjDataException.class);
-    		personService.getVtjPerson(identifiedPerson);
+    		when(vtjClient.fetchVtjData(any(Identity.class), any(VtjIssue.class))).thenThrow(InvalidVtjDataException.class);
+    		personService.getVtjPerson(identifiedPerson, new VtjIssue());
     	} catch (VtjServiceException e) {
 			
 		}

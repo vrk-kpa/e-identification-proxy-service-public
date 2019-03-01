@@ -45,8 +45,7 @@ public class SessionStatusPrinter {
         StringJoiner joiner = new StringJoiner("\n");
 
         joiner.add("-----CKEY: " + session.getConversationKey());
-        joiner.add("------REQUESTED METHODS: " + session.getRequestedAuthenticationMethods());
-        //joiner.add("------SESSIONID: " + session.getSessionId());
+        joiner.add("------SELECTED METHOD ENTITYID: " + session.getSelectedAuthenticationProvider().getDbEntityIdAuthContextUrl());
         joiner.add("------RELYING PARTY: " + session.getRelyingPartyEntityId());
         try {
             sessionAttributeCollector.getAttributes(session).forEach(

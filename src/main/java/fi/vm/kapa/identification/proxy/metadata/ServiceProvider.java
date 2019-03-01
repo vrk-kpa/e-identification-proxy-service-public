@@ -23,7 +23,7 @@
 package fi.vm.kapa.identification.proxy.metadata;
 
 import fi.vm.kapa.identification.dto.MultiLanguageDTO;
-import fi.vm.kapa.identification.proxy.session.AuthMethodHelper;
+import fi.vm.kapa.identification.util.AuthMethodHelper;
 import fi.vm.kapa.identification.type.EidasSupport;
 import fi.vm.kapa.identification.type.SessionProfile;
 

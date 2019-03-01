@@ -20,21 +20,44 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package fi.vm.kapa.identification.proxy.session;
+package fi.vm.kapa.identification.proxy.metadata;
 
-import fi.vm.kapa.identification.proxy.metadata.AuthenticationProvider;
-import fi.vm.kapa.identification.type.AuthMethod;
-import fi.vm.kapa.identification.type.SessionProfile;
-import org.junit.Test;
+public class Country {
 
-public class SessionStatusPrinterTest {
-
-    @Test
-    public void printSessionStatus() throws Exception {
-        SessionStatusPrinter sessionStatusPrinter = new SessionStatusPrinter(new SessionAttributeCollector("vtjReq", "vtjVer", "vtjInv", "legacy_v", "1.1"));
-        Session session = new Session();
-        session.setSessionProfile(SessionProfile.VETUMA_SAML2);
-        session.setSelectedAuthenticationProvider(new AuthenticationProvider("name", "", "", AuthMethod.fLoA2, "", "entityid.tupas", ""));
-        sessionStatusPrinter.printSessionStatus(session);
+    public Country(String countryCode, String authProviderEntityId, String eidasLoginContext) {
+        this.countryCode = countryCode;
+        this.authProviderEntityId = authProviderEntityId;
+        this.eidasLoginContext = eidasLoginContext;
     }
+
+    private String countryCode;
+
+    private String authProviderEntityId;
+
+    private String eidasLoginContext;
+
+    public String getCountryCode() {
+        return countryCode;
+    }
+
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
+    }
+
+    public String getAuthProviderEntityId() {
+        return authProviderEntityId;
+    }
+
+    public void setAuthProviderEntityId(String authProviderEntityId) {
+        this.authProviderEntityId = authProviderEntityId;
+    }
+
+    public String getEidasLoginContext() {
+        return eidasLoginContext;
+    }
+
+    public void setEidasLoginContext(String eidasLoginContext) {
+        this.eidasLoginContext = eidasLoginContext;
+    }
+
 }

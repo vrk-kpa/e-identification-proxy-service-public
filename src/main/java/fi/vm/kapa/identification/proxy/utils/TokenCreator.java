@@ -29,10 +29,11 @@ import fi.vm.kapa.identification.proxy.exception.TokenCreatorException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Date;
+import java.util.*;
 
 public class TokenCreator {
 
+    public static final String KID_HEADERCLAIM_KEY = "kid";
     public static final String AUTHMETHOD_CLAIM_KEY = "auth_method";
     public static final String HETU_CLAIM_KEY = "hetu";
     public static final String RP_CLAIM_KEY = "rp";
@@ -43,21 +44,27 @@ public class TokenCreator {
     private static final Logger logger = LoggerFactory.getLogger(TokenCreator.class);
 
     private final Algorithm algorithm;
-
     private final String issuer;
+    private final Map<String, Object> headers;
+    private final int expirationTime;
 
-    public TokenCreator(Algorithm algorithm, final String issuer) {
+    public TokenCreator(Algorithm algorithm, final String issuer, String tokenHeaderKid, int expirationTime) {
         this.algorithm = algorithm;
         this.issuer = issuer;
+        Map<String, Object> original = new HashMap<>();
+        original.put(KID_HEADERCLAIM_KEY, tokenHeaderKid);
+        headers = Collections.unmodifiableMap(original);
+        this.expirationTime = expirationTime;
     }
 
     public String getAuthenticationToken(String hetu, String method, String rp, String sfi_id, String req_id, Date iat) throws TokenCreatorException {
 
-        String token = null;
         try {
-            token = JWT.create()
+            return  JWT.create()
                     .withIssuer(issuer)
+                    .withHeader(headers)
                     .withIssuedAt(iat)
+                    .withExpiresAt(getExpiresAt(iat))
                     .withClaim(AUTHMETHOD_CLAIM_KEY, method)
                     .withClaim(HETU_CLAIM_KEY, hetu)
                     .withClaim(RP_CLAIM_KEY, rp)
@@ -68,16 +75,15 @@ public class TokenCreator {
             logger.error("Unable to create JWT: " + e.getMessage());
             throw new TokenCreatorException("JWT creation failed: " + e.getMessage());
         }
-        return token;
     }
 
     public String getEidasAuthenticationToken(String pid, String method, String rp, String sfi_id, String req_id, Date iat) throws TokenCreatorException {
-
-        String token = null;
         try {
-            token = JWT.create()
+            return  JWT.create()
                     .withIssuer(issuer)
+                    .withHeader(headers)
                     .withIssuedAt(iat)
+                    .withExpiresAt(getExpiresAt(iat))
                     .withClaim(AUTHMETHOD_CLAIM_KEY, method)
                     .withClaim(PID_CLAIM_KEY, pid)
                     .withClaim(RP_CLAIM_KEY, rp)
@@ -88,6 +94,17 @@ public class TokenCreator {
             logger.error("Unable to create JWT: " + e.getMessage());
             throw new TokenCreatorException("JWT creation failed: " + e.getMessage());
         }
-        return token;
+    }
+
+
+    private Date getExpiresAt(Date iat) {
+        Calendar cal = Calendar.getInstance();
+        cal.setTime(iat);
+        cal.add(Calendar.MINUTE, expirationTime);
+        return cal.getTime();
+    }
+
+    int getExpirationTime() {
+        return expirationTime;
     }
 }

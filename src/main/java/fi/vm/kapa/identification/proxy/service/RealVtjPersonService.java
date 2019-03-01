@@ -30,6 +30,7 @@ import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.proxy.vtj.VtjClient;
 import fi.vm.kapa.identification.vtj.model.Person;
 import fi.vm.kapa.identification.vtj.model.VTJResponse;
+import fi.vm.kapa.identification.vtj.model.VtjIssue;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -40,8 +41,8 @@ public class RealVtjPersonService implements VtjPersonService {
     @Autowired
     VtjClient vtjClient;
 
-    VTJResponse getVtjResponse(Identity identity) throws VtjServiceException, InvalidVtjDataException {
-        VTJResponse response = vtjClient.fetchVtjData(identity);
+    VTJResponse getVtjResponse(Identity identity, VtjIssue vtjIssue) throws VtjServiceException, InvalidVtjDataException {
+        VTJResponse response = vtjClient.fetchVtjData(identity, vtjIssue);
         if (response == null || response.getPerson() == null) {
             logger.error("VTJ response null or empty");
             throw new VtjServiceException("VTJ response null or empty");
@@ -51,9 +52,9 @@ public class RealVtjPersonService implements VtjPersonService {
     }
 
     @Override
-    public VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson) throws VtjServiceException, InvalidVtjDataException {
+    public VtjPerson getVtjPerson(IdentifiedPerson identifiedPerson, VtjIssue vtjIssue) throws VtjServiceException, InvalidVtjDataException {
         Identity identity = identifiedPerson.getIdentity();
-        Person person = getVtjResponse(identity).getPerson();
+        Person person = getVtjResponse(identity, vtjIssue).getPerson();
         return new VtjPerson(identity, person);
     }
 

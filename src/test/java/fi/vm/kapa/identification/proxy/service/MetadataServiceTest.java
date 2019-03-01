@@ -175,7 +175,7 @@ public class MetadataServiceTest {
     }
 
     private MetadataService.ApprovedAuthenticationProviders getApprovedAuthenticationProvidersWithDefaultNamedProvider(String name) {
-        AuthenticationProvider authenticationProviderDTO = new AuthenticationProvider(name, "TEST_DOMAIN_NAME", "TESTI", AuthMethod.TESTI, "TEST_AUTH_CONTEXT_URL", "TEST_DB_ENTITY_URL");
+        AuthenticationProvider authenticationProviderDTO = new AuthenticationProvider(name, "TEST_DOMAIN_NAME", "TESTI", AuthMethod.TESTI, "TEST_AUTH_CONTEXT_URL", "TEST_DB_ENTITY_URL", "LOGINCONTEXT");
         List<AuthenticationProvider> authenticationProviderDTOs = Arrays.asList(authenticationProviderDTO);
         return new MetadataService.ApprovedAuthenticationProviders(authenticationProviderDTOs);
     }

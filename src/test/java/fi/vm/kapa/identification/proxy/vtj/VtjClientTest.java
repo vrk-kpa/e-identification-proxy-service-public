@@ -26,6 +26,7 @@ import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.type.Identifier;
 import fi.vm.kapa.identification.vtj.model.VTJResponse;
+import fi.vm.kapa.identification.vtj.model.VtjIssue;
 import org.junit.Test;
 
 import javax.ws.rs.core.Response;
@@ -39,24 +40,24 @@ public class VtjClientTest {
     @Test
     public void fetchVtjDataReturnsNullWhenVtjResponseIsNull() throws Exception {
         VtjClient vtjClient = spy(VtjClient.class);
-        doReturn(null).when(vtjClient).getVtjResponseForUser(any());
-        VTJResponse vtjResponse = vtjClient.fetchVtjData(new Identity(" ", Identifier.Types.HETU, "TEST_HETU"));
+        doReturn(null).when(vtjClient).getVtjResponseForUser(any(), any());
+        VTJResponse vtjResponse = vtjClient.fetchVtjData(new Identity(" ", Identifier.Types.HETU, "TEST_HETU"),new VtjIssue());
         assertEquals(null, vtjResponse);
     }
 
     @Test(expected = VtjServiceException.class)
     public void fetchVtjDataThrowsVtjServiceException() throws Exception {
         VtjClient vtjClient = spy(VtjClient.class);
-        when(vtjClient.getVtjResponseForUser(any())).thenThrow(VtjServiceException.class);
+        when(vtjClient.getVtjResponseForUser(any(), any())).thenThrow(VtjServiceException.class);
     }
 
     @Test(expected = VtjServiceException.class)
     public void getVtjResponseForUserThrowsIfResponseStatusIsNot200() throws Exception {
         VtjClient vtjClient = spy(VtjClient.class);
         Response responseMock = mock(Response.class);
-        doReturn(responseMock).when(vtjClient).getVtjHttpResponse(any());
+        doReturn(responseMock).when(vtjClient).getVtjHttpResponse(any(), any());
         when(responseMock.getStatus()).thenReturn(400);
-        vtjClient.getVtjResponseForUser(new Identity("TEST_ISSUER_DN", Identifier.Types.SATU, "TEST_SATU"));
+        vtjClient.getVtjResponseForUser(new Identity("TEST_ISSUER_DN", Identifier.Types.SATU, "TEST_SATU"),new VtjIssue());
     }
 
     @Test
@@ -64,10 +65,11 @@ public class VtjClientTest {
         VtjClient vtjClient = spy(VtjClient.class);
         Response responseMock = mock(Response.class);
         Identity userIdentity = new Identity("TEST_ISSUER_DN", Identifier.Types.SATU, "TEST_SATU");
-        doReturn(responseMock).when(vtjClient).getVtjHttpResponse(userIdentity);
+        VtjIssue vtjIssue = new VtjIssue();
+        doReturn(responseMock).when(vtjClient).getVtjHttpResponse(userIdentity, vtjIssue);
         doReturn(new VTJResponse()).when(responseMock).readEntity(VTJResponse.class);
         doReturn(200).when(responseMock).getStatus();
-        VTJResponse vtjResponse = vtjClient.getVtjResponseForUser(userIdentity);
+        VTJResponse vtjResponse = vtjClient.getVtjResponseForUser(userIdentity, vtjIssue);
         assertNotNull(vtjResponse);
     }
 

@@ -25,10 +25,7 @@ package fi.vm.kapa.identification.proxy.session;
 import fi.vm.kapa.identification.proxy.metadata.AuthenticationProvider;
 import fi.vm.kapa.identification.proxy.person.IdentifiedPerson;
 import fi.vm.kapa.identification.proxy.person.VtjPerson;
-import fi.vm.kapa.identification.type.AuthMethod;
 import fi.vm.kapa.identification.type.SessionProfile;
-
-import java.util.Set;
 
 /**
  * This class is used to store any session related data. This class is mainly used
@@ -55,11 +52,10 @@ public class Session {
     private String relyingPartyEntityId;
 
     private SessionProfile sessionProfile;
-    private AuthenticationProvider authenticationProvider;
+    private AuthenticationProvider selectedAuthenticationProvider;
     private String legacyVersion;
 
-    //holds all requested authentication methods
-    private Set<AuthMethod> requestedAuthenticationMethods;
+    private String countryCode;
 
     private IdentifiedPerson identifiedPerson;
     private VtjPerson vtjPerson;
@@ -130,20 +126,20 @@ public class Session {
         this.sessionProfile = sessionProfile;
     }
 
-    public AuthenticationProvider getAuthenticationProvider() {
-        return authenticationProvider;
+    public AuthenticationProvider getSelectedAuthenticationProvider() {
+        return selectedAuthenticationProvider;
     }
 
-    public void setAuthenticationProvider(AuthenticationProvider authenticationProvider) {
-        this.authenticationProvider = authenticationProvider;
+    public void setSelectedAuthenticationProvider(AuthenticationProvider selectedAuthenticationProvider) {
+        this.selectedAuthenticationProvider = selectedAuthenticationProvider;
     }
 
-    public Set<AuthMethod> getRequestedAuthenticationMethods() {
-        return requestedAuthenticationMethods;
+    public String getCountryCode() {
+        return countryCode;
     }
 
-    public void setRequestedAuthenticationMethods(Set<AuthMethod> requestedAuthenticationMethods) {
-        this.requestedAuthenticationMethods = requestedAuthenticationMethods;
+    public void setCountryCode(String countryCode) {
+        this.countryCode = countryCode;
     }
 
     public String getRelyingPartyEntityId() {

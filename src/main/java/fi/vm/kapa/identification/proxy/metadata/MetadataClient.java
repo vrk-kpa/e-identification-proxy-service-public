@@ -24,6 +24,7 @@ package fi.vm.kapa.identification.proxy.metadata;
 
 import com.google.gson.Gson;
 import com.google.gson.reflect.TypeToken;
+import fi.vm.kapa.identification.dto.CountryDTO;
 import fi.vm.kapa.identification.dto.MetadataDTO;
 import fi.vm.kapa.identification.type.AuthMethod;
 import fi.vm.kapa.identification.type.ProviderType;
@@ -48,6 +49,9 @@ public class MetadataClient {
 
     @Value("${metadata.server.url}")
     private String metadataServerUrl;
+
+    @Value("${metadata.server.country.url}")
+    private String countryUrl;
 
     public Map<String,ServiceProvider> getServiceProviders() throws IOException {
         CloseableHttpClient httpClient = HttpClients.createDefault();
@@ -91,7 +95,8 @@ public class MetadataClient {
                             data.getAttributeLevelOfAssurance(),
                             AuthMethod.valueOf(data.getLevelOfAssurance()),
                             data.getAcsAddress(),
-                            data.getEntityId()));
+                            data.getEntityId(),
+                            data.getLoginContext()));
                 }
                 catch ( Exception e ) {
                     logger.warn("Found incompatible authentication provider with entityID: " + data.getEntityId());
@@ -119,6 +124,46 @@ public class MetadataClient {
             response.close();
         }
         return serviceProviders;
+    }
+
+    public Map<String, Country> getCountries() throws IOException {
+        CloseableHttpClient httpClient = HttpClients.createDefault();
+        logger.debug("url to country data server: {}", countryUrl);
+        HttpGet getMethod = new HttpGet(countryUrl);
+        final Map<String, Country> countries = new HashMap<>();
+        List<CountryDTO> countryDTOs = getCountryDTOs(httpClient, getMethod);
+        if (!CollectionUtils.isEmpty(countryDTOs)) {
+            countryDTOs.forEach(data -> {
+                logger.debug("--adding country - code: " + data.getCountryCode() +
+                        ", authProviderEntityId: " + data.getAuthProviderEntityId());
+                countries.put(data.getCountryCode(),
+                        new Country(
+                                data.getCountryCode(),
+                                data.getAuthProviderEntityId(),
+                                data.getEidasLoginContext()
+                        )
+                );
+            });
+        }
+        return countries;
+    }
+
+    List<CountryDTO> getCountryDTOs(CloseableHttpClient httpClient, HttpGet getMethod) throws IOException {
+        List<CountryDTO> countries = new ArrayList<>();
+        CloseableHttpResponse response = httpClient.execute(getMethod);
+
+        int statusCode = response.getStatusLine().getStatusCode();
+        if (statusCode == HttpStatus.SC_OK) {
+            Gson gson = new Gson();
+            countries = gson.fromJson(EntityUtils.toString(response.getEntity()),
+                    new TypeToken<List<CountryDTO>>() {
+                    }.getType());
+            response.close();
+        } else {
+            logger.warn("Country data server responded with HTTP {}", statusCode);
+            response.close();
+        }
+        return countries;
     }
 
 }

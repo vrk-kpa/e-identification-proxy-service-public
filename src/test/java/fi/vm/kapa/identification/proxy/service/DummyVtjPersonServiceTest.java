@@ -27,11 +27,9 @@ import fi.vm.kapa.identification.proxy.person.IdentifiedPerson;
 import fi.vm.kapa.identification.proxy.person.VtjPerson;
 import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.type.Identifier;
+import fi.vm.kapa.identification.vtj.model.VtjIssue;
 import org.junit.Before;
 import org.junit.Test;
-import org.mockito.InjectMocks;
-import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -52,35 +50,35 @@ public class DummyVtjPersonServiceTest {
     @Test
     public void getVtjPersonReturnsValidPersonForPersonIdentifiedByHetu() throws Exception {
         IdentifiedPerson person = getIdentifiedPersonWithHetu("010191-9641");
-        VtjPerson vtjPerson = personService.getVtjPerson(person);
+        VtjPerson vtjPerson = personService.getVtjPerson(person, new VtjIssue());
         vtjPerson.validate();
     }
 
     @Test
     public void getVtjPersonReturnsPersonWithHetuFromIdentifiedPerson() throws Exception {
         IdentifiedPerson person = getIdentifiedPersonWithHetu("010191-9641");
-        VtjPerson vtjPerson = personService.getVtjPerson(person);
+        VtjPerson vtjPerson = personService.getVtjPerson(person, new VtjIssue());
         assertEquals("010191-9641", vtjPerson.getAttributes().get("samlNationalIdentificationNumber"));
     }
 
     @Test
     public void getVtjPersonReturnsValidPersonForPersonIdentifiedBySatu() throws Exception {
         IdentifiedPerson person = getIdentifiedPersonWithSatu("999196993");
-        VtjPerson vtjPerson = personService.getVtjPerson(person);
+        VtjPerson vtjPerson = personService.getVtjPerson(person, new VtjIssue());
         vtjPerson.validate();
     }
 
     @Test
     public void getVtjPersonReturnsPersonWithSatuFromIdentifiedPersonWhenSatuIdentifier() throws Exception {
         IdentifiedPerson person = getIdentifiedPersonWithSatu("999196993");
-        VtjPerson vtjPerson = personService.getVtjPerson(person);
+        VtjPerson vtjPerson = personService.getVtjPerson(person, new VtjIssue());
         assertEquals("999196993", vtjPerson.getAttributes().get("samlElectronicIdentificationNumber"));
     }
 
     @Test
     public void getVtjPersonReturnsPersonWithDefaultHetuWhenHetuNotGiven() throws Exception {
         IdentifiedPerson person = getIdentifiedPersonWithSatu("999196993");
-        VtjPerson vtjPerson = personService.getVtjPerson(person);
+        VtjPerson vtjPerson = personService.getVtjPerson(person, new VtjIssue());
         assertEquals("010191-9696", vtjPerson.getAttributes().get("samlNationalIdentificationNumber"));
     }
 
@@ -88,7 +86,7 @@ public class DummyVtjPersonServiceTest {
     public void getVtjPersonReturnsPersonWithHetuFromIdentifiedPersonWhenSatuIdentifier() throws Exception {
         IdentifiedPerson person = getIdentifiedPersonWithSatu("999196993");
         person.getIdentifiers().put(HETU, "010191-9641");
-        VtjPerson vtjPerson = personService.getVtjPerson(person);
+        VtjPerson vtjPerson = personService.getVtjPerson(person, new VtjIssue());
         assertEquals("010191-9641", vtjPerson.getAttributes().get("samlNationalIdentificationNumber"));
     }
 

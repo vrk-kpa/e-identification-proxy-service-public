@@ -55,6 +55,12 @@ public class TokenCreatorConfiguration {
     @Value("${token.issuer}")
     private String tokenIssuer;
 
+    @Value("${token.header.kid}")
+    private String tokenHeaderKid;
+
+    @Value("${token.expiration.time}")
+    private int tokenExpirationTime;
+
     private static final Logger logger = LoggerFactory.getLogger(TokenCreatorConfiguration.class);
 
     @Bean(name = "tokenCreator")
@@ -66,15 +72,17 @@ public class TokenCreatorConfiguration {
             tokenKeyStore = KeyStore.getInstance(KeyStore.getDefaultType());
             tokenKeyStore.load(is, tokenKeystorePass.toCharArray());
         } catch (IOException e) {
+            logger.warn("KeyStore access problem: " + e.getMessage());
             throw new TokenCreatorException("KeyStore access problem: " + e.getMessage());
         } catch (KeyStoreException | NoSuchAlgorithmException | CertificateException e) {
+            logger.warn("KeyStore instantiation problem: " + e.getMessage());
             throw new TokenCreatorException("KeyStore instantiation problem: " + e.getMessage());
         }
 
         try {
             Key key = tokenKeyStore.getKey(tokenKeystoreAlias, tokenKeystoreKeyPass.toCharArray());
             Algorithm algorithm = Algorithm.RSA256((RSAPrivateKey) key);
-            return new TokenCreator(algorithm, tokenIssuer);
+            return new TokenCreator(algorithm, tokenIssuer, tokenHeaderKid, tokenExpirationTime);
         } catch (KeyStoreException e) {
             throw new TokenCreatorException("KeyStore problem: ", e);
         } catch (NoSuchAlgorithmException e) {

@@ -1,6 +1,7 @@
 # Proxy Server properties
 #########################
 metadata.server.url={{metadata_rest_url}}/rest/metadata
+metadata.server.country.url={{metadata_rest_url}}/rest/country
 # These session time-to-live values are in minutes
 sessions.cache.active.ttl={{proxy_active_sessions_ttl_min}}
 sessions.cache.failed.ttl={{proxy_failed_sessions_ttl_min}}
@@ -8,7 +9,7 @@ sessions.cache.failed.ttl={{proxy_failed_sessions_ttl_min}}
 # NOTE! These values MUST match to what Proxy and SP are using
 # since these two shared values define the phase ID HMAC calculation!
 phase.id.shared.secret={{phase_id_shared_secret}}
-phase.id.time.interval={{phase_id_time_interval}}
+phase.id.time.interval={{phase_id_time_interval_auth}}
 phase.id.time.built.interval={{phase_id_time_built_interval}}
 phase.id.algorithm=HmacSHA256
 phase.id.step.one={{phase_id_step_one}}
@@ -51,4 +52,6 @@ token.keystore.alias={{token_keystore_alias}}
 token.keystore.password={{token_keystore_password}}
 token.keystore.keypassword={{token_keystore_keypassword}}
 token.issuer={{token_issuer | default('Suomi.fi-tunnistus')}}
+token.header.kid={{token_header_kid | default('Suomi.fi-tunnistus')}}
+token.expiration.time={{token_expiration_time}}
 

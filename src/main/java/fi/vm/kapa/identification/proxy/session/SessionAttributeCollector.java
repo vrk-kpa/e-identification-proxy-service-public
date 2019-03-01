@@ -60,14 +60,8 @@ public class SessionAttributeCollector {
         attributes.put(vtjRequiredKey, Boolean.toString(session.isVtjVerificationRequired()));
         attributes.put(vtjDataInvalidKey, Boolean.toString(session.isVtjDataInvalid()));
         if (session.getSessionProfile() == SessionProfile.TUNNISTUSFI_LEGACY) {
-            if (null != session.getAuthenticationProvider()) {
-                attributes.put("provider", session.getAuthenticationProvider().getAuthProviderAuthContextUrl());
-            }
             attributes.putAll(getLegacySessionAttributes(session));
             attributes.putAll(session.getIdentifiedPerson().getLegacyAttributes());
-        } else if (session.getSessionProfile() == SessionProfile.VETUMA_SAML2
-                && null != session.getAuthenticationProvider()) {
-            attributes.put("provider", session.getAuthenticationProvider().getDbEntityIdAuthContextUrl());
         }
 
         attributes.putAll(getMergedPersonAttributes(session));
