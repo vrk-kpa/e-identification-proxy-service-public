@@ -110,11 +110,13 @@ public class SessionHandlingServiceAttibutesTest {
     private final String katsoAuthenticationProviderEntityId = "DB_ENTITY_ID_KATSO";
     private final String mobiiliAuthenticationProviderEntityId = "DB_ENTITY_ID_MOBIILI";
     private final String eidasAuthenticationProviderEntityId = "DB_ENTITY_ID_EIDAS";
+    private final String foreignAuthenticationProviderEntityId = "DB_ENTITY_ID_FOREIGN";
 
     private final String tupasAuthenticationProviderContextUrl = "AUTH_PROVIDER_CONTEXT_URL_TUPAS";
     private final String katsoAuthenticationProviderContextUrl = "AUTH_PROVIDER_CONTEXT_URL_KATSO";
     private final String mobiiliAuthenticationProviderContextUrl = "AUTH_PROVIDER_CONTEXT_URL_MOBIILI";
     private final String eidasAuthenticationProviderContextUrl = "AUTH_PROVIDER_CONTEXT_URL_EIDAS";
+    private final String foreignAuthenticationProviderContextUrl = "AUTH_PROVIDER_CONTEXT_URL_FOREIGN";
 
     @Before
     public void setUp() throws Exception {
@@ -136,6 +138,7 @@ public class SessionHandlingServiceAttibutesTest {
         providers.add(new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", "KATSOPWD", AuthMethod.KATSOPWD, katsoAuthenticationProviderContextUrl, katsoAuthenticationProviderEntityId, "LOGINCONTEXT_KATSO"));
         providers.add(new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", "MOBIILI", AuthMethod.fLoA2, mobiiliAuthenticationProviderContextUrl, mobiiliAuthenticationProviderEntityId, "LOGINCONTEXT_MOBIILI"));
         providers.add(new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", "eLoA3", AuthMethod.eLoA3, eidasAuthenticationProviderContextUrl, eidasAuthenticationProviderEntityId, ""));
+        providers.add(new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", "FFI", AuthMethod.FFI, foreignAuthenticationProviderContextUrl, foreignAuthenticationProviderEntityId, ""));
         metadataService.setApprovedAuthenticationProviders(new MetadataService.ApprovedAuthenticationProviders(providers));
 
         Map<String, Country> countries = new HashMap<>();
@@ -236,8 +239,11 @@ public class SessionHandlingServiceAttibutesTest {
         ServiceProvider serviceProvider = new ServiceProvider(SERVICE_PROVIDER_ID, "LOA", authMethod.name(), SessionProfile.VETUMA_SAML2, false,  "",EidasSupport.full, null);
         metadataService.getServiceProviderMetaDataCache().put(serviceProvider.getEntityId(), serviceProvider);
 
+        VtjPerson testVtjPerson = new VtjPerson(new Identity(null, Identifier.Types.HETU, vtjHetu), getTestPerson(vtjHetu));
+        when(personService.getVtjPerson(any(), any())).thenReturn(testVtjPerson);
+
         // SP session data
-        Map<String,String> sessionData = getMyspNordeaSessionData(Identifier.Types.HETU, userId, "SP_HETU");
+        Map<String,String> sessionData = getMyspNordeaSessionData(Identifier.Types.HETU, userId, vtjHetu);
 
         // actual test
         String requestedAuthMethods = authMethod.name();
@@ -289,6 +295,9 @@ public class SessionHandlingServiceAttibutesTest {
         AuthMethod authMethod = AuthMethod.fLoA2;
         ServiceProvider serviceProvider = new ServiceProvider(SERVICE_PROVIDER_ID, "LOA", authMethod.name(), SessionProfile.VETUMA_LEGACY, false,  "",EidasSupport.full, null);
         metadataService.getServiceProviderMetaDataCache().put(serviceProvider.getEntityId(), serviceProvider);
+
+        VtjPerson testVtjPerson = new VtjPerson(new Identity(null, Identifier.Types.HETU, vtjHetu), getTestPerson(vtjHetu));
+        when(personService.getVtjPerson(any(), any())).thenReturn(testVtjPerson);
 
         // SP session data
         Map<String,String> sessionData = getMyspNordeaSessionData(Identifier.Types.HETU, userId, "SP_HETU");
@@ -345,7 +354,7 @@ public class SessionHandlingServiceAttibutesTest {
         metadataService.getServiceProviderMetaDataCache().put(serviceProvider.getEntityId(), serviceProvider);
 
         // SP session data
-        Map<String,String> sessionData = getShibSpKatsopwdSessionData(Identifier.Types.SATU, "ap76i8", "NAME FROM SP");
+        Map<String,String> sessionData = getShibSpKatsopwdSessionData(Identifier.Types.KID, "ap76i8", "NAME FROM SP");
 
         // actual test
         String requestedAuthMethods = authMethod.name();
@@ -380,7 +389,7 @@ public class SessionHandlingServiceAttibutesTest {
         metadataService.getServiceProviderMetaDataCache().put(serviceProvider.getEntityId(), serviceProvider);
 
         // SP session data
-        Map<String,String> sessionData = getShibSpKatsopwdSessionData(Identifier.Types.SATU, "ap76i8", "NAME FROM SP");
+        Map<String,String> sessionData = getShibSpKatsopwdSessionData(Identifier.Types.KID, "ap76i8", "NAME FROM SP");
 
         // actual test
         String requestedAuthMethods = authMethod.name();
@@ -418,8 +427,10 @@ public class SessionHandlingServiceAttibutesTest {
         ServiceProvider serviceProvider = new ServiceProvider(SERVICE_PROVIDER_ID, "LOA", authMethod.name(), SessionProfile.VETUMA_SAML2, false,  "",EidasSupport.full, null);
         metadataService.getServiceProviderMetaDataCache().put(serviceProvider.getEntityId(), serviceProvider);
 
+        VtjPerson testVtjPerson = new VtjPerson(new Identity(null, Identifier.Types.HETU, "VTJ_HETU"), getTestPerson("VTJ_HETU"));
+        when(personService.getVtjPerson(any(), any())).thenReturn(testVtjPerson);
         // SP session data
-        Map<String,String> sessionData = getMobiilivarmenneSessionData(Identifier.Types.SATU, "99999578U", "SP_HETU", "SP_MOBILE");
+        Map<String,String> sessionData = getMobiilivarmenneSessionData(Identifier.Types.SATU, "VTJ_SATU", "SP_HETU", "SP_MOBILE");
 
         // actual test
         String requestedAuthMethods = authMethod.name();
@@ -460,7 +471,6 @@ public class SessionHandlingServiceAttibutesTest {
         expected.put("samlForeignLocalityAndState", "VTJ_FOREIGN_LOCALITY_AND_STATE_S");
         expected.put("samlForeignLocalityAndStateClearText", "VTJ_FOREIGN_LOCALITY_AND_STATE_CLEARTEXT");
         expected.put("samlMail", "VTJ_EMAIL");
-        expected.put("samlMobile", "SP_MOBILE");
         expected.put("samlProtectionOrder", "0");
         assertThat(attributeMap.entrySet(), equalTo(expected.entrySet()));
     }
@@ -474,7 +484,7 @@ public class SessionHandlingServiceAttibutesTest {
         metadataService.getServiceProviderMetaDataCache().put(serviceProvider.getEntityId(), serviceProvider);
 
         // Vtj not available
-        when(personService.getVtjPerson(any(GenericPerson.class), any(VtjIssue.class))).thenThrow(VtjServiceException.class);
+        when(personService.getVtjPerson(any(GenericPerson.class), any(VtjIssue.class))).thenThrow(new VtjServiceException(null));
         // SP session data
         Map<String,String> sessionData = getMobiilivarmenneSessionData(Identifier.Types.SATU, "99999578U", "SP_HETU", "SP_MOBILE");
 
@@ -500,12 +510,59 @@ public class SessionHandlingServiceAttibutesTest {
         expected.put("samlElectronicIdentificationNumber", "99999578U");
         expected.put("samlNationalIdentificationNumber", "SP_HETU");
         expected.put("samlCn", "Raija Talvikki SP_SURNAME");
-        expected.put("samlSn", "SP_SURNAME");
-        expected.put("samlMobile", "SP_MOBILE");
-        expected.put("samlGivenName", "Raija Talvikki");
         assertThat(attributeMap.entrySet(), equalTo(expected.entrySet()));
     }
 
+    @Test
+    public void createFullSessionCombineCnFromFirstNamesAndSnWhenVtjNotAvailable() throws Exception {
+
+        // set metadata
+        AuthMethod authMethod = AuthMethod.fLoA2;
+        ServiceProvider serviceProvider = new ServiceProvider(SERVICE_PROVIDER_ID, "LOA", authMethod.name(), SessionProfile.VETUMA_SAML2, false,  "",EidasSupport.full, null);
+        metadataService.getServiceProviderMetaDataCache().put(serviceProvider.getEntityId(), serviceProvider);
+
+        // Vtj not available
+        when(personService.getVtjPerson(any(GenericPerson.class), any(VtjIssue.class))).thenThrow(new VtjServiceException(null));
+        // SP session data
+        Map<String,String> sessionData = new HashMap<>();
+        sessionData.put("identifierType", Identifier.Types.HETU.name());
+        sessionData.put("AJP_firstNames", "SP_FIRSTNAMES");
+        sessionData.put("AJP_hetu", "SP_HETU");
+        sessionData.put("AJP_sn", "SP_SURNAME");
+        sessionData.put("AJP_Shib-Application-ID", "default");
+        sessionData.put("AJP_Shib-Session-ID", "sessionId");
+        sessionData.put("AJP_Shib-AuthnContext-Decl", mobiiliAuthenticationProviderContextUrl);
+        sessionData.put("AJP_Shib-Authentication-Instant", "2019-02-11T09:53:21.959Z");
+        sessionData.put("AJP_Shib-Session-Expires", "1549878813");
+        sessionData.put("AJP_Shib-Session-Inactivity", "1549878813");
+        sessionData.put("REMOTE_USER", "SP_HETU");
+        sessionData.put("AJP_Shib-Session-Index", "sessionIndex");
+        sessionData.put("AJP_Shib-Identity-Provider", "https://tunnistus-pp.telia.fi/uas");
+        sessionData.put("AJP_Shib-Handler", "https://www.tunnistus-dev.xyz/Shibboleth.sso");
+
+        // actual test
+        String requestedAuthMethods = authMethod.name();
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), mobiiliAuthenticationProviderEntityId, "","0", convKey, requestedAuthMethods, "logtag");
+        ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(initResponse.getTokenId(), "1", sessionData, "logtag");
+        ProxyMessageDTO result = sessionHandlingService.getSessionById(buildResponse.getTokenId(), "2", "logtag");
+        assertEquals(convKey, result.getConversationKey());
+        assertEquals(authMethod, result.getSessionAuthenticationMethods()[0]);
+        assertNotNull(result.getUid());
+        assertEquals(ErrorType.NO_ERROR, result.getErrorType());
+
+        // get attributes
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), SERVICE_PROVIDER_ID, false, "authnRequestId");
+        assertNotNull(attributes);
+
+        Map<String,String> attributeMap = attributes.getAttributeMap();
+        Map<String,String> expected = new HashMap<>();
+        expected.put("vtjInvalid", "false");
+        expected.put("vtjVerified", "false");
+        expected.put("vtjRequired", "false");
+        expected.put("samlNationalIdentificationNumber", "SP_HETU");
+        expected.put("samlCn", "SP_SURNAME SP_FIRSTNAMES");
+        assertThat(attributeMap.entrySet(), equalTo(expected.entrySet()));
+    }
 
     @Test
     public void createFullSessionEidasTesti() throws Exception {
@@ -620,6 +677,44 @@ public class SessionHandlingServiceAttibutesTest {
         assertEquals(SERVICE_PROVIDER_ID, decoded.getClaim(TokenCreator.RP_CLAIM_KEY).asString());
         assertEquals(authMethod.getOidValue(), decoded.getClaim(TokenCreator.AUTHMETHOD_CLAIM_KEY).asString());
     }
+    
+    @Test
+    public void createFullSessionForeignTesti() throws Exception {
+
+        // set metadata
+        AuthMethod authMethod = AuthMethod.FFI;
+        ServiceProvider serviceProvider = new ServiceProvider(SERVICE_PROVIDER_ID, "TESTI", authMethod.name(), SessionProfile.VETUMA_SAML2, false,  "",EidasSupport.full, null);
+        metadataService.getServiceProviderMetaDataCache().put(serviceProvider.getEntityId(), serviceProvider);
+
+        // SP session data
+        Map<String,String> sessionData = getForeignTestiSessionData(Identifier.Types.FPID, "FR/ES/1234567");
+
+        // actual test
+        String requestedAuthMethods = authMethod.name();
+        ProxyMessageDTO initResponse = sessionHandlingService.initNewSession(serviceProvider.getEntityId(), foreignAuthenticationProviderEntityId, "","0", convKey, requestedAuthMethods, "logtag");
+        ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(initResponse.getTokenId(), "1", sessionData, "logtag");
+        ProxyMessageDTO result = sessionHandlingService.getSessionById(buildResponse.getTokenId(), "2", "logtag");
+        assertEquals(convKey, result.getConversationKey());
+        assertEquals(authMethod, result.getSessionAuthenticationMethods()[0]);
+        assertNotNull(result.getUid());
+        assertEquals(ErrorType.NO_ERROR, result.getErrorType());
+
+        // get attributes
+        SessionAttributeDTO attributes = sessionHandlingService.getSessionAttributes(result.getUid(), authMethod.getOidValue(), SERVICE_PROVIDER_ID, false, "authnRequestId");
+        assertNotNull(attributes);
+
+        Map<String,String> attributeMap = attributes.getAttributeMap();
+        Map<String,String> expected = new HashMap<>();
+        expected.put("vtjInvalid", "false");
+        expected.put("vtjVerified", "false");
+        expected.put("vtjRequired", "false");
+        expected.put("samlFirstName", "GIVEN_NAME");
+        expected.put("samlSn", "FAMILY_NAME");
+        expected.put("samlDateOfBirth", "1999-12-31");
+        expected.put("samlForeignPersonIdentifier", "FR/ES/1234567");
+        assertThat(attributeMap.entrySet(), equalTo(expected.entrySet()));
+    }
+
 
     private Map<String,String> getEidasTestiSessionData(Identifier.Types identifierType, String identifier) {
         Map<String,String> sessionData = new HashMap<>();
@@ -632,7 +727,18 @@ public class SessionHandlingServiceAttibutesTest {
         sessionData.put("AJP_eidasDateOfBirth", "1999-12-31");
         // these are typical HTTP headers sent in session data
         return sessionData;
+    }
+    
+    private Map<String,String> getForeignTestiSessionData(Identifier.Types identifierType, String identifier) {
+        Map<String,String> sessionData = new HashMap<>();
+        sessionData.put("identifierType", identifierType.name());
+        sessionData.put("AJP_foreignPersonIdentifier", identifier);
+        sessionData.put("AJP_Shib-AuthnContext-Decl", foreignAuthenticationProviderContextUrl);
 
+        sessionData.put("AJP_eidasGivenName", "GIVEN_NAME");
+        sessionData.put("AJP_sn", "FAMILY_NAME");
+        sessionData.put("AJP_eidasDateOfBirth", "1999-12-31");
+        return sessionData;
     }
 
     private Person getTestPersonWithProtectionOrder(String hetu) {
@@ -743,27 +849,4 @@ public class SessionHandlingServiceAttibutesTest {
         return sessionData;
     }
 
-    private Map<String,String> getHstSessionData(String userId) {
-        Map<String,String> sessionData = new HashMap<>();
-        sessionData.put("AJP_satu", userId); // "99900890B"
-        sessionData.put("identifierType", "SATU");
-        sessionData.put("AJP_Shib-Session-Index", "_80965ae5ebfc9bad7f43cd153fce0e1d");
-        sessionData.put("AJP_Shib-Identity-Provider", "https://kortti.tunnistus-dev.xyz/hstidp/idp1");
-        sessionData.put("AJP_Shib-Authentication-Method", "https://www.tunnistus.fi/ubitp/saml2/names/ac/pki.hst.3");
-        sessionData.put("AJP_Shib-Application-ID", "default");
-        sessionData.put("AJP_Shib-AuthnContext-Class", "https://www.tunnistus.fi/ubitp/saml2/names/ac/pki.hst.3");
-        sessionData.put("AJP_Shib-Session-ID", "_5da6a3315550337b9044180bd7055e28");
-        sessionData.put("AJP_Shib-Authentication-Instant", "2016-09-09T07:16:44.397Z");
-        sessionData.put("REMOTE_USER", userId);
-        sessionData.put("referer", "https://kortti.tunnistus-dev.xyz/hstidp/profile/SAML2/Redirect/SSO?execution=e2s1&_eventId_proceed=1");
-        sessionData.put("Upgrade-Insecure-Requests", "1");
-        sessionData.put("accept", "text/html,application/xhtml+xml,application/xml;q=0.9,*/*;q=0.8");
-        sessionData.put("host", "tun-dev-sp1:8030");
-        sessionData.put("connection", "close");
-        sessionData.put("accept-encoding", "gzip, deflate, br");
-        sessionData.put("accept-language", "en-US,en;q=0.5");
-        sessionData.put("cookie", "E-Identification-Lang=fi;_shibsession_64656661756c7468747470733a2f2f7777772e74756e6e69737475732d6465762e78797a2f737032\u003d_5da6a3315550337b9044180bd7055e28");
-        sessionData.put("user-agent", "Mozilla/5.0 (X11; Ubuntu; Linux x86_64; rv:48.0) Gecko/20100101 Firefox/48.0");
-        return sessionData;
-    }
 }

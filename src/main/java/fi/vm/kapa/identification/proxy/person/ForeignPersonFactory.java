@@ -23,40 +23,22 @@
 package fi.vm.kapa.identification.proxy.person;
 
 import fi.vm.kapa.identification.proxy.exception.IdentityParsingException;
-import fi.vm.kapa.identification.proxy.session.Identity;
-import fi.vm.kapa.identification.type.Identifier;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.context.annotation.Scope;
-import org.springframework.stereotype.Component;
 
 import java.util.Map;
 
-@Component
-@Scope(value = "prototype")
-public class IdentifiedPersonParser {
+public class ForeignPersonFactory {
+    private final ForeignPersonParser foreignPersonParser;
 
-    @Autowired
-    private IdentityParser identityParser;
-
-    public IdentifiedPersonParser() {
+    public ForeignPersonFactory(ForeignPersonParser foreignPersonParser) {
+        this.foreignPersonParser = foreignPersonParser;
     }
 
-    Identity getIdentity(Map<String,String> spData) throws IdentityParsingException {
-        return identityParser.parse(spData);
+    public ForeignPerson createFromSpData(Map<String,String> spData) throws IdentityParsingException {
+        return new ForeignPerson(
+                foreignPersonParser.getFamilyName(spData),
+                foreignPersonParser.getFirstNames(spData),
+                foreignPersonParser.getDateOfBirth(spData),
+                foreignPersonParser.getIdentity(spData),
+                foreignPersonParser.getIdentifiers(spData));
     }
-
-    Map<Identifier.Types,String> getIdentifiers(Map<String,String> spData) throws IdentityParsingException {
-        return identityParser.parseIdentifiers(spData);
-    }
-
-    String getCommonName(Map<String,String> spData) {
-        if (null != spData.get("AJP_cn")) {
-            return spData.get("AJP_cn");
-        } else if ( spData.get("AJP_firstNames") != null && spData.get("AJP_sn") != null ) {
-            return spData.get("AJP_sn") + " " + spData.get("AJP_firstNames");
-        } else {
-            return spData.get("AJP_tfiPersonName");
-        }
-    }
-
 }

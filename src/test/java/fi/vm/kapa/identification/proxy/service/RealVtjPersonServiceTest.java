@@ -63,7 +63,7 @@ public class RealVtjPersonServiceTest {
         MockitoAnnotations.initMocks(this);
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.HETU, "any");
-        identifiedPerson = new GenericPerson(identity, null, null, null, null, identifiers);
+        identifiedPerson = new GenericPerson(identity, null, identifiers);
     }
 
     @Test

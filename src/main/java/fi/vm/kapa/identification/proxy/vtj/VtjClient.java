@@ -27,10 +27,9 @@ import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
 import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.vtj.model.VTJResponse;
 import fi.vm.kapa.identification.vtj.model.VtjIssue;
-import org.glassfish.jersey.client.ClientConfig;
-import org.glassfish.jersey.jackson.JacksonFeature;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Component;
@@ -48,6 +47,9 @@ public class VtjClient {
     @Value("${vtj.client.url}")
     private String vtjClientEndpoint;
 
+    @Autowired
+    private Client client;
+
     private static final Logger logger = LoggerFactory.getLogger(VtjClient.class);
 
     public VTJResponse fetchVtjData(Identity identity, VtjIssue vtjIssue) throws VtjServiceException, InvalidVtjDataException {
@@ -59,24 +61,24 @@ public class VtjClient {
     }
 
     VTJResponse getVtjResponseForUser(Identity identity, VtjIssue vtjIssue) throws VtjServiceException, InvalidVtjDataException {
-        Response response = getVtjHttpResponse(identity, vtjIssue);
-        if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
-        	throw new InvalidVtjDataException("Person not found in VTJ");
-        }
-        
-        if (response.getStatus() == HttpStatus.OK.value()) {
-            return response.readEntity(VTJResponse.class);
-        } else {
-            logger.error("Vtj connection error: " + response.getStatus());
-            throw new VtjServiceException("Vtj connection error: " + response.getStatus());
+        try (Response response = getVtjHttpResponse(identity, vtjIssue)) {
+            if (Status.NOT_FOUND.getStatusCode() == response.getStatus()) {
+                throw new InvalidVtjDataException("Person not found in VTJ");
+            }
+
+            if (response.getStatus() == HttpStatus.OK.value()) {
+                return response.readEntity(VTJResponse.class);
+            } else {
+                logger.error("Vtj connection error: " + response.getStatus());
+                throw new VtjServiceException("Vtj connection error: " + response.getStatus());
+            }
         }
     }
 
     Response getVtjHttpResponse(Identity identity, VtjIssue vtjIssue) throws VtjServiceException {
         Response response;
         try {
-            WebTarget webTarget = getClient()
-                    .target(vtjClientEndpoint);
+            WebTarget webTarget = client.target(vtjClientEndpoint);
 
             Form form = new Form();
             form.param("identifier", identity.getIdentifier());
@@ -86,18 +88,15 @@ public class VtjClient {
             Invocation.Builder invocationBuilder = webTarget.request(MediaType.APPLICATION_JSON);
             invocationBuilder.header(VtjIssue.REQUEST_IDENTIFIER_HEADER, vtjIssue.toString());
             response = invocationBuilder.post(Entity.entity(form, MediaType.APPLICATION_FORM_URLENCODED));
+            if ( !vtjIssue.toString().equals(response.getHeaderString(VtjIssue.REQUEST_IDENTIFIER_HEADER)) ) {
+                logger.error("Vtj responded wrong vtjIssue");
+                throw new InvalidVtjDataException("Vtj responded wrong vtjIssue");
+            }
         } catch (Exception e) {
             logger.error("Vtj connection not established. Service request failed.");
             throw new VtjServiceException("Vtj connection not established. Service request failed.");
         }
         return response;
-    }
-
-    private Client getClient() {
-        ClientConfig clientConfig = new ClientConfig();
-        Client client = ClientBuilder.newClient(clientConfig);
-        client.register(JacksonFeature.class);
-        return client;
     }
 
 }

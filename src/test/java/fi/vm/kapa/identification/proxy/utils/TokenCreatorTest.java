@@ -52,7 +52,22 @@ public class TokenCreatorTest {
     {
         String jwt = tokenCreator.getAuthenticationToken("hetu","method","rp","session_id","request_id",new Date(1492775862));
         String expected = "eyJhbGciOiJSUzI1NiIsImtpZCI6IlN1b21pLmZpLXR1bm5pc3R1cyJ9.eyJyZXFfaWQiOiJyZXF1ZXN0X2lkIiwiYXV0aF9tZXRob2QiOiJtZXRob2QiLCJpc3MiOiJTdW9taS5maS10dW5uaXN0dXMiLCJleHAiOjE1NTI3NzUsImlhdCI6MTQ5Mjc3NSwiaGV0dSI6ImhldHUiLCJycCI6InJwIiwic2ZpX2lkIjoic2Vzc2lvbl9pZCJ9.RgZsDNHTysipLr36zDiG0f9auIg6WDefaGMLjR1qVizYV3D4oE1ZT8xawNIPr9kiNSkRpMww13kbFIaL4s96atmH-UaVJfGpd8ym_xywKo9su9hyw_61sn_JO3x0WIyAEXSwLyxpp9maoC_5rhDj5yK8eeYKR4mZU4WXDGH7f5-_jb453R5Dw7YBAWV35Upavewkxji5P4f9j80aBZQfanyjWNCuFKc1BZ-4PZEFLET0x89ph4FiE-qO2-Y9YMZ_K6ZhFUUXJwMtvCIbrHWkcpOIPJy93_rASzFuX-EB0mhGhoUeRbgGcFnS5L0i8Jf1TkARgqkviDNnXaEb5RdyAw";
-        Assert.assertEquals(jwt, expected);
+        Assert.assertEquals(expected, jwt);
+    }
+    
+    @Test
+    public void testTokenCreationEidas() throws Exception
+    {
+        String jwt = tokenCreator.getEidasAuthenticationToken("pid","method","rp","session_id","request_id",new Date(1492775862));
+        String expected = "eyJhbGciOiJSUzI1NiIsImtpZCI6IlN1b21pLmZpLXR1bm5pc3R1cyJ9.eyJyZXFfaWQiOiJyZXF1ZXN0X2lkIiwiYXV0aF9tZXRob2QiOiJtZXRob2QiLCJpc3MiOiJTdW9taS5maS10dW5uaXN0dXMiLCJwaWQiOiJwaWQiLCJleHAiOjE1NTI3NzUsImlhdCI6MTQ5Mjc3NSwicnAiOiJycCIsInNmaV9pZCI6InNlc3Npb25faWQifQ.DMI7bY9uVGzgFRjkLdO4_ZrV9Mr7UjVF8BrJvsK83_3Thp42M7SRfoyn2xRHdjiAF86UB97KWAZhGc36TsbAgZ5fXGaAQCsDXmgpclDp2fp-1g8Z7z96L-BrxjsthRcAytqmoRDgJw-2Texp0JTutgXGXfjj2XqdN1I9CGOTobcABa6e-_9Ba8DwrKIiYGIeGSGhIZt-AvvVMs9ILn8IZvLQdATwNNNWTgXJH8rVo-zNmFOoyc0-eccjyPCqqs4Bb6cVpQFfmV2Tbzg3I-9MVwSEZdCgcUVhHgtC1YTnH743U2yaTT3vxf-rF5I0yRtpoikkDyxYRklue2UZU-o7iw";
+        Assert.assertEquals(expected, jwt);
+    }
+    @Test
+    public void testTokenCreationForeign() throws Exception
+    {
+        String jwt = tokenCreator.getForeignPersonAuthenticationToken("fpid","method","rp","session_id","request_id",new Date(1492775862));
+        String expected = "eyJhbGciOiJSUzI1NiIsImtpZCI6IlN1b21pLmZpLXR1bm5pc3R1cyJ9.eyJyZXFfaWQiOiJyZXF1ZXN0X2lkIiwiYXV0aF9tZXRob2QiOiJtZXRob2QiLCJmcGlkIjoiZnBpZCIsImlzcyI6IlN1b21pLmZpLXR1bm5pc3R1cyIsImV4cCI6MTU1Mjc3NSwiaWF0IjoxNDkyNzc1LCJycCI6InJwIiwic2ZpX2lkIjoic2Vzc2lvbl9pZCJ9.Hs7X_FrFU2mpfAe_9pa0RmnsxB8KzfZIyrutELr0tf3DEM53_RHE0ZPL7dN4Wse-pIkZ6K37soF8ir2FUy5jtrKBH0vk9VAdn_ypYXetjm0NpBwuAMcGKZrqS84Rynk8dJ8VMhSAOONMy4RvP3duTVqmkcc6aKgVyQVuVwc_G3PuXaAfVFqJsKqZfvPSIFjVgORUTSxu4s9_iJNR5sWav_e0a192VBnnURZuyezOgAaYa81EBtXMcVNq-mmykm9ko_rcyCxVPvBtKYcveo7MaQxPp-Tf2wUgiVRi5_G2iaccFSqug4i_G7_hOsw7Jw0YH-EehrUugmTMYAYcBWmkVg";
+        Assert.assertEquals(expected, jwt);
     }
 
     @Test

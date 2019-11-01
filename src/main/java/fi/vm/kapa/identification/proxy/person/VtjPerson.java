@@ -62,6 +62,11 @@ public class VtjPerson {
             logger.error("Person with invalid SATU: " + identity.getIdentifier());
             throw new InvalidVtjDataException("SATU is not valid");
         }
+        if (identity.getIdentifierType() == Identifier.Types.HETU) {
+            if (!identity.getIdentifier().equals(person.getHetu())) {
+                throw new InvalidVtjDataException("HETU does not match");
+            }
+        }
     }
 
     public Map<String,String> getAttributes() {

@@ -144,11 +144,11 @@ public class SessionHandlingServiceTimingTest {
         Map<String, String> sessionData = new HashMap<>();
         sessionData.put("AJP_Shib-AuthnContext-Decl", "nordea.tupas");
         Map<Identifier.Types,String> identifiers = new HashMap<>();
-        identifiers.put(Identifier.Types.SATU, "1234567A");
+        identifiers.put(Identifier.Types.HETU, "111190-123B");
         Person testVtjPerson = getMinimalValidPerson("111190-123B");
-        Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
+        Identity identity = new Identity("Testi CA", Identifier.Types.HETU, "111190-123B");
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
+        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, identifiers));
         // artificial wait during VTJ call
         when(vtjPersonServiceMock.getVtjPerson(any(), any())).thenAnswer(new Answer<VtjPerson>() {
             @Override

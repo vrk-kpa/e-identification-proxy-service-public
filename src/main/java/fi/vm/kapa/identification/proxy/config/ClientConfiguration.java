@@ -20,23 +20,29 @@
  * OUT OF OR IN CONNECTION WITH THE SOFTWARE OR THE USE OR OTHER DEALINGS IN
  * THE SOFTWARE.
  */
-package fi.vm.kapa.identification.proxy.person;
+package fi.vm.kapa.identification.proxy.config;
 
-import fi.vm.kapa.identification.proxy.exception.IdentityParsingException;
+import fi.vm.kapa.identification.proxy.exception.InitializationException;
+import org.glassfish.jersey.client.ClientConfig;
+import org.glassfish.jersey.jackson.JacksonFeature;
+import org.springframework.context.annotation.Bean;
+import org.springframework.context.annotation.Configuration;
 
-import java.util.Map;
+import javax.ws.rs.client.Client;
+import javax.ws.rs.client.ClientBuilder;
 
-public class GenericPersonFactory {
-    private final IdentifiedPersonParser identifiedPersonParser;
+@Configuration
+public class ClientConfiguration {
 
-    public GenericPersonFactory(IdentifiedPersonParser identifiedPersonParser) {
-        this.identifiedPersonParser = identifiedPersonParser;
-    }
-
-    public GenericPerson createFromSpData(Map<String,String> spData) throws IdentityParsingException {
-        return new GenericPerson(
-                identifiedPersonParser.getIdentity(spData),
-                identifiedPersonParser.getCommonName(spData),
-                identifiedPersonParser.getIdentifiers(spData));
+    @Bean(name = "jerseyClient")
+    Client provideClient() throws InitializationException {
+        try {
+            ClientConfig clientConfig = new ClientConfig();
+            Client client = ClientBuilder.newClient(clientConfig);
+            client.register(JacksonFeature.class);
+            return client;
+        } catch (Exception e) {
+            throw new InitializationException("Initialization of Jersey Client failed", e);
+        }
     }
 }

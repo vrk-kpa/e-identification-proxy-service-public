@@ -29,11 +29,30 @@ import fi.vm.kapa.identification.vtj.model.Person;
 import org.junit.Test;
 
 public class VtjPersonValidateTest {
-    private final Identity identity = new Identity("any", Identifier.Types.HETU, "any");
+
+    private static final String TEST_HETU = "TEST_HETU";
+    private static final String TEST_SATU = "TEST_SATU";
+
+    private final Identity identity = new Identity("any", Identifier.Types.HETU, TEST_HETU);
+    private final Identity satuIdentity = new Identity("any", Identifier.Types.SATU, TEST_SATU);
 
     @Test
-    public void validateDoesNotThrowForValidPerson() throws Exception {
-        Person person = getMinimalValidPerson("TESTHETU");
+    public void validateDoesNotThrowForValidHetuPerson() throws Exception {
+        Person person = getMinimalValidPerson(TEST_HETU);
+        VtjPerson vtjPerson = new VtjPerson(identity, person);
+        vtjPerson.validate();
+    }
+
+    @Test
+    public void validateDoesNotThrowForValidSatuPerson() throws Exception {
+        Person person = getMinimalValidSatuPerson(TEST_SATU);
+        VtjPerson vtjPerson = new VtjPerson(satuIdentity, person);
+        vtjPerson.validate();
+    }
+
+    @Test(expected = InvalidVtjDataException.class)
+    public void validateThrowsInvalidVtjDataExceptionWhenWrongHetu() throws Exception {
+        Person person = getMinimalValidPerson("WRONG_HETU");
         VtjPerson vtjPerson = new VtjPerson(identity, person);
         vtjPerson.validate();
     }
@@ -46,7 +65,7 @@ public class VtjPersonValidateTest {
 
     @Test(expected = InvalidVtjDataException.class)
     public void validateThrowsInvalidVtjDataExceptionWhenNoHetu() throws Exception {
-        Person person = getMinimalValidPerson("TESTHETU");
+        Person person = getMinimalValidPerson(TEST_HETU);
         person.setHetu(null);
         VtjPerson vtjPerson = new VtjPerson(identity, person);
         vtjPerson.validate();
@@ -83,22 +102,29 @@ public class VtjPersonValidateTest {
         return person;
     }
 
+    private Person getMinimalValidSatuPerson(String satu) {
+        Person person = getMinimalValidPerson("SOMEHETU");
+        person.setSatu(satu);
+        person.setSatuValid(true);
+        return person;
+    }
+
 
     private Person getPersonWithInvalidatedHetu() {
-        Person person = getMinimalValidPerson("TESTHETU");
+        Person person = getMinimalValidPerson(TEST_HETU);
         person.setHetu("invalid");
         person.setHetuValid(false);
         return person;
     }
 
     private Person getDeceasedPerson() {
-        Person person = getMinimalValidPerson("TESTHETU");
+        Person person = getMinimalValidPerson(TEST_HETU);
         person.setDeceased(true);
         return person;
     }
 
     private Person getPersonWithInvalidatedSatu(Identity satuIdentity) {
-        Person person = getMinimalValidPerson("TESTHETU");
+        Person person = getMinimalValidPerson(TEST_HETU);
         person.setSatu(satuIdentity.getIdentifier());
         person.setSatuValid(false);
         return person;

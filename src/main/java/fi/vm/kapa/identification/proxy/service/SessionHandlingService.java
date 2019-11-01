@@ -600,6 +600,16 @@ public class SessionHandlingService {
                         new Date() // "issued at" timestamp
                 );
             }
+            else if ( authMethod.equals(AuthMethod.FFI) ) {
+                authenticationToken = tokenCreator.getForeignPersonAuthenticationToken(
+                        attributes.getAttributeMap().get("samlForeignPersonIdentifier"),
+                        authMethod.getOidValue(),
+                        session.getRelyingPartyEntityId(), // relyingParty.getEntityId()
+                        session.getUid(),
+                        authnRequestId,
+                        new Date() // "issued at" timestamp
+                );
+            }
             else {
                 authenticationToken = tokenCreator.getAuthenticationToken(
                         attributes.getAttributeMap().get("samlNationalIdentificationNumber"),
@@ -636,7 +646,7 @@ public class SessionHandlingService {
             // authmethod forbidden for vtj query
             return FORBIDDEN;
         }
-        Map attributes = sessionAttributeCollector.getAttributes(session);
+        Map<String, String> attributes = sessionAttributeCollector.getAttributes(session);
         String hetu = (String)attributes.get("samlNationalIdentificationNumber");
         String satu = (String)attributes.get("samlElectronicIdentificationNumber");
         String cn = (String)attributes.get("samlCn");

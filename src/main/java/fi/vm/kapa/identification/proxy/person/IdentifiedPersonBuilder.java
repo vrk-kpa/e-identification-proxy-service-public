@@ -37,13 +37,16 @@ public class IdentifiedPersonBuilder {
     private final KatsoPersonFactory katsoPersonFactory;
     private final GenericPersonFactory genericPersonFactory;
     private final EidasPersonFactory eidasPersonFactory;
+    private final ForeignPersonFactory foreignPersonFactory;
 
     public IdentifiedPersonBuilder(KatsoPersonFactory katsoPersonFactory,
                                    GenericPersonFactory genericPersonFactory,
-                                   EidasPersonFactory eidasPersonFactory) {
+                                   EidasPersonFactory eidasPersonFactory,
+                                   ForeignPersonFactory foreignPersonFactory) {
         this.katsoPersonFactory = katsoPersonFactory;
         this.genericPersonFactory = genericPersonFactory;
         this.eidasPersonFactory = eidasPersonFactory;
+        this.foreignPersonFactory = foreignPersonFactory;
     }
 
     public IdentifiedPerson build(Map<String,String> spData, AuthMethod authenticationMethod) throws PersonParsingException {
@@ -52,6 +55,8 @@ public class IdentifiedPersonBuilder {
                 return katsoPersonFactory.createFromSpData(spData);
             } else if (  authenticationMethod == AuthMethod.eLoA3 ) {
                 return eidasPersonFactory.createFromSpData(spData);
+            } else if ( authenticationMethod == AuthMethod.FFI ){
+                return foreignPersonFactory.createFromSpData(spData);
             } else {
                 return genericPersonFactory.createFromSpData(spData);
             }

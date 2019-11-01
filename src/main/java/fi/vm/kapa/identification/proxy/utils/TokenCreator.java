@@ -40,6 +40,7 @@ public class TokenCreator {
     public static final String SFI_ID_CLAIM_KEY = "sfi_id";
     public static final String REQ_ID_CLAIM_KEY = "req_id";
     public static final String PID_CLAIM_KEY = "pid";
+    public static final String FOREIGN_PID_CLAIM_KEY = "fpid";
 
     private static final Logger logger = LoggerFactory.getLogger(TokenCreator.class);
 
@@ -96,6 +97,24 @@ public class TokenCreator {
         }
     }
 
+    public String getForeignPersonAuthenticationToken(String fpid, String method, String rp, String sfi_id, String req_id, Date iat) throws TokenCreatorException {
+        try {
+            return  JWT.create()
+                    .withIssuer(issuer)
+                    .withHeader(headers)
+                    .withIssuedAt(iat)
+                    .withExpiresAt(getExpiresAt(iat))
+                    .withClaim(AUTHMETHOD_CLAIM_KEY, method)
+                    .withClaim(FOREIGN_PID_CLAIM_KEY, fpid)
+                    .withClaim(RP_CLAIM_KEY, rp)
+                    .withClaim(SFI_ID_CLAIM_KEY, sfi_id)
+                    .withClaim(REQ_ID_CLAIM_KEY, req_id)
+                    .sign(algorithm);
+        } catch (JWTCreationException e) {
+            logger.error("Unable to create JWT: " + e.getMessage());
+            throw new TokenCreatorException("JWT creation failed: " + e.getMessage());
+        }
+    }
 
     private Date getExpiresAt(Date iat) {
         Calendar cal = Calendar.getInstance();

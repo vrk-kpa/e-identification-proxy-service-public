@@ -59,7 +59,7 @@ public class IdentifiedPersonBuilderTest {
         HashMap<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(HETU, "0000000");
         when(katsoPersonFactory.createFromSpData(anyMap())).thenReturn(new KatsoPerson(identity, "TEST COMMON NAME", identifiers));
-        when(genericPersonFactory.createFromSpData(anyMap())).thenReturn(new GenericPerson(identity, "TEST COMMON NAME", "TEST_SURNAME", "TEST_GIVENNAME", "TEST_MOBILE", identifiers));
+        when(genericPersonFactory.createFromSpData(anyMap())).thenReturn(new GenericPerson(identity, "TEST COMMON NAME", identifiers));
     }
 
     @Test

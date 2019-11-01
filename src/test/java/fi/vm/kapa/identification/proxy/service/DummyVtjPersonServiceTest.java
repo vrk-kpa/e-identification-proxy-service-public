@@ -95,13 +95,13 @@ public class DummyVtjPersonServiceTest {
         Identity identity = new Identity(null, HETU, hetu);
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.HETU, hetu);
-        return new GenericPerson(identity, null, null, null, null, identifiers);
+        return new GenericPerson(identity, null, identifiers);
     }
 
     IdentifiedPerson getIdentifiedPersonWithSatu(String satu) {
         Identity identity = new Identity("VRK", SATU, satu);
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.SATU, satu);
-        return new GenericPerson(identity, null, null, null, null, identifiers);
+        return new GenericPerson(identity, null, identifiers);
     }
 }

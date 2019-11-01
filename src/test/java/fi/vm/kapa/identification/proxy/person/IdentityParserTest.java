@@ -22,17 +22,19 @@
  */
 package fi.vm.kapa.identification.proxy.person;
 
-import fi.vm.kapa.identification.proxy.session.Identity;
-import fi.vm.kapa.identification.type.Identifier;
-import org.hamcrest.CoreMatchers;
-import org.junit.Test;
+import static fi.vm.kapa.identification.type.Identifier.Types.FPID;
+import static fi.vm.kapa.identification.type.Identifier.Types.SATU;
+import static org.hamcrest.CoreMatchers.equalTo;
+import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 
 import java.util.HashMap;
 import java.util.Map;
 
-import static fi.vm.kapa.identification.type.Identifier.Types.SATU;
-import static org.hamcrest.CoreMatchers.equalTo;
-import static org.junit.Assert.*;
+import org.junit.Test;
+
+import fi.vm.kapa.identification.proxy.session.Identity;
+import fi.vm.kapa.identification.type.Identifier;
 
 public class IdentityParserTest {
 
@@ -45,6 +47,16 @@ public class IdentityParserTest {
         HashMap<String,String> spData = new HashMap<>();
         spData.put("AJP_satu", "TEST_SATU");
         spData.put("AJP_issuerCN", "TEST_ORGANIZATION");
+        Map<Identifier.Types,String> identifiers = identityParser.parseIdentifiers(spData);
+        assertThat(identifiers, equalTo(expected));
+    }
+    
+    @Test
+    public void parseIdentifiersForeign() throws Exception {
+        HashMap<Identifier.Types,String> expected = new HashMap<>();
+        expected.put(FPID, "TEST_FOREIGN");
+        HashMap<String,String> spData = new HashMap<>();
+        spData.put("AJP_foreignPersonIdentifier", "TEST_FOREIGN");
         Map<Identifier.Types,String> identifiers = identityParser.parseIdentifiers(spData);
         assertThat(identifiers, equalTo(expected));
     }

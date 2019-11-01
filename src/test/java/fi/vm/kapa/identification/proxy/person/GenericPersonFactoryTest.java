@@ -80,25 +80,4 @@ public class GenericPersonFactoryTest {
         assertEquals("TEST_AJP_COMMON_NAME", personFactory.createFromSpData(spData).getCommonName());
     }
 
-    @Test
-    public void factorySetsGivenNameFromParserGetGivenName() throws Exception {
-        Map<String,String> spData = new HashMap<>();
-        when(identifiedPersonParser.getGivenName(anyMap())).thenReturn("TEST_AJP_GIVEN_NAME");
-        assertEquals("TEST_AJP_GIVEN_NAME", personFactory.createFromSpData(spData).getGivenName());
-    }
-
-    @Test
-    public void factorySetsSurnameFromParserGetSurname() throws Exception {
-        Map<String,String> spData = new HashMap<>();
-        when(identifiedPersonParser.getSurname(anyMap())).thenReturn("TEST_AJP_SURNAME");
-        assertEquals("TEST_AJP_SURNAME", personFactory.createFromSpData(spData).getSurname());
-    }
-
-    @Test
-    public void factorySetsMobileNumberFromParserGetMobileNumber() throws Exception {
-        Map<String,String> spData = new HashMap<>();
-        when(identifiedPersonParser.getMobileNumber(anyMap())).thenReturn("TEST_AJP_MOBILE_NUMBER");
-        assertEquals("TEST_AJP_MOBILE_NUMBER", personFactory.createFromSpData(spData).getMobileNumber());
-    }
-
 }

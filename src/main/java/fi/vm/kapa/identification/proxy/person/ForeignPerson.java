@@ -26,33 +26,42 @@ import fi.vm.kapa.identification.proxy.exception.AttributeGenerationException;
 import fi.vm.kapa.identification.proxy.session.Identity;
 import fi.vm.kapa.identification.type.Identifier;
 
+import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
-public class GenericPerson implements IdentifiedPerson {
+public class ForeignPerson implements IdentifiedPerson {
 
+    private final String familyName;
+    private final String firstNames;
+    private final String dateOfBirth;
     private final Identity identity;
     private final Map<Identifier.Types,String> identifiers;
 
-    private final String commonName;
-
-    public GenericPerson(Identity identity, String commonName, Map<Identifier.Types,String> identifiers) {
+    public ForeignPerson(String familyName, String firstNames, String dateOfBirth, Identity identity, Map<Identifier.Types,String> identifiers) {
+        this.familyName = familyName;
+        this.firstNames = firstNames;
+        this.dateOfBirth = dateOfBirth;
         this.identity = identity;
-        this.commonName = commonName;
         this.identifiers = identifiers;
     }
 
+    public String getFamilyName() {
+        return familyName;
+    }
 
-    @Override
+    public String getGivenName() {
+        return firstNames;
+    }
+
+    public String getDateOfBirth() {
+        return dateOfBirth;
+    }
+
     public Identity getIdentity() {
         return identity;
     }
 
-    public String getCommonName() {
-        return commonName;
-    }
-
-    @Override
     public Map<Identifier.Types,String> getIdentifiers() {
         return identifiers;
     }
@@ -62,33 +71,22 @@ public class GenericPerson implements IdentifiedPerson {
         Map<String,String> attributes = new HashMap<>();
         for (Map.Entry<Identifier.Types,String> entry : getIdentifiers().entrySet()) {
             switch (entry.getKey()) {
-                case HETU:
-                    attributes.put("samlNationalIdentificationNumber", entry.getValue());
-                    break;
-                case SATU:
-                    attributes.put("samlElectronicIdentificationNumber", entry.getValue());
-                    break;
-                case KID:
-                    attributes.put("samlKid", entry.getValue());                   
+                case FPID:
+                    attributes.put("samlForeignPersonIdentifier", entry.getValue());
                     break;
                 default:
                     throw new AttributeGenerationException("Unknown type:" + entry.getKey() + ", value:" + entry.getValue());
             }
         }
-        putIfNonEmpty(attributes, "samlCn", getCommonName());
+        putIfNonEmpty(attributes, "samlFirstName", getGivenName());
+        putIfNonEmpty(attributes, "samlSn", getFamilyName());
+        putIfNonEmpty(attributes, "samlDateOfBirth", getDateOfBirth());
         return attributes;
     }
 
     @Override
     public Map<String,String> getLegacyAttributes() throws AttributeGenerationException {
-        Map<String,String> legacyAttributes = new HashMap<>();
-        if (getIdentity().getIdentifierType() == Identifier.Types.KID) {
-            legacyAttributes.put("legacyKid", getIdentity().getIdentifier());
-        } else {
-            legacyAttributes.put("legacyPin", getIdentity().getIdentifier());
-        }
-        legacyAttributes.put("legacyPersonName", getCommonName());
-        return legacyAttributes;
+        return Collections.emptyMap();
     }
 
     void putIfNonEmpty(Map<String,String> attributes, String key, String value) {
@@ -96,5 +94,4 @@ public class GenericPerson implements IdentifiedPerson {
             attributes.put(key, value);
         }
     }
-
 }

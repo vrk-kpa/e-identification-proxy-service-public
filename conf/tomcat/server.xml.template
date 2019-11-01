@@ -100,7 +100,7 @@
                    keystorePass="{{ tomcat_cert_storepass }}"
                    clientAuth="false"
                    sslProtocol="TLS"
-                   sslEnabledProtocols="TLSv1,TLSv1.1,TLSv1.2"
+                   sslEnabledProtocols="-TLSv1,-TLSv1.1,+TLSv1.2"
                    ciphers="{{ tomcat_ciphers }}"
                    useServerCipherSuitesOrder="true"/>
         <!--

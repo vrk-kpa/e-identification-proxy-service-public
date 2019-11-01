@@ -22,28 +22,31 @@
  */
 package fi.vm.kapa.identification.proxy.service;
 
-import fi.vm.kapa.identification.dto.ProxyMessageDTO;
-import fi.vm.kapa.identification.dto.SessionAttributeDTO;
-import fi.vm.kapa.identification.proxy.exception.*;
-import fi.vm.kapa.identification.proxy.metadata.Country;
-import fi.vm.kapa.identification.proxy.person.EidasPerson;
-import fi.vm.kapa.identification.proxy.person.IdentifiedPersonBuilder;
-import fi.vm.kapa.identification.proxy.person.GenericPerson;
-import fi.vm.kapa.identification.proxy.person.VtjPerson;
-import fi.vm.kapa.identification.proxy.session.*;
-import fi.vm.kapa.identification.proxy.metadata.AuthenticationProvider;
-import fi.vm.kapa.identification.proxy.metadata.ServiceProvider;
-import fi.vm.kapa.identification.proxy.utils.SessionHandlingUtils;
-import fi.vm.kapa.identification.service.PhaseIdService;
-import fi.vm.kapa.identification.type.*;
+import static org.mockito.Matchers.any;
+import static org.mockito.Matchers.anyMapOf;
+import static org.mockito.Matchers.anyString;
+import static org.mockito.Mockito.doThrow;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.never;
+import static org.mockito.Mockito.times;
+import static org.mockito.Mockito.verify;
+import static org.mockito.Mockito.when;
 
-import fi.vm.kapa.identification.vtj.model.Person;
+import java.util.ArrayList;
+import java.util.HashMap;
+import java.util.List;
+import java.util.Map;
+
 import org.junit.After;
 import org.junit.Assert;
 import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
-import org.mockito.*;
+import org.mockito.InjectMocks;
+import org.mockito.Mock;
+import org.mockito.Mockito;
+import org.mockito.MockitoAnnotations;
+import org.mockito.Spy;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.test.context.ContextConfiguration;
@@ -53,10 +56,31 @@ import org.springframework.test.context.support.DependencyInjectionTestExecution
 import org.springframework.test.context.support.DirtiesContextTestExecutionListener;
 import org.springframework.test.util.ReflectionTestUtils;
 
-import java.util.*;
-
-import static org.junit.Assert.assertEquals;
-import static org.mockito.Mockito.*;
+import fi.vm.kapa.identification.dto.ProxyMessageDTO;
+import fi.vm.kapa.identification.dto.SessionAttributeDTO;
+import fi.vm.kapa.identification.proxy.exception.InvalidVtjDataException;
+import fi.vm.kapa.identification.proxy.exception.RelyingPartyNotFoundException;
+import fi.vm.kapa.identification.proxy.exception.VtjServiceException;
+import fi.vm.kapa.identification.proxy.metadata.AuthenticationProvider;
+import fi.vm.kapa.identification.proxy.metadata.Country;
+import fi.vm.kapa.identification.proxy.metadata.ServiceProvider;
+import fi.vm.kapa.identification.proxy.person.EidasPerson;
+import fi.vm.kapa.identification.proxy.person.GenericPerson;
+import fi.vm.kapa.identification.proxy.person.IdentifiedPersonBuilder;
+import fi.vm.kapa.identification.proxy.person.VtjPerson;
+import fi.vm.kapa.identification.proxy.session.Identity;
+import fi.vm.kapa.identification.proxy.session.Session;
+import fi.vm.kapa.identification.proxy.session.SessionAttributeCollector;
+import fi.vm.kapa.identification.proxy.session.UidToUserSessionsCache;
+import fi.vm.kapa.identification.proxy.session.VtjVerificationRequirement;
+import fi.vm.kapa.identification.proxy.utils.SessionHandlingUtils;
+import fi.vm.kapa.identification.service.PhaseIdService;
+import fi.vm.kapa.identification.type.AuthMethod;
+import fi.vm.kapa.identification.type.EidasSupport;
+import fi.vm.kapa.identification.type.ErrorType;
+import fi.vm.kapa.identification.type.Identifier;
+import fi.vm.kapa.identification.type.SessionProfile;
+import fi.vm.kapa.identification.vtj.model.Person;
 
 @ContextConfiguration(locations = "classpath:testContext.xml")
 @TestExecutionListeners(listeners = {
@@ -121,12 +145,14 @@ public class SessionHandlingServiceTest {
     private final String katsoAuthenticationProviderEntityId = "DB_ENTITY_ID_KATSO";
     private final String eidasHighAuthenticationProviderEntityId = "DB_ENTITY_ID_EIDAS_HIGH";
     private final String eidasSubstantialAuthenticationProviderEntityId = "DB_ENTITY_ID_EIDAS_SUBSTANTIAL";
+    private final String foreignAuthenticationProviderEntityId = "DB_ENTITY_ID_FOREIGN";
 
     private final String tupasAuthenticationProviderContextUrl = "AUTH_PROVIDER_CONTEXT_URL_TUPAS";
     private final String hstAuthenticationProviderContextUrl = "AUTH_PROVIDER_CONTEXT_URL_HST";
     private final String katsoAuthenticationProviderContextUrl = "AUTH_PROVIDER_CONTEXT_URL_KATSO";
     private final String eidasHighAuthenticationProviderContextUrl = "AUTH_PROVIDER_CONTEXT_URL_EIDAS_HIGH";
     private final String eidasSubstantialAuthenticationProviderContextUrl = "AUTH_PROVIDER_CONTEXT_URL_EIDAS_SUBSTANTIAL";
+    private final String foreignAuthenticationProviderContextUrl = "AUTH_PROVIDER_CONTEXT_URL_FOREIGN";
 
     @Before
     public void setUp() throws Exception {
@@ -144,6 +170,7 @@ public class SessionHandlingServiceTest {
         providers.add(new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", "KATSOPWD", AuthMethod.KATSOPWD, katsoAuthenticationProviderContextUrl, katsoAuthenticationProviderEntityId, "LOGINCONTEXT_KATSO"));
         providers.add(new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", "EIDAS", AuthMethod.eLoA3, eidasHighAuthenticationProviderContextUrl, eidasHighAuthenticationProviderEntityId, ""));
         providers.add(new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", "EIDAS", AuthMethod.eLoA2, eidasSubstantialAuthenticationProviderContextUrl, eidasSubstantialAuthenticationProviderEntityId, ""));
+        providers.add(new AuthenticationProvider("TEST_AUTH_PROVIDER", "TEST_AUTH_PROVIDER_DOMAINNAME", "FFI", AuthMethod.FFI, foreignAuthenticationProviderContextUrl, foreignAuthenticationProviderEntityId, ""));
         metadataService.setApprovedAuthenticationProviders(new MetadataService.ApprovedAuthenticationProviders(providers));
 
         Map<String, Country> countries = new HashMap<>();
@@ -245,6 +272,14 @@ public class SessionHandlingServiceTest {
         String countryLoginContext = country.getEidasLoginContext();
         String authProviderLoA = metadataService.getAuthenticationProviderByEntityId(country.getAuthProviderEntityId()).getAuthenticationMethod().name();
         Assert.assertEquals(countryLoginContext + authProviderLoA, message.getLoginContext());
+    }
+    
+    @Test
+    public void initNewSessionAuthProviderFFI() throws Exception {
+        ServiceProvider serviceProvider = new ServiceProvider(SERVICE_PROVIDER_ID, "TESTI", "FFI", SessionProfile.VETUMA_SAML2, false, "", EidasSupport.none, null);
+        metadataService.getServiceProviderMetaDataCache().put(serviceProvider.getEntityId(), serviceProvider);
+        ProxyMessageDTO message = sessionHandlingService.initNewSession(SERVICE_PROVIDER_ID, foreignAuthenticationProviderEntityId, "", "0", "testkey", "FFI", "logtag");
+        Assert.assertEquals(ErrorType.NO_ERROR, message.getErrorType());
     }
 
         // For fLoA2 request, fLoA3 should always be added and fLoA2+fLoA3 methods returned
@@ -355,10 +390,10 @@ public class SessionHandlingServiceTest {
         sessionData.put("AJP_Shib-AuthnContext-Decl", tupasAuthenticationProviderContextUrl);
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.SATU, "1234567A");
-        Person testVtjPerson = getMinimalValidPerson("111190-123B");
+        Person testVtjPerson = getMinimalValidPerson("1234567A","111190-123B");
         Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new GenericPerson(identity, null, identifiers));
         when(vtjPersonServiceMock.getVtjPerson(any(), any())).thenReturn(vtjPerson);
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -415,13 +450,13 @@ public class SessionHandlingServiceTest {
 
         Map<String, String> sessionData = new HashMap<>();
         sessionData.put("AJP_Shib-AuthnContext-Class", tupasAuthenticationProviderContextUrl);
-        Person testVtjPerson = getMinimalValidPerson("111190-123B");
+        Person testVtjPerson = getMinimalValidPerson("1234567A", "111190-123B");
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.SATU, "1234567A");
         //mocking x-road attribute
         Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new GenericPerson(identity, null, identifiers));
         when(vtjPersonServiceMock.getVtjPerson(any(), any())).thenReturn(vtjPerson);
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -476,7 +511,7 @@ public class SessionHandlingServiceTest {
         Assert.assertNotEquals(phaseId, nextPhaseId);
 
         Map<String, String> sessionData = new HashMap<>();
-        Person testVtjPerson = getMinimalValidPerson("111190-123B");
+        Person testVtjPerson = getMinimalValidPerson("1234567A", "111190-123B");
         //mocking x-road attribute
         Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
@@ -504,7 +539,7 @@ public class SessionHandlingServiceTest {
         Map<String, String> sessionData = new HashMap<>();
         sessionData.put("AJP_Shib-AuthnContext-Decl", tupasAuthenticationProviderContextUrl);
         Identity identity = new Identity("", Identifier.Types.HETU, "111190-123B");
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, null));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new GenericPerson(identity, null,null));
         when(vtjPersonServiceMock.getVtjPerson(any(), any())).thenThrow(new VtjServiceException("VTJ connection failed"));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -533,7 +568,7 @@ public class SessionHandlingServiceTest {
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.HETU, "111190-123B");
         Identity identity = new Identity("", Identifier.Types.HETU, "111190-123B");
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new GenericPerson(identity, null, identifiers));
         when(vtjPersonServiceMock.getVtjPerson(any(), any())).thenThrow(new VtjServiceException("VTJ connection failed"));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -560,7 +595,7 @@ public class SessionHandlingServiceTest {
         Map<String, String> sessionData = new HashMap<>();
         sessionData.put("AJP_Shib-AuthnContext-Decl", tupasAuthenticationProviderContextUrl);
         Identity identity = new Identity("", Identifier.Types.HETU, "111190-123B");
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, null));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new GenericPerson(identity, null, null));
         VtjPerson personMock = mock(VtjPerson.class);
         when(vtjPersonServiceMock.getVtjPerson(any(), any())).thenReturn(personMock);
         doThrow(InvalidVtjDataException.class).when(personMock).validate();
@@ -586,7 +621,7 @@ public class SessionHandlingServiceTest {
         Identity identity = new Identity("", Identifier.Types.HETU, "111190-123B");
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.HETU, "111190-123B");
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new GenericPerson(identity, null, identifiers));
 
         doThrow(InvalidVtjDataException.class).when(vtjPersonServiceMock).getVtjPerson(any(), any());
         // actual test
@@ -625,7 +660,7 @@ public class SessionHandlingServiceTest {
 
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.EIDAS_ID, "eid");
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new GenericPerson(identity, null, identifiers));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertEquals(ErrorType.INTERNAL_ERROR, result.getErrorType());
     }
@@ -654,7 +689,7 @@ public class SessionHandlingServiceTest {
 
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.EIDAS_ID, identifier);
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new EidasPerson("FAMILY_NAME", "GIVEN_NAME", "1999-01-01", identity, identifiers));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new EidasPerson("FAMILY_NAME", "GIVEN_NAME", "1999-01-01", identity, identifiers));
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertEquals(ErrorType.NO_ERROR, result.getErrorType());
     }
@@ -685,7 +720,7 @@ public class SessionHandlingServiceTest {
         identifiers.put(Identifier.Types.HETU, "111190-123B");
         //mocking x-road attribute
         Identity identity = new Identity("Testi CA", Identifier.Types.HETU, "111190-123B");
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, "common_name", null, null, null, identifiers));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new GenericPerson(identity, "common_name", identifiers));
 
         doThrow(VtjServiceException.class).when(vtjPersonServiceMock).getVtjPerson(any(), any());
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
@@ -736,7 +771,7 @@ public class SessionHandlingServiceTest {
         String nextPhaseId = phaseIdInitSession.newPhaseId(tokenId, stepSessionBuild);
         Map<String, String> sessionData = new HashMap<>();
         sessionData.put("AJP_Shib-AuthnContext-Decl", katsoAuthenticationProviderContextUrl);
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(new Identity(null, Identifier.Types.KID, "e12345"), null, null, null, null, null));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new GenericPerson(new Identity(null, Identifier.Types.KID, "e12345"), null, null));
         verify(vtjPersonServiceMock, never()).getVtjPerson(any(), any());
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -785,7 +820,7 @@ public class SessionHandlingServiceTest {
 
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.EIDAS_ID, identifier);
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new EidasPerson("FAMILY_NAME", "GIVEN_NAME", "1999-01-01", identity, identifiers));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new EidasPerson("FAMILY_NAME", "GIVEN_NAME", "1999-01-01", identity, identifiers));
 
         ProxyMessageDTO buildResponse = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertEquals(ErrorType.INTERNAL_ERROR, buildResponse.getErrorType());
@@ -814,14 +849,14 @@ public class SessionHandlingServiceTest {
 
         Map<String, String> sessionData = new HashMap<>();
         sessionData.put("AJP_Shib-AuthnContext-Decl", tupasAuthenticationProviderContextUrl);
-        Person testVtjPerson = getMinimalValidPerson("111190-123B");
+        Person testVtjPerson = getMinimalValidPerson("1234567A", "111190-123B");
         //mocking x-road attribute
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.SATU, "1234567A");
         Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
 
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new GenericPerson(identity, null, identifiers));
         when(vtjPersonServiceMock.getVtjPerson(any(), any())).thenReturn(vtjPerson);
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -887,10 +922,10 @@ public class SessionHandlingServiceTest {
         sessionData.put("AJP_Shib-AuthnContext-Decl", hstAuthenticationProviderContextUrl);
         Map<Identifier.Types,String> identifiers = new HashMap<>();
         identifiers.put(Identifier.Types.SATU, "1234567A");
-        Person testVtjPerson = getMinimalValidPerson("111190-123B");
+        Person testVtjPerson = getMinimalValidPerson("1234567A","111190-123B");
         Identity identity = new Identity("Testi CA", Identifier.Types.SATU, "1234567A");
         VtjPerson vtjPerson = new VtjPerson(identity, testVtjPerson);
-        when(identifiedPersonBuilder.build(anyMap(), any())).thenReturn(new GenericPerson(identity, null, null, null, null, identifiers));
+        when(identifiedPersonBuilder.build(anyMapOf(String.class, String.class), any())).thenReturn(new GenericPerson(identity, null, identifiers));
         when(vtjPersonServiceMock.getVtjPerson(any(), any())).thenReturn(vtjPerson);
         ProxyMessageDTO result = sessionHandlingService.buildNewSession(tokenId, nextPhaseId, sessionData, "logtag");
         Assert.assertNotNull(result);
@@ -1087,6 +1122,12 @@ public class SessionHandlingServiceTest {
         AuthMethod authMethod = sessionHandlingService.resolveAuthMethodFromOid("urn:oid:1.2.246.517.3002.110.6");
         Assert.assertEquals(AuthMethod.KATSOPWD, authMethod);
     }
+    
+    @Test
+    public void resolveAuthMethodFromOidForeign() throws Exception {
+        AuthMethod authMethod = sessionHandlingService.resolveAuthMethodFromOid("urn:oid:1.2.246.517.3002.110.7");
+        Assert.assertEquals(AuthMethod.FFI, authMethod);
+    }
 
     @Test
     public void resolveAuthMethodFromOidReturnsNullWhenNotFound() throws Exception {
@@ -1116,8 +1157,10 @@ public class SessionHandlingServiceTest {
         Assert.assertNull(sessionHandlingService.getSessionAttributes("ANY_UID", AuthMethod.fLoA3.getOidValue(), "DOES_NOT_EXIST", false, "authnRequestId"));
     }
 
-    private Person getMinimalValidPerson(String hetu) {
+    private Person getMinimalValidPerson(String satu, String hetu) {
         Person person = new Person();
+        person.setSatu(satu);
+        person.setSatuValid(true);
         person.setHetu(hetu);
         person.setHetuValid(true);
         person.setProtectionOrder(false);

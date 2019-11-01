@@ -39,6 +39,7 @@ public class IdentityParser {
             .put(Identifier.Types.HETU, "AJP_hetu")
             .put(Identifier.Types.SATU, "AJP_satu")
             .put(Identifier.Types.KID, "AJP_tfiKid")
+            .put(Identifier.Types.FPID, "AJP_foreignPersonIdentifier")
             .put(Identifier.Types.EIDAS_ID, "AJP_eidasPersonIdentifier")
             .build();
 
@@ -60,6 +61,7 @@ public class IdentityParser {
         switch (identifierType) {
             case HETU:
             case KID:
+            case FPID:
             case EIDAS_ID:
                 return new Identity(null, identifierType, identifier);
             case SATU:

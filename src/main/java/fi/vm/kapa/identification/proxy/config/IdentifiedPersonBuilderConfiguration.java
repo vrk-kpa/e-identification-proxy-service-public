@@ -36,11 +36,15 @@ public class IdentifiedPersonBuilderConfiguration {
     @Autowired
     EidasPersonParser eidasPersonParser;
 
+    @Autowired
+    ForeignPersonParser foreignPersonParser;
+
     @Bean(name = "personBuilder")
     IdentifiedPersonBuilder provide() {
         return new IdentifiedPersonBuilder(
                 new KatsoPersonFactory(identifiedPersonParser),
                 new GenericPersonFactory(identifiedPersonParser),
-                new EidasPersonFactory(eidasPersonParser));
+                new EidasPersonFactory(eidasPersonParser),
+                new ForeignPersonFactory(foreignPersonParser));
     }
 }
