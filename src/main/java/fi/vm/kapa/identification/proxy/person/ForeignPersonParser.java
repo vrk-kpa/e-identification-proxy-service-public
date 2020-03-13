@@ -51,6 +51,10 @@ public class ForeignPersonParser {
         return spData.get("AJP_sn");
     }
 
+    String getIdentityAssuranceLevel(Map<String,String> spData) {
+        return spData.get("AJP_identityAssuranceLevel");
+    }
+
     Identity getIdentity(Map<String,String> spData) throws IdentityParsingException {
         return identityParser.parse(spData);
     }

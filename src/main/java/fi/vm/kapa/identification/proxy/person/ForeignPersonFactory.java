@@ -38,6 +38,7 @@ public class ForeignPersonFactory {
                 foreignPersonParser.getFamilyName(spData),
                 foreignPersonParser.getFirstNames(spData),
                 foreignPersonParser.getDateOfBirth(spData),
+                foreignPersonParser.getIdentityAssuranceLevel(spData),
                 foreignPersonParser.getIdentity(spData),
                 foreignPersonParser.getIdentifiers(spData));
     }

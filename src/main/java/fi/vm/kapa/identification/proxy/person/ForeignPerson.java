@@ -35,13 +35,15 @@ public class ForeignPerson implements IdentifiedPerson {
     private final String familyName;
     private final String firstNames;
     private final String dateOfBirth;
+    private final String identityAssuranceLevel;
     private final Identity identity;
     private final Map<Identifier.Types,String> identifiers;
 
-    public ForeignPerson(String familyName, String firstNames, String dateOfBirth, Identity identity, Map<Identifier.Types,String> identifiers) {
+    public ForeignPerson(String familyName, String firstNames, String dateOfBirth, String ial, Identity identity, Map<Identifier.Types,String> identifiers) {
         this.familyName = familyName;
         this.firstNames = firstNames;
         this.dateOfBirth = dateOfBirth;
+        this.identityAssuranceLevel = ial;
         this.identity = identity;
         this.identifiers = identifiers;
     }
@@ -56,6 +58,10 @@ public class ForeignPerson implements IdentifiedPerson {
 
     public String getDateOfBirth() {
         return dateOfBirth;
+    }
+
+    public String getIdentityAssuranceLevel() {
+        return identityAssuranceLevel;
     }
 
     public Identity getIdentity() {
@@ -81,6 +87,7 @@ public class ForeignPerson implements IdentifiedPerson {
         putIfNonEmpty(attributes, "samlFirstName", getGivenName());
         putIfNonEmpty(attributes, "samlSn", getFamilyName());
         putIfNonEmpty(attributes, "samlDateOfBirth", getDateOfBirth());
+        putIfNonEmpty(attributes, "samlIdentityAssuranceLevel", getIdentityAssuranceLevel());
         return attributes;
     }
 

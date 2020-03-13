@@ -53,7 +53,7 @@ public class IdentifiedPersonBuilder {
         try {
             if (authenticationMethod == AuthMethod.KATSOPWD || authenticationMethod == AuthMethod.KATSOOTP) {
                 return katsoPersonFactory.createFromSpData(spData);
-            } else if (  authenticationMethod == AuthMethod.eLoA3 ) {
+            } else if (  authenticationMethod == AuthMethod.eLoA3 || authenticationMethod == AuthMethod.eLoA2 ) {
                 return eidasPersonFactory.createFromSpData(spData);
             } else if ( authenticationMethod == AuthMethod.FFI ){
                 return foreignPersonFactory.createFromSpData(spData);
